@@ -166,7 +166,7 @@ export class ApiServerService {
 			return instances.map(instance => instance.host);
 		});
 
-		fastify.get('v1/custom_emojis', async (request, reply) => {
+		fastify.get('/v1/custom_emojis', async (request, reply) => {
 			const BASE_URL = request.url;
 			console.log(BASE_URL);
 			const accessTokens = request.headers.authorization;
