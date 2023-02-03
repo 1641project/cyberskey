@@ -166,6 +166,23 @@ export class ApiServerService {
 			return instances.map(instance => instance.host);
 		});
 
+		fastify.get('v1/custom_emojis', async (request, reply) => {
+			const BASE_URL = request.url;
+			console.log(BASE_URL);
+			const accessTokens = request.headers.authorization;
+			const accessTokenArr = accessTokens?.split(' ') ?? [null];
+			const accessToken = accessTokenArr[accessTokenArr.length - 1];
+			const client = generator('misskey', BASE_URL, accessToken);
+			try {
+				const data = await client.getInstanceCustomEmojis();
+				return data;
+			} catch (e) {
+				reply.code(401);
+				reply.send();
+				return;
+			}
+		});
+
 		fastify.post<{ Params: { session: string; } }>('/miauth/:session/check', async (request, reply) => {
 			const token = await this.accessTokensRepository.findOneBy({
 				session: request.params.session,

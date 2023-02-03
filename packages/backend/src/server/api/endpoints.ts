@@ -664,7 +664,7 @@ const eps = [
 	['users/achievements', ep___users_achievements],
 	['fetch-rss', ep___fetchRss],
 	['retention', ep___retention],
-	['v1/custom_emojis', { isMastodonCompatible: true }],
+	//['v1/custom_emojis', { isMastodonCompatible: true }],
 ];
 
 export interface IEndpointMeta {
