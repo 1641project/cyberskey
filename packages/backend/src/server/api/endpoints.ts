@@ -96,6 +96,7 @@ import * as ep___charts_activeUsers from './endpoints/charts/active-users.js';
 import * as ep___charts_apRequest from './endpoints/charts/ap-request.js';
 import * as ep___charts_drive from './endpoints/charts/drive.js';
 import * as ep___charts_federation from './endpoints/charts/federation.js';
+import * as ep___charts_hashtag from './endpoints/charts/hashtag.js';
 import * as ep___charts_instance from './endpoints/charts/instance.js';
 import * as ep___charts_notes from './endpoints/charts/notes.js';
 import * as ep___charts_user_drive from './endpoints/charts/user/drive.js';
@@ -429,6 +430,7 @@ const eps = [
 	['charts/ap-request', ep___charts_apRequest],
 	['charts/drive', ep___charts_drive],
 	['charts/federation', ep___charts_federation],
+	['charts/hashtag', ep___charts_hashtag],
 	['charts/instance', ep___charts_instance],
 	['charts/notes', ep___charts_notes],
 	['charts/user/drive', ep___charts_user_drive],
@@ -664,6 +666,7 @@ const eps = [
 	['users/achievements', ep___users_achievements],
 	['fetch-rss', ep___fetchRss],
 	['retention', ep___retention],
+	['v1/custom_emojis', { isMastodonCompatible: true }],
 ];
 
 export interface IEndpointMeta {
@@ -763,9 +766,18 @@ export interface IEndpoint {
 	name: string;
 	meta: IEndpointMeta;
 	params: Schema;
+	isMastodonCompatible?: boolean
 }
 
 const endpoints: IEndpoint[] = (eps as [string, any]).map(([name, ep]) => {
+	if (ep.isMastodonCompatible) {
+		return {
+			name: name,
+			meta: {},
+			params: {},
+			isMastodonCompatible: true,
+		};
+	}
 	return {
 		name: name,
 		meta: ep.meta ?? {},
