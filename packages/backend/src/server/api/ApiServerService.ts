@@ -62,7 +62,9 @@ export class ApiServerService {
 		});
 
 		for (const endpoint of endpoints) {
+			console.log(endpoint)
 			if (endpoint.isMastodonCompatible) {
+				console.log(endpoint.name)
 				fastify.all<{
 					Params: { endpoint: string; },
 					Body: Record<string, unknown>,
