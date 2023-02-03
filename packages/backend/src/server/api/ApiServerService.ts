@@ -62,15 +62,15 @@ export class ApiServerService {
 		});
 
 		for (const endpoint of endpoints) {
-			console.log(endpoint)
 			if (endpoint.isMastodonCompatible) {
-				console.log(endpoint.name)
 				fastify.all<{
 					Params: { endpoint: string; },
 					Body: Record<string, unknown>,
 					Querystring: Record<string, unknown>,
 				}>('/' + endpoint.name, { bodyLimit: 1024 * 32 }, async (request, reply) => {
+					console.log(endpoint.name);
 					const BASE_URL = request.url;
+					console.log(BASE_URL);
 					const accessTokens = request.headers.authorization;
 					const accessTokenArr = accessTokens?.split(' ') ?? [null];
 					const accessToken = accessTokenArr[accessTokenArr.length - 1];
@@ -81,6 +81,7 @@ export class ApiServerService {
 					} catch (e) {
 						reply.code(401);
 						reply.send();
+						return;
 					}
 				});
 				return;
