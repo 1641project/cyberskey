@@ -67,7 +67,7 @@ export class ApiServerService {
 					Params: { endpoint: string; },
 					Body: Record<string, unknown>,
 					Querystring: Record<string, unknown>,
-				}>('/' + endpoint.name, { bodyLimit: 1024 * 32 }, async (request, reply) => {
+				}>('/' + endpoint.name, { bodyLimit: 1024 * 32 }, (request, reply) => {
 					console.log(endpoint.name);
 					const BASE_URL = request.url;
 					console.log(BASE_URL);
@@ -75,6 +75,7 @@ export class ApiServerService {
 					const accessTokenArr = accessTokens?.split(' ') ?? [null];
 					const accessToken = accessTokenArr[accessTokenArr.length - 1];
 					const client = generator('misskey', BASE_URL, accessToken);
+					/*
 					try {
 						const data = await client.getInstanceCustomEmojis();
 						return data;
@@ -83,6 +84,7 @@ export class ApiServerService {
 						reply.send();
 						return;
 					}
+					*/
 				});
 				return;
 			}
