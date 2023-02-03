@@ -9,6 +9,7 @@ import type { EmojisRepository, UserProfilesRepository, UsersRepository } from '
 import { DI } from '@/di-symbols.js';
 import type Logger from '@/logger.js';
 import { envOption } from '@/env.js';
+import megalodon, { MegalodonInterface } from 'megalodon';
 import * as Acct from '@/misc/acct.js';
 import { genIdenticon } from '@/misc/gen-identicon.js';
 import { createTemp } from '@/misc/create-temp.js';
@@ -144,6 +145,27 @@ export class ServerService {
 			reply.header('Content-Type', 'image/png');
 			reply.header('Cache-Control', 'public, max-age=86400');
 			return fs.createReadStream(temp).on('close', () => cleanup());
+		});
+
+		fastify.get<{ Querystring: { client_id: string } }>('/oauth/authorize', async (request, reply) => {
+			const client_id = request.query.client_id;
+			console.log(request.params)
+			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString())
+		});
+
+		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
+			const body: any = request.body
+			const BASE_URL = request.protocol + '://' + request.hostname;
+			const generator = (megalodon as any).default;
+			const client = generator('misskey', BASE_URL, null) as MegalodonInterface;
+			try {
+				return await client.fetchAccessToken(null, body.client_secret, body.code);
+			} catch(e: any) {
+				console.error(e)
+				reply.code(401);
+				return e.response.data;
+			}
+			
 		});
 
 		fastify.get<{ Params: { code: string } }>('/verify-email/:code', async (request, reply) => {

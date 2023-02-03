@@ -3,7 +3,6 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fastifyCookie from '@fastify/cookie';
 import { ModuleRef, repl } from '@nestjs/core';
-import generator, { Entity, Response } from 'megalodon';
 import type { Config } from '@/config.js';
 import type { UsersRepository, InstancesRepository, AccessTokensRepository } from '@/models/index.js';
 import { DI } from '@/di-symbols.js';
@@ -14,6 +13,7 @@ import { ApiCallService } from './ApiCallService.js';
 import { SignupApiService } from './SignupApiService.js';
 import { SigninApiService } from './SigninApiService.js';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
+import { apiMastodonCompatible } from './mastodon/ApiMastodonCompatibleService.js';
 
 @Injectable()
 export class ApiServerService {
@@ -60,34 +60,10 @@ export class ApiServerService {
 			reply.header('Cache-Control', 'private, max-age=0, must-revalidate');
 			done();
 		});
+		
+		apiMastodonCompatible(fastify)
 
 		for (const endpoint of endpoints) {
-			if (endpoint.isMastodonCompatible) {
-				fastify.all<{
-					Params: { endpoint: string; },
-					Body: Record<string, unknown>,
-					Querystring: Record<string, unknown>,
-				}>('/' + endpoint.name, { bodyLimit: 1024 * 32 }, (request, reply) => {
-					console.log(endpoint.name);
-					const BASE_URL = request.url;
-					console.log(BASE_URL);
-					const accessTokens = request.headers.authorization;
-					const accessTokenArr = accessTokens?.split(' ') ?? [null];
-					const accessToken = accessTokenArr[accessTokenArr.length - 1];
-					const client = generator('misskey', BASE_URL, accessToken);
-					/*
-					try {
-						const data = await client.getInstanceCustomEmojis();
-						return data;
-					} catch (e) {
-						reply.code(401);
-						reply.send();
-						return;
-					}
-					*/
-				});
-				return;
-			}
 
 			const ep = {
 				name: endpoint.name,
@@ -166,22 +142,8 @@ export class ApiServerService {
 			return instances.map(instance => instance.host);
 		});
 
-		fastify.get('/v1/custom_emojis', async (request, reply) => {
-			const BASE_URL = request.url;
-			console.log(BASE_URL);
-			const accessTokens = request.headers.authorization;
-			const accessTokenArr = accessTokens?.split(' ') ?? [null];
-			const accessToken = accessTokenArr[accessTokenArr.length - 1];
-			const client = generator('misskey', BASE_URL, accessToken);
-			try {
-				const data = await client.getInstanceCustomEmojis();
-				return data;
-			} catch (e) {
-				reply.code(401);
-				reply.send();
-				return;
-			}
-		});
+
+		
 
 		fastify.post<{ Params: { session: string; } }>('/miauth/:session/check', async (request, reply) => {
 			const token = await this.accessTokensRepository.findOneBy({

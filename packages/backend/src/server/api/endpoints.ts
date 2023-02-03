@@ -664,7 +664,6 @@ const eps = [
 	['users/achievements', ep___users_achievements],
 	['fetch-rss', ep___fetchRss],
 	['retention', ep___retention],
-	//['v1/custom_emojis', { isMastodonCompatible: true }],
 ];
 
 export interface IEndpointMeta {
@@ -764,18 +763,9 @@ export interface IEndpoint {
 	name: string;
 	meta: IEndpointMeta;
 	params: Schema;
-	isMastodonCompatible?: boolean
 }
 
 const endpoints: IEndpoint[] = (eps as [string, any]).map(([name, ep]) => {
-	if (ep.isMastodonCompatible) {
-		return {
-			name: name,
-			meta: {},
-			params: {},
-			isMastodonCompatible: true,
-		};
-	}
 	return {
 		name: name,
 		meta: ep.meta ?? {},
