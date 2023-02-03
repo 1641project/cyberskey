@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import fastifyCookie from '@fastify/cookie';
 import { ModuleRef, repl } from '@nestjs/core';
+import generator, { Entity, Response } from 'megalodon';
 import type { Config } from '@/config.js';
 import type { UsersRepository, InstancesRepository, AccessTokensRepository } from '@/models/index.js';
 import { DI } from '@/di-symbols.js';
@@ -12,6 +13,9 @@ import endpoints, { IEndpoint } from './endpoints.js';
 import { ApiCallService } from './ApiCallService.js';
 import { SignupApiService } from './SignupApiService.js';
 import { SigninApiService } from './SigninApiService.js';
+import { GithubServerService } from './integration/GithubServerService.js';
+import { DiscordServerService } from './integration/DiscordServerService.js';
+import { TwitterServerService } from './integration/TwitterServerService.js';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
 @Injectable()
@@ -35,6 +39,9 @@ export class ApiServerService {
 		private apiCallService: ApiCallService,
 		private signupApiService: SignupApiService,
 		private signinApiService: SigninApiService,
+		private githubServerService: GithubServerService,
+		private discordServerService: DiscordServerService,
+		private twitterServerService: TwitterServerService,
 	) {
 		//this.createServer = this.createServer.bind(this);
 	}
@@ -61,6 +68,28 @@ export class ApiServerService {
 		});
 
 		for (const endpoint of endpoints) {
+			if (endpoint.isMastodonCompatible) {
+				fastify.all<{
+					Params: { endpoint: string; },
+					Body: Record<string, unknown>,
+					Querystring: Record<string, unknown>,
+				}>('/' + endpoint.name, { bodyLimit: 1024 * 32 }, async (request, reply) => {
+					const BASE_URL = request.url;
+					const accessTokens = request.headers.authorization;
+					const accessTokenArr = accessTokens?.split(' ') ?? [null];
+					const accessToken = accessTokenArr[accessTokenArr.length - 1];
+					const client = generator('misskey', BASE_URL, accessToken);
+					try {
+						const data = await client.getInstanceCustomEmojis();
+						return data;
+					} catch (e) {
+						reply.code(401);
+						reply.send();
+					}
+				});
+				return;
+			}
+
 			const ep = {
 				name: endpoint.name,
 				meta: endpoint.meta,
@@ -79,7 +108,7 @@ export class ApiServerService {
 						reply.send();
 						return;
 					}
-		
+
 					this.apiCallService.handleMultipartRequest(ep, request, reply);
 				});
 			} else {
@@ -93,7 +122,7 @@ export class ApiServerService {
 						reply.send();
 						return;
 					}
-		
+
 					this.apiCallService.handleRequest(ep, request, reply);
 				});
 			}
@@ -126,6 +155,10 @@ export class ApiServerService {
 		}>('/signin', (request, reply) => this.signinApiService.signin(request, reply));
 
 		fastify.post<{ Body: { code: string; } }>('/signup-pending', (request, reply) => this.signupApiService.signupPending(request, reply));
+
+		fastify.register(this.discordServerService.create);
+		fastify.register(this.githubServerService.create);
+		fastify.register(this.twitterServerService.create);
 
 		fastify.get('/v1/instance/peers', async (request, reply) => {
 			const instances = await this.instancesRepository.find({
