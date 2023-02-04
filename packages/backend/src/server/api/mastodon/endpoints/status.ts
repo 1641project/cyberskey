@@ -69,7 +69,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             const data = await client.getStatusContext(request.params.id, request.query as any);
             const status = await client.getStatus(request.params.id);
             const re = status.data.emoji_reactions
-            data.data.descendants.unshift(statusModel(status.data.id, status.data.account.id, status.data.emojis, `${re.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`).join(',')}`))
+            data.data.descendants.unshift(statusModel(status.data.id, status.data.account.id, status.data.emojis, `${re.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`).join('<br />')}`))
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -91,17 +91,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
     fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/favourited_by', async (request, reply) => {
-        const BASE_URL = request.protocol + '://' + request.hostname;
-        const accessTokens = request.headers.authorization;
-        const client = getClient(BASE_URL, accessTokens);
-        try {
-            const data = await client.getStatusFavouritedBy(request.params.id);
-            return data.data;
-        } catch (e: any) {
-            console.error(e)
-            reply.code(401);
-            return e.response.data;
-        }
+        return []
     });
     fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/favourite', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
@@ -287,10 +277,10 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
 
 }
 
-function statusModel(id: string, acctId: string, emojis: MastodonEntity.Emoji[], content: string) {
-    const now = new Date().toString()
+export function statusModel(id: string | null, acctId: string | null, emojis: MastodonEntity.Emoji[], content: string) {
+    const now = `1970-01-02T00:00:00.000Z`
     return {
-        id: '1',
+        id: '9atm5frjhb',
         created_at: now,
         in_reply_to_id: id,
         in_reply_to_account_id: acctId,
@@ -298,8 +288,8 @@ function statusModel(id: string, acctId: string, emojis: MastodonEntity.Emoji[],
         spoiler_text: '',
         visibility: 'public' as const,
         language: 'en',
-        uri: '',
-        url: '',
+        uri: 'https://http.cat/404',
+        url: 'https://http.cat/404',
         replies_count: 0,
         reblogs_count: 0,
         favourites_count: 0,
@@ -315,7 +305,7 @@ function statusModel(id: string, acctId: string, emojis: MastodonEntity.Emoji[],
             website: null,
         },
         account: {
-            id: '1',
+            id: '9arzuvv0sw',
             username: 'ReactionBot',
             acct: 'ReactionBot',
             display_name: 'ReactionOfThisPost',
@@ -323,15 +313,15 @@ function statusModel(id: string, acctId: string, emojis: MastodonEntity.Emoji[],
             bot: false,
             created_at: now,
             note: '',
-            url: '',
-            avatar: '',
-            avatar_static: '',
-            header: '',
-            header_static: '',
+            url: 'https://http.cat/404',
+            avatar: 'https://http.cat/404',
+            avatar_static: 'https://http.cat/404',
+            header: 'https://http.cat/404',
+            header_static: 'https://http.cat/404',
             followers_count: 0,
             following_count: 0,
             statuses_count: 0,
-            last_status_at: now,
+            last_status_at: '1970-01-01',
             emojis: [],
             fields: [],
             moved: null

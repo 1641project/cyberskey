@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { Entity, MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleService.js'
+import { statusModel } from './status.js';
 
 function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
