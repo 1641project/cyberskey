@@ -8,8 +8,8 @@ import type { Config } from '@/config.js';
 import type { EmojisRepository, UserProfilesRepository, UsersRepository } from '@/models/index.js';
 import { DI } from '@/di-symbols.js';
 import type Logger from '@/logger.js';
-import { envOption } from '@/env.js';
-import megalodon, { MegalodonInterface } from 'megalodon';
+import formBody from '@fastify/formbody'
+import megalodon, { MegalodonInterface } from '@cutls/megalodon';
 import * as Acct from '@/misc/acct.js';
 import { genIdenticon } from '@/misc/gen-identicon.js';
 import { createTemp } from '@/misc/create-temp.js';
@@ -23,6 +23,7 @@ import { StreamingApiServerService } from './api/StreamingApiServerService.js';
 import { WellKnownServerService } from './WellKnownServerService.js';
 import { FileServerService } from './FileServerService.js';
 import { ClientServerService } from './web/ClientServerService.js';
+
 
 @Injectable()
 export class ServerService {
@@ -59,6 +60,7 @@ export class ServerService {
 	public launch() {
 		const fastify = Fastify({
 			trustProxy: true,
+			ignoreTrailingSlash: true,
 			logger: !['production', 'test'].includes(process.env.NODE_ENV ?? ''),
 		});
 
@@ -71,6 +73,7 @@ export class ServerService {
 			});
 		}
 
+		fastify.register(formBody);
 		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
 		fastify.register(this.fileServerService.createServer);
 		fastify.register(this.activityPubServerService.createServer);
@@ -147,10 +150,9 @@ export class ServerService {
 			return fs.createReadStream(temp).on('close', () => cleanup());
 		});
 
-		fastify.get<{ Querystring: { client_id: string } }>('/oauth/authorize', async (request, reply) => {
-			const client_id = request.query.client_id;
-			console.log(request.params)
-			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString())
+		fastify.get<{ Querystring: { client_id: string, state: string, redirect_uri: string } }>('/oauth/authorize', async (request, reply) => {
+			const { client_id, state, redirect_uri } = request.query
+			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString() + `?state=${state || ''}&mastodon=true`)
 		});
 
 		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
@@ -158,14 +160,22 @@ export class ServerService {
 			const BASE_URL = request.protocol + '://' + request.hostname;
 			const generator = (megalodon as any).default;
 			const client = generator('misskey', BASE_URL, null) as MegalodonInterface;
+			const m = body.code.match(/^[a-zA-Z0-9-]+/);
+			if (!m.length) return { error: 'Invalid code' }
 			try {
-				return await client.fetchAccessToken(null, body.client_secret, body.code);
-			} catch(e: any) {
+				const atData = await client.fetchAccessToken(null, body.client_secret, m[0]);
+				return {
+					access_token: atData.accessToken,
+					token_type: 'Bearer',
+					scope: 'read write follow',
+					created_at: new Date().getTime() / 1000
+				};
+			} catch (e: any) {
 				console.error(e)
 				reply.code(401);
 				return e.response.data;
 			}
-			
+
 		});
 
 		fastify.get<{ Params: { code: string } }>('/verify-email/:code', async (request, reply) => {

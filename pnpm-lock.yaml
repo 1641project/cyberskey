@@ -51,11 +51,12 @@ importers:
       '@bull-board/api': 4.11.0
       '@bull-board/fastify': 4.11.0
       '@bull-board/ui': 4.11.0
-      '@cutls/megalodon': ^5.1.1
+      '@cutls/megalodon': 5.1.6
       '@discordapp/twemoji': 14.0.2
       '@fastify/accepts': 4.1.0
       '@fastify/cookie': 8.3.0
       '@fastify/cors': 8.2.0
+      '@fastify/formbody': ^7.4.0
       '@fastify/http-proxy': 8.4.0
       '@fastify/multipart': 7.4.0
       '@fastify/static': 6.8.0
@@ -212,11 +213,12 @@ importers:
       '@bull-board/api': 4.11.0
       '@bull-board/fastify': 4.11.0
       '@bull-board/ui': 4.11.0
-      '@cutls/megalodon': 5.1.1
+      '@cutls/megalodon': 5.1.6
       '@discordapp/twemoji': 14.0.2
       '@fastify/accepts': 4.1.0
       '@fastify/cookie': 8.3.0
       '@fastify/cors': 8.2.0
+      '@fastify/formbody': 7.4.0
       '@fastify/http-proxy': 8.4.0
       '@fastify/multipart': 7.4.0
       '@fastify/static': 6.8.0
@@ -1034,8 +1036,8 @@ packages:
     resolution: {integrity: sha512-RJu5IWzH6vcygwLsx9KEqzwjnEqApPkSFViMzxCRbe0IuAXt2ZlSUmYKgLFZY+YJIdaZ+/P7PwiUcZ7GYH3Msw==}
     dev: false
 
-  /@cutls/megalodon/5.1.1:
-    resolution: {integrity: sha512-lPfKfSOw9pP5a72PbJKoICdtYUvaEt4i8S87lxQ3tAnXatchd/eSZQXFUzpZmfKVowE7jQdbdiQ5b2oMh9+xZw==}
+  /@cutls/megalodon/5.1.6:
+    resolution: {integrity: sha512-GI9WVrFKrUILgNOqHmh1JnLPx4SrEIfgZqrSn3nGLjD09dhvzkvpqUCUQ1XFIa547iBmJYqdroEYMMTyyaMHPw==}
     engines: {node: '>=15.0.0'}
     dependencies:
       '@types/oauth': 0.9.1
@@ -1379,6 +1381,13 @@ packages:
     resolution: {integrity: sha512-ypZynRvXA3dibfPykQN3RB5wBdEUgSGgny8Qc6k163wYPLD4mEGEDkACp+00YmqkGvIm8D/xYoHajwyEdWD/eg==}
     dependencies:
       fast-json-stringify: 5.5.0
+    dev: false
+
+  /@fastify/formbody/7.4.0:
+    resolution: {integrity: sha512-H3C6h1GN56/SMrZS8N2vCT2cZr7mIHzBHzOBa5OPpjfB/D6FzP9mMpE02ZzrFX0ANeh0BAJdoXKOF2e7IbV+Og==}
+    dependencies:
+      fast-querystring: 1.1.0
+      fastify-plugin: 4.5.0
     dev: false
 
   /@fastify/http-proxy/8.4.0:
@@ -12007,7 +12016,7 @@ packages:
     dev: false
 
   /source-map/0.5.7:
-    resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==, registry: https://registry.yarnpkg.com/}
+    resolution: {integrity: sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==, registry: https://registry.yarnpkg.com/, tarball: https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz}
     engines: {node: '>=0.10.0'}
     dev: false
 
