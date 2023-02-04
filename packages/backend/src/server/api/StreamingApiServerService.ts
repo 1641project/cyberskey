@@ -63,7 +63,7 @@ export class StreamingApiServerService {
 			// TODO: トークンが間違ってるなどしてauthenticateに失敗したら
 			// コネクション切断するなりエラーメッセージ返すなりする
 			// (現状はエラーがキャッチされておらずサーバーのログに流れて邪魔なので)
-			const [user, miapp] = await this.authenticateService.authenticate(q.i as string);
+			const [user, miapp] = await this.authenticateService.authenticate((q.i || q.access_token) as string);
 
 			if (user?.isSuspended) {
 				request.reject(400);
@@ -80,6 +80,8 @@ export class StreamingApiServerService {
 			}
 
 			this.redisSubscriber.on('message', onRedisMessage);
+			const host = 'https://' + request.host;
+			const acessToken = q.i || q.access_token
 
 			const main = new MainStreamConnection(
 				this.followingsRepository,
@@ -91,7 +93,7 @@ export class StreamingApiServerService {
 				this.globalEventService,
 				this.noteReadService,
 				this.notificationService,
-				connection, ev, user, miapp,
+				connection, ev, user, miapp, host, acessToken
 			);
 
 			const intervalId = user ? setInterval(() => {

@@ -142,22 +142,8 @@ export const packedNoteSchema = {
 			optional: true, nullable: false,
 		},
 		emojis: {
-			type: 'array',
-			optional: false, nullable: false,
-			items: {
-				type: 'object',
-				optional: false, nullable: false,
-				properties: {
-					name: {
-						type: 'string',
-						optional: false, nullable: false,
-					},
-					url: {
-						type: 'string',
-						optional: false, nullable: true,
-					},
-				},
-			},
+			type: 'object',
+			optional: true, nullable: true,
 		},
 		reactions: {
 			type: 'object',

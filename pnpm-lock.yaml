@@ -51,7 +51,7 @@ importers:
       '@bull-board/api': 4.11.0
       '@bull-board/fastify': 4.11.0
       '@bull-board/ui': 4.11.0
-      '@cutls/megalodon': 5.1.6
+      '@cutls/megalodon': 5.1.9
       '@discordapp/twemoji': 14.0.2
       '@fastify/accepts': 4.1.0
       '@fastify/cookie': 8.3.0
@@ -213,7 +213,7 @@ importers:
       '@bull-board/api': 4.11.0
       '@bull-board/fastify': 4.11.0
       '@bull-board/ui': 4.11.0
-      '@cutls/megalodon': 5.1.6
+      '@cutls/megalodon': 5.1.9
       '@discordapp/twemoji': 14.0.2
       '@fastify/accepts': 4.1.0
       '@fastify/cookie': 8.3.0
@@ -1036,8 +1036,8 @@ packages:
     resolution: {integrity: sha512-RJu5IWzH6vcygwLsx9KEqzwjnEqApPkSFViMzxCRbe0IuAXt2ZlSUmYKgLFZY+YJIdaZ+/P7PwiUcZ7GYH3Msw==}
     dev: false
 
-  /@cutls/megalodon/5.1.6:
-    resolution: {integrity: sha512-GI9WVrFKrUILgNOqHmh1JnLPx4SrEIfgZqrSn3nGLjD09dhvzkvpqUCUQ1XFIa547iBmJYqdroEYMMTyyaMHPw==}
+  /@cutls/megalodon/5.1.9:
+    resolution: {integrity: sha512-p4dPxO8kQGFtbzv9/eKgEM5nG2nDBMEMqBO4kY71cjBqojtCbzWrw5ApZ2gw5SozlRkGP7+ZzC46YLov4pDAdw==}
     engines: {node: '>=15.0.0'}
     dependencies:
       '@types/oauth': 0.9.1

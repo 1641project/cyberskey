@@ -6,9 +6,11 @@ function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
     return q
 }
-function toTextWithReaction (status: Entity.Status[]) {
+
+export function toTextWithReaction(status: Entity.Status[], host: string) {
     return status.map((t) => {
-        const reactions = t.emoji_reactions.map((r) => `${r.me ? `*​` : ''}${r.name.replace('@.', '')}​(${r.count})`);
+        const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
+        //t.emojis = getEmoji(t.content, host)
         t.content = `<p>${nl2br(escapeHTML(t.content))}<br />${reactions.join(', ')}</p>`
         return t
     })
@@ -21,7 +23,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.getPublicTimeline(toLimitToInt(request.query));
-            return toTextWithReaction(data.data);
+            return toTextWithReaction(data.data, request.hostname);
         } catch (e: any) {
             console.error(e)
             console.error(e.response.data)
@@ -35,7 +37,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.getTagTimeline(request.params.hashtag, toLimitToInt(request.query));
-            return toTextWithReaction(data.data);
+            return toTextWithReaction(data.data, request.hostname);
         } catch (e: any) {
             console.error(e)
             console.error(e.response.data)
@@ -47,9 +49,10 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
+        console.log('home timeline')
         try {
             const data = await client.getHomeTimeline(toLimitToInt(request.query));
-            return toTextWithReaction(data.data);
+            return toTextWithReaction(data.data, request.hostname);
         } catch (e: any) {
             console.error(e)
             console.error(e.response.data)
@@ -63,7 +66,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.getListTimeline(request.params.listId, toLimitToInt(request.query));
-            return toTextWithReaction(data.data);
+            return toTextWithReaction(data.data, request.hostname);
         } catch (e: any) {
             console.error(e)
             console.error(e.response.data)
@@ -199,16 +202,16 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
     });
 }
 function escapeHTML(str: string) {
-	if (!str) {
-		return ''
-	}
-	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+    if (!str) {
+        return ''
+    }
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
 }
 function nl2br(str: string) {
-	if (!str) {
-		return ''
-	}
-	str = str.replace(/\r\n/g, '<br />')
-	str = str.replace(/(\n|\r)/g, '<br />')
-	return str
+    if (!str) {
+        return ''
+    }
+    str = str.replace(/\r\n/g, '<br />')
+    str = str.replace(/(\n|\r)/g, '<br />')
+    return str
 }

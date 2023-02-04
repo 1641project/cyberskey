@@ -7,6 +7,7 @@ import { apiFilterMastodon } from './endpoints/filter.js';
 import { apiTimelineMastodon } from './endpoints/timeline.js';
 import { apiNotificationsMastodon } from './endpoints/notifications.js';
 import { apiSearchMastodon } from './endpoints/search.js';
+import { getInstance } from './endpoints/meta.js';
 
 export function getClient(BASE_URL: string, authorization: string | undefined): MegalodonInterface {
 	const accessTokenArr = authorization?.split(' ') ?? [null];
@@ -44,7 +45,7 @@ export function apiMastodonCompatible(fastify: FastifyInstance): void {
 		const client = getClient(BASE_URL, undefined);
 		try {
 			const data = await client.getInstance();
-			return data.data;
+			return getInstance(data.data);
 		} catch (e: any) {
 			console.error(e)
 			reply.code(401);

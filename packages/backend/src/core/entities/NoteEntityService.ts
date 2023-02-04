@@ -285,7 +285,8 @@ export class NoteEntityService implements OnModuleInit {
 		const reactionEmojiNames = Object.keys(note.reactions)
 			.filter(x => x.startsWith(':') && x.includes('@') && !x.includes('@.')) // リモートカスタム絵文字のみ
 			.map(x => this.reactionService.decodeReaction(x).reaction.replaceAll(':', ''));
-
+		const noteEmoji = await this.customEmojiService.populateEmojis(note.emojis.concat(reactionEmojiNames), host)
+		const reactionEmoji = await this.customEmojiService.populateEmojis(reactionEmojiNames, host)
 		const packed: Packed<'Note'> = await awaitAll({
 			id: note.id,
 			createdAt: note.createdAt.toISOString(),
@@ -301,8 +302,8 @@ export class NoteEntityService implements OnModuleInit {
 			renoteCount: note.renoteCount,
 			repliesCount: note.repliesCount,
 			reactions: this.reactionService.convertLegacyReactions(note.reactions),
-			reactionEmojis: this.customEmojiService.populateEmojis(reactionEmojiNames, host),
-			emojis: host != null ? this.customEmojiService.populateEmojis(note.emojis, host) : undefined,
+			reactionEmojis: reactionEmoji,
+			emojis: noteEmoji,
 			tags: note.tags.length > 0 ? note.tags : undefined,
 			fileIds: note.fileIds,
 			files: this.driveFileEntityService.packMany(note.fileIds),

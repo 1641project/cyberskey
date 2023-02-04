@@ -5,7 +5,10 @@ import fs from 'fs'
 import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
 import { createTemp } from '@/misc/create-temp.js';
+import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
 const pump = promisify(pipeline);
+
+
 
 export function apiStatusMastodon(fastify: FastifyInstance): void {
     fastify.post('/v1/statuses', async (request, reply) => {
@@ -14,9 +17,17 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const body: any = request.body
+            const text = body.status
+            const removed = text.replace(/@\S+/g, '').replaceAll(' ', '')
+            const isDefaultEmoji = emojiRegexAtStartToEnd.test(removed)
+            const isCustomEmoji = /^:[a-zA-Z0-9@_]+:$/.test(removed)
+            if (body.in_reply_to_id && isDefaultEmoji || isCustomEmoji) {
+                const a = await client.createEmojiReaction(body.in_reply_to_id, removed)
+                return a.data
+            }
             if (!body.media_ids) delete body.media_ids
             if (body.media_ids && !body.media_ids.length) delete body.media_ids
-            const data = await client.postStatus(body.status, body);
+            const data = await client.postStatus(text, body);
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -43,6 +54,22 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.deleteStatus(request.params.id);
+            return data.data;
+        } catch (e: any) {
+            console.error(e)
+            reply.code(401);
+            return e.response.data;
+        }
+    });
+    fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/context', async (request, reply) => {
+        const BASE_URL = request.protocol + '://' + request.hostname;
+        const accessTokens = request.headers.authorization;
+        const client = getClient(BASE_URL, accessTokens);
+        try {
+            const data = await client.getStatusContext(request.params.id, request.query as any);
+            const status = await client.getStatus(request.params.id);
+            const re = status.data.emoji_reactions
+            data.data.descendants.unshift(statusModel(status.data.id, status.data.account.id, status.data.emojis, `${re.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`).join(',')}`))
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -258,4 +285,65 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
+}
+
+function statusModel(id: string, acctId: string, emojis: MastodonEntity.Emoji[], content: string) {
+    const now = new Date().toString()
+    return {
+        id: '1',
+        created_at: now,
+        in_reply_to_id: id,
+        in_reply_to_account_id: acctId,
+        sensitive: false,
+        spoiler_text: '',
+        visibility: 'public' as const,
+        language: 'en',
+        uri: '',
+        url: '',
+        replies_count: 0,
+        reblogs_count: 0,
+        favourites_count: 0,
+        favourited: false,
+        reblogged: false,
+        muted: false,
+        bookmarked: false,
+        pinned: false,
+        content: `<p>${content}</p>`,
+        reblog: null,
+        application: {
+            name: '',
+            website: null,
+        },
+        account: {
+            id: '1',
+            username: 'ReactionBot',
+            acct: 'ReactionBot',
+            display_name: 'ReactionOfThisPost',
+            locked: false,
+            bot: false,
+            created_at: now,
+            note: '',
+            url: '',
+            avatar: '',
+            avatar_static: '',
+            header: '',
+            header_static: '',
+            followers_count: 0,
+            following_count: 0,
+            statuses_count: 0,
+            last_status_at: now,
+            emojis: [],
+            fields: [],
+            moved: null
+        },
+        media_attachments: [],
+        mentions: [],
+        emojis: emojis,
+        tags: [],
+        card: null,
+        poll: null,
+        plain_content: null,
+        emoji_reactions: [],
+        quote: false
+    }
 }
