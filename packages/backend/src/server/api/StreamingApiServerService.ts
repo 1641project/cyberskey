@@ -59,11 +59,14 @@ export class StreamingApiServerService {
 
 		ws.on('request', async (request) => {
 			const q = request.resourceURL.query as ParsedUrlQuery;
+			const headers = request.httpRequest.headers['sec-websocket-protocol'] || ''
+			const cred = q.i || q.access_token || headers
+			const accessToken = cred.toString()
 
 			// TODO: トークンが間違ってるなどしてauthenticateに失敗したら
 			// コネクション切断するなりエラーメッセージ返すなりする
 			// (現状はエラーがキャッチされておらずサーバーのログに流れて邪魔なので)
-			const [user, miapp] = await this.authenticateService.authenticate((q.i || q.access_token) as string);
+			const [user, miapp] = await this.authenticateService.authenticate(accessToken);
 
 			if (user?.isSuspended) {
 				request.reject(400);
@@ -81,7 +84,8 @@ export class StreamingApiServerService {
 
 			this.redisSubscriber.on('message', onRedisMessage);
 			const host = 'https://' + request.host;
-			const acessToken = q.i || q.access_token
+			const prepareStream = q.stream?.toString()
+			console.log('start', q)
 
 			const main = new MainStreamConnection(
 				this.followingsRepository,
@@ -93,7 +97,7 @@ export class StreamingApiServerService {
 				this.globalEventService,
 				this.noteReadService,
 				this.notificationService,
-				connection, ev, user, miapp, host, acessToken
+				connection, ev, user, miapp, host, accessToken, prepareStream
 			);
 
 			const intervalId = user ? setInterval(() => {

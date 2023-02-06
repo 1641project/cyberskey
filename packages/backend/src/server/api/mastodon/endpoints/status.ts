@@ -6,6 +6,7 @@ import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
 import { createTemp } from '@/misc/create-temp.js';
 import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
+import axios from 'axios'
 const pump = promisify(pipeline);
 
 
@@ -97,11 +98,14 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
+        const react = await getFirstReaction(BASE_URL, accessTokens);
         try {
-            const data = await client.favouriteStatus(request.params.id) as any;
-            return data.data;
+            const a = await client.createEmojiReaction(request.params.id, react) as any;
+            //const data = await client.favouriteStatus(request.params.id) as any;
+            return a.data;
         } catch (e: any) {
             console.error(e)
+            console.error(e.response.data)
             reply.code(401);
             return e.response.data;
         }
@@ -110,8 +114,9 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
+        const react = await getFirstReaction(BASE_URL, accessTokens);
         try {
-            const data = await client.unfavouriteStatus(request.params.id);
+            const data = await client.deleteEmojiReaction(request.params.id, react);
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -277,63 +282,78 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
 
 }
 
+async function getFirstReaction(BASE_URL: string, accessTokens: string | undefined) {
+    const accessTokenArr = accessTokens?.split(' ') ?? [null];
+    const accessToken = accessTokenArr[accessTokenArr.length - 1];
+    let react = '👍'
+    try {
+        const api = await axios.post(`${BASE_URL}/api/i/registry/get-unsecure`, {
+            scope: ['client', 'base'],
+            key: 'reactions',
+            i: accessToken
+        })
+        const reactRaw = api.data
+        react = Array.isArray(reactRaw) ? api.data[0] : '👍'
+        console.log(api.data)
+        return react
+    } catch (e) {
+        return react
+    }
+}
+
 export function statusModel(id: string | null, acctId: string | null, emojis: MastodonEntity.Emoji[], content: string) {
     const now = `1970-01-02T00:00:00.000Z`
     return {
         id: '9atm5frjhb',
-        created_at: now,
-        in_reply_to_id: id,
-        in_reply_to_account_id: acctId,
-        sensitive: false,
-        spoiler_text: '',
-        visibility: 'public' as const,
-        language: 'en',
-        uri: 'https://http.cat/404',
-        url: 'https://http.cat/404',
-        replies_count: 0,
-        reblogs_count: 0,
-        favourites_count: 0,
-        favourited: false,
-        reblogged: false,
-        muted: false,
-        bookmarked: false,
-        pinned: false,
-        content: `<p>${content}</p>`,
-        reblog: null,
-        application: {
-            name: '',
-            website: null,
-        },
+        uri: 'https://http.cat/404', // ""
+        url: 'https://http.cat/404', // "",
         account: {
             id: '9arzuvv0sw',
             username: 'ReactionBot',
             acct: 'ReactionBot',
             display_name: 'ReactionOfThisPost',
             locked: false,
-            bot: false,
             created_at: now,
+            followers_count: 0,
+            following_count: 0,
+            statuses_count: 0,
             note: '',
             url: 'https://http.cat/404',
             avatar: 'https://http.cat/404',
             avatar_static: 'https://http.cat/404',
-            header: 'https://http.cat/404',
-            header_static: 'https://http.cat/404',
-            followers_count: 0,
-            following_count: 0,
-            statuses_count: 0,
-            last_status_at: '1970-01-01',
+            header: 'https://http.cat/404', // ""
+            header_static: 'https://http.cat/404', // ""
             emojis: [],
             fields: [],
-            moved: null
+            moved: null,
+            bot: false,
         },
+        in_reply_to_id: id,
+        in_reply_to_account_id: acctId,
+        reblog: null,
+        content: `<p>${content}</p>`,
+        plain_content: null,
+        created_at: now,
+        emojis: emojis,
+        replies_count: 0,
+        reblogs_count: 0,
+        favourites_count: 0,
+        favourited: false,
+        reblogged: false,
+        muted: false,
+        sensitive: false,
+        spoiler_text: '',
+        visibility: 'public' as const,
         media_attachments: [],
         mentions: [],
-        emojis: emojis,
         tags: [],
         card: null,
         poll: null,
-        plain_content: null,
+        application: null,
+        language: null,
+        pinned: false,
         emoji_reactions: [],
-        quote: false
+        bookmarked: false,
+        quote: false,
     }
 }

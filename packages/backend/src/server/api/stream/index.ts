@@ -55,8 +55,10 @@ export default class Connection {
 		user: User | null | undefined,
 		token: AccessToken | null | undefined,
 		host: string,
-		accessToken: string
+		accessToken: string,
+		prepareStream: string | undefined
 	) {
+		console.log('constructor', prepareStream)
 		this.wsConnection = wsConnection;
 		this.subscriber = subscriber;
 		if (user) this.user = user;
@@ -83,6 +85,10 @@ export default class Connection {
 			this.updateUserProfile();
 
 			this.subscriber.on(`user:${this.user.id}`, this.onUserEvent);
+		}
+		console.log('prepare', prepareStream)
+		if (prepareStream) {
+			this.onWsConnectionMessage({ type: 'utf8', utf8Data: JSON.stringify({ stream: prepareStream, type: 'subscribe' })})
 		}
 	}
 
@@ -167,10 +173,15 @@ export default class Connection {
 						}
 					}
 					]
-					console.log(this.host, this.token)
 					const client = getClient(this.host, this.accessToken);
-					const tl = await client.getHomeTimeline()
-					for (const t of tl.data) forSubscribe.push(t.id)
+					try {
+						const tl = await client.getHomeTimeline()
+						for (const t of tl.data) forSubscribe.push(t.id)
+
+					} catch (e:any) {
+						console.log(e)
+						console.error(e.response.data)
+					}
 				} else if (simpleObj.stream === 'public:local') {
 					this.currentSubscribe.push(['public:local'])
 					objs = [

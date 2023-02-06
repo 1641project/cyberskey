@@ -3,7 +3,7 @@ import megalodon, { Entity, MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleService.js'
 import { statusModel } from './status.js';
 
-function toLimitToInt(q: any) {
+export function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
     return q
 }
@@ -50,7 +50,6 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
-        console.log('home timeline')
         try {
             const data = await client.getHomeTimeline(toLimitToInt(request.query));
             return toTextWithReaction(data.data, request.hostname);

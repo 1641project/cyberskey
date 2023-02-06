@@ -1,13 +1,13 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleService.js';
+import { toLimitToInt } from './timeline.js';
 
 
 export function apiAccountMastodon(fastify: FastifyInstance): void {
 
     fastify.get('/v1/accounts/verify_credentials', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
-        console.log(request.headers)
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
@@ -66,7 +66,7 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const data = await client.getAccountStatuses(request.params.id, request.query as any);
+            const data = await client.getAccountStatuses(request.params.id, toLimitToInt(request.query as any));
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -206,7 +206,9 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const data = await client.getRelationships((request.query as any).id) as any;
+            const idsRaw = (request.query as any)['id[]']
+            const ids = typeof idsRaw === 'string' ? [idsRaw] : idsRaw
+            const data = await client.getRelationships(ids) as any;
             return data.data;
         } catch (e: any) {
             console.error(e)
