@@ -94,19 +94,6 @@ export function getInstance (response: Entity.Instance) {
         emojis: [],
         fields: []
     },
-    "rules": [
-        {
-            "id": "2",
-            "text": "糖分を摂りすぎない"
-        },
-        {
-            "id": "3",
-            "text": "塩分も控えめにする"
-        },
-        {
-            "id": "4",
-            "text": "運動習慣"
-        }
-    ]
+    "rules": []
 }
 }
