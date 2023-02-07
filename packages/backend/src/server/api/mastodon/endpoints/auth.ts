@@ -48,17 +48,20 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 		const body: any = request.body
 		try {
 			let scope = body.scopes
+			console.log(body)
 			if (typeof scope === 'string') scope = scope.split(' ')
-			const pushScope: string[] = []
+			const pushScope = new Set<string>()
 			for (const s of scope) {
-				if (s.match(/^read/)) for (const r of readScope) pushScope.push(r)
-				if (s.match(/^write/)) for (const r of writeScope) pushScope.push(r)
+				if (s.match(/^read/)) for (const r of readScope) pushScope.add(r)
+				if (s.match(/^write/)) for (const r of writeScope) pushScope.add(r)
 			}
+			const scopeArr = Array.from(pushScope)
+
 			let red = body.redirect_uris
 			if (red === 'urn:ietf:wg:oauth:2.0:oob') {
 				red = 'https://thedesk.top/hello.html'
 			}
-			const appData = await client.registerApp(body.client_name, { scopes: pushScope, redirect_uris: red, website: body.website });
+			const appData = await client.registerApp(body.client_name, { scopes: scopeArr, redirect_uris: red, website: body.website });
 			return {
 				id: appData.id,
 				name: appData.name,
@@ -70,6 +73,7 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 		} catch (e: any) {
 			console.error(e)
 			reply.code(401);
+			console.error(e.response.data)
 			return e.response.data;
 		}
 	});
