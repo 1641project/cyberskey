@@ -25,7 +25,8 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const data = await client.getPublicTimeline(toLimitToInt(request.query));
+            const query: any = request.query
+            const data = query.local ? await client.getLocalTimeline(toLimitToInt(query)) : await client.getPublicTimeline(toLimitToInt(query));
             return toTextWithReaction(data.data, request.hostname);
         } catch (e: any) {
             console.error(e)
