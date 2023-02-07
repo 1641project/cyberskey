@@ -12,7 +12,7 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
     return status.map((t) => {
         const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
         //t.emojis = getEmoji(t.content, host)
-        t.content = `<p>${nl2br(escapeHTML(t.content))}<br />${reactions.join(', ')}</p>`
+        t.content = `<p>${nl2br(escapeHTML(t.content))}</p><p>${reactions.join(', ')}</p>`
         return t
     })
 }
