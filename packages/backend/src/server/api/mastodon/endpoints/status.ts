@@ -229,7 +229,24 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-
+    fastify.post('/v1/media', async (request, reply) => {
+        const BASE_URL = request.protocol + '://' + request.hostname;
+        const accessTokens = request.headers.authorization;
+        const client = getClient(BASE_URL, accessTokens);
+        try {
+            const multipartData = await request.file();
+            if (!multipartData) return { error: 'No image' };
+            const [path] = await createTemp();
+            await pump(multipartData.file, fs.createWriteStream(path));
+            const image = fs.readFileSync(path);
+            const data = await client.uploadMedia(image);
+            return data.data;
+        } catch (e: any) {
+            console.error(e)
+            reply.code(401);
+            return e.response.data;
+        }
+    });
     fastify.post('/v2/media', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
