@@ -9,8 +9,6 @@ import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
 import axios from 'axios'
 const pump = promisify(pipeline);
 
-
-
 export function apiStatusMastodon(fastify: FastifyInstance): void {
     fastify.post('/v1/statuses', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
@@ -25,6 +23,20 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             if (body.in_reply_to_id && isDefaultEmoji || isCustomEmoji) {
                 const a = await client.createEmojiReaction(body.in_reply_to_id, removed)
                 return a.data
+            }
+            if (body.in_reply_to_id && removed === '/unreact') {
+                try {
+                    const id = body.in_reply_to_id
+                    const post = await client.getStatus(id)
+                    const react = post.data.emoji_reactions.filter((e) => e.me)[0].name
+                    const data = await client.deleteEmojiReaction(id, react);
+                    return data.data;
+                } catch (e: any) {
+                    console.error(e)
+                    reply.code(401);
+                    return e.response.data;
+                }
+                return
             }
             if (!body.media_ids) delete body.media_ids
             if (body.media_ids && !body.media_ids.length) delete body.media_ids
@@ -62,15 +74,24 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
+    interface IReaction {
+        id: string
+        createdAt: string
+        user: MisskeyEntity.User,
+        type: string
+    }
     fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/context', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const data = await client.getStatusContext(request.params.id, request.query as any);
-            const status = await client.getStatus(request.params.id);
-            const re = status.data.emoji_reactions
-            data.data.descendants.unshift(statusModel(status.data.id, status.data.account.id, status.data.emojis, `${re.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`).join('<br />')}`))
+            const id = request.params.id
+            const data = await client.getStatusContext(id, request.query as any);
+            const status = await client.getStatus(id);
+            const reactionsAxios = await axios.get(`${BASE_URL}/api/notes/reactions?noteId=${id}`)
+            const reactions: IReaction[] = reactionsAxios.data
+            const text = reactions.map((r) => `${r.type.replace('@.', '')} ${r.user.username}`).join('<br />')
+            data.data.descendants.unshift(statusModel(status.data.id, status.data.account.id, status.data.emojis, text))
             return data.data;
         } catch (e: any) {
             console.error(e)
