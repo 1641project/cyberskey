@@ -378,7 +378,7 @@ export default class Connection {
 				this.wsConnection.send(JSON.stringify({
 					stream: [payload.id],
 					event: 'update',
-					payload: JSON.stringify(Converter.note(payload.body))
+					payload: JSON.stringify(toTextWithReaction([Converter.note(payload.body, this.host)], this.host)[0])
 				}));
 				this.onSubscribeNote({
 					id: payload.body.id
@@ -407,7 +407,7 @@ export default class Connection {
 				}
 			} else if (payload.type === 'unreadNotification') {
 				if (payload.id === 'user') {
-					const body = Converter.notification(payload.body)
+					const body = Converter.notification(payload.body, this.host)
 					if (body.type === 'reaction') body.type = 'favourite'
 					body.status = toTextWithReaction(body.status ? [body.status] : [], '')[0]
 					this.wsConnection.send(JSON.stringify({
