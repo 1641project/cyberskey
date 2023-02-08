@@ -6,11 +6,9 @@
 	</div>
 </div>
 <div v-else class="kkjnbbplepmiyuadieoenjgutgcmtsvu">
-	<vue-plyr>
+	<VuePlyr :options="{ volume: 0.5 }">
 		<video
 			controls
-			crossorigin
-			playsinline
 			:data-poster="video.thumbnailUrl"
 		>
 			<source
@@ -19,7 +17,7 @@
 				:type="video.type"
 			/>
 		</video>
-	</vue-plyr>
+	</VuePlyr>
 	<i class="ti ti-eye-off" @click="hide = true"></i>
 </div>
 </template>
