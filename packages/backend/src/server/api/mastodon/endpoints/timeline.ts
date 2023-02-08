@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import megalodon, { Entity, MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleService.js'
 import { statusModel } from './status.js';
+import Autolinker from 'autolinker';
 
 export function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
@@ -14,9 +15,31 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
         if (!t.emoji_reactions) return t
         const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
         //t.emojis = getEmoji(t.content, host)
-        t.content = `<p>${t.content}</p><p>${reactions.join(', ')}</p>`
+        t.content = `<p>${autoLinker(t.content, host)}</p><p>${reactions.join(', ')}</p>`
         return t
     })
+}
+export function autoLinker(input: string, host: string) {
+    return Autolinker.link(input, {
+        hashtag: 'twitter',
+        mention: 'twitter',
+        email: false,
+        stripPrefix: false,
+        replaceFn : function (match) {
+            switch(match.type) {
+                case 'url':
+                    return true
+                case 'mention':
+                    console.log("Mention: ", match.getMention());
+                    console.log("Mention Service Name: ", match.getServiceName());
+                    return `<a href="https://${host}/@${encodeURIComponent(match.getMention())}" target="_blank">@${match.getMention()}</a>`;
+                case 'hashtag':
+                    console.log("Hashtag: ", match.getHashtag());
+                    return `<a href="https://${host}/tags/${encodeURIComponent(match.getHashtag())}" target="_blank">#${match.getHashtag()}</a>`;
+            }
+            return false
+        }
+    } );
 }
 
 export function apiTimelineMastodon(fastify: FastifyInstance): void {

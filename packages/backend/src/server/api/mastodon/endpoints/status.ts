@@ -6,7 +6,7 @@ import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
 import { createTemp } from '@/misc/create-temp.js';
 import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
-import axios from 'axios'
+import axios from 'axios';
 const pump = promisify(pipeline);
 
 export function apiStatusMastodon(fastify: FastifyInstance): void {
