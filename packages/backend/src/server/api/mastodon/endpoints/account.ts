@@ -123,6 +123,8 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.followAccount(request.params.id);
+            const acct = data.data;
+            acct.following = true;
             return data.data;
         } catch (e: any) {
             console.error(e)
@@ -137,6 +139,8 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             const data = await client.unfollowAccount(request.params.id);
+            const acct = data.data;
+            acct.following = false;
             return data.data;
         } catch (e: any) {
             console.error(e)
