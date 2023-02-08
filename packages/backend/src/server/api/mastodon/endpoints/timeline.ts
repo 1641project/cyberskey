@@ -14,7 +14,7 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
         if (!t.emoji_reactions) return t
         const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
         //t.emojis = getEmoji(t.content, host)
-        t.content = `<p>${nl2br(escapeHTML(t.content))}</p><p>${reactions.join(', ')}</p>`
+        t.content = `<p>${t.content}</p><p>${reactions.join(', ')}</p>`
         return t
     })
 }
