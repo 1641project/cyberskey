@@ -13,6 +13,7 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
     return status.map((t) => {
         if (!t) return statusModel(null, null, [], 'no content')
         if (!t.emoji_reactions) return t
+        if (t.reblog) t.reblog = toTextWithReaction([t.reblog], host)[0]
         const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
         //t.emojis = getEmoji(t.content, host)
         t.content = `<p>${autoLinker(t.content, host)}</p><p>${reactions.join(', ')}</p>`

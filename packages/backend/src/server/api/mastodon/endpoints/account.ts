@@ -205,6 +205,22 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
+    const relationshopModel = {
+        id: '',
+        following: false,
+        followed_by: false,
+        delivery_following: false,
+        blocking: false,
+        blocked_by: false,
+        muting: false,
+        muting_notifications: false,
+        requested: false,
+        domain_blocking: false,
+        showing_reblogs: false,
+        endorsed: false,
+        notifying: false,
+        note: ''
+      }
     fastify.get('/v1/accounts/relationships', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
@@ -212,6 +228,8 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
         try {
             const idsRaw = (request.query as any)['id[]']
             const ids = typeof idsRaw === 'string' ? [idsRaw] : idsRaw
+            relationshopModel.id = idsRaw || '1'
+            if (!idsRaw) return [relationshopModel]
             const data = await client.getRelationships(ids) as any;
             return data.data;
         } catch (e: any) {
