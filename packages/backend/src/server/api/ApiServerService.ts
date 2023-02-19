@@ -47,6 +47,7 @@ export class ApiServerService {
 		});
 
 		fastify.register(multipart, {
+			attachFieldsToBody: 'keyValues',
 			limits: {
 				fileSize: this.config.maxFileSize ?? 262144000,
 				files: 1,
