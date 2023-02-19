@@ -152,24 +152,30 @@ export class ServerService {
 
 		fastify.get<{ Querystring: { client_id: string, state: string, redirect_uri: string } }>('/oauth/authorize', async (request, reply) => {
 			const { client_id, state, redirect_uri } = request.query
-			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString() + `?state=${state || ''}&mastodon=true`)
+			const param = state ? `state=${state}&mastodon=true` : `mastodon=true`
+			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString() + `?${param}`)
 		});
 
 		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
 			const body: any = request.body
+			console.log('token-request', body)
 			const BASE_URL = request.protocol + '://' + request.hostname;
 			const generator = (megalodon as any).default;
 			const client = generator('misskey', BASE_URL, null) as MegalodonInterface;
-			const m = body.code.match(/^[a-zA-Z0-9-]+/);
+			const m = body.code.match(/^([a-zA-Z0-9]{8})([a-zA-Z0-9]{4})([a-zA-Z0-9]{4})([a-zA-Z0-9]{4})([a-zA-Z0-9]{12})/);
 			if (!m.length) return { error: 'Invalid code' }
+			const token = `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`
+			console.log(body.code, token)
 			try {
-				const atData = await client.fetchAccessToken(null, body.client_secret, m[0]);
-				return {
+				const atData = await client.fetchAccessToken(null, body.client_secret, token);
+				const ret = {
 					access_token: atData.accessToken,
 					token_type: 'Bearer',
-					scope: 'read write follow',
-					created_at: new Date().getTime() / 1000
+					scope: body.scopes,
+					created_at: Math.floor(new Date().getTime() / 1000)
 				};
+				console.log('token-response', ret)
+				return ret
 			} catch (e: any) {
 				console.error(e)
 				reply.code(401);
