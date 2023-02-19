@@ -100,28 +100,23 @@ export class ApiCallService implements OnApplicationShutdown {
 		request: FastifyRequest<{ Body: Record<string, unknown>, Querystring: Record<string, unknown> }>,
 		reply: FastifyReply,
 	) {
-		const multipartData = await request.file();
+		const multipartData: any = request.body
+		const fields = multipartData
 		if (multipartData == null) {
 			reply.code(400);
 			return;
 		}
-
-		const [path] = await createTemp();
-		await pump(multipartData.file, fs.createWriteStream(path));
-
-		const fields = {} as Record<string, string | undefined>;
-		for (const [k, v] of Object.entries(multipartData.fields)) {
-			fields[k] = v.value;
-		}
-
+		
 		const token = fields['i'];
 		if (token != null && typeof token !== 'string') {
 			reply.code(400);
 			return;
 		}
+		const [filename, path] = multipartData.file
+		delete multipartData.file
 		this.authenticateService.authenticate(token).then(([user, app]) => {
 			this.call(endpoint, user, app, fields, {
-				name: multipartData.filename,
+				name: filename,
 				path: path,
 			}, request).then((res) => {
 				this.send(reply, res);

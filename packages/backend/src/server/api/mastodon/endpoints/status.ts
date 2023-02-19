@@ -7,6 +7,7 @@ import { promisify } from 'node:util';
 import { createTemp } from '@/misc/create-temp.js';
 import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
 import axios from 'axios';
+import multipart from '@fastify/multipart';
 const pump = promisify(pipeline);
 
 export function apiStatusMastodon(fastify: FastifyInstance): void {
@@ -236,10 +237,9 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const multipartData = await request.file();
-            if (!multipartData) return { error: 'No image' };
-            const [path] = await createTemp();
-            await pump(multipartData.file, fs.createWriteStream(path));
+            const body: any = request.body
+            if (!body) return {}
+            const [filename, path] = body.file
             const image = fs.readFileSync(path);
             const data = await client.uploadMedia(image);
             return data.data;
@@ -254,10 +254,9 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const multipartData = await request.file();
-            if (!multipartData) return { error: 'No image' };
-            const [path] = await createTemp();
-            await pump(multipartData.file, fs.createWriteStream(path));
+            const body: any = request.body
+            if (!body) return {}
+            const [filename, path] = body.file
             const image = fs.readFileSync(path);
             const data = await client.uploadMedia(image);
             return data.data;

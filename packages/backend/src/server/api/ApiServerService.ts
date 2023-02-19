@@ -14,6 +14,11 @@ import { SignupApiService } from './SignupApiService.js';
 import { SigninApiService } from './SigninApiService.js';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { apiMastodonCompatible } from './mastodon/ApiMastodonCompatibleService.js';
+import { createTemp } from '@/misc/create-temp.js';
+import { pipeline } from 'node:stream';
+import * as fs from 'node:fs';
+import { promisify } from 'node:util';
+const pump = promisify(pipeline);
 
 @Injectable()
 export class ApiServerService {
@@ -45,9 +50,14 @@ export class ApiServerService {
 		fastify.register(cors, {
 			origin: '*',
 		});
-
+		async function onFile(part: any) {
+			const [path] = await createTemp();
+			await pump(part.file, fs.createWriteStream(path))
+			part.value = [part.filename, path]
+		}
 		fastify.register(multipart, {
 			attachFieldsToBody: 'keyValues',
+			onFile,
 			limits: {
 				fileSize: this.config.maxFileSize ?? 262144000,
 				files: 1,
@@ -61,7 +71,7 @@ export class ApiServerService {
 			reply.header('Cache-Control', 'private, max-age=0, must-revalidate');
 			done();
 		});
-		
+
 		apiMastodonCompatible(fastify)
 
 		for (const endpoint of endpoints) {
@@ -144,7 +154,7 @@ export class ApiServerService {
 		});
 
 
-		
+
 
 		fastify.post<{ Params: { session: string; } }>('/miauth/:session/check', async (request, reply) => {
 			const token = await this.accessTokensRepository.findOneBy({

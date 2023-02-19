@@ -372,7 +372,6 @@ export default class Connection {
 	 */
 	@bindThis
 	public sendMessageToWs(type: string, payload: any) {
-		console.log(payload, this.isMastodonCompatible)
 		if (this.isMastodonCompatible) {
 			if (payload.type === 'note') {
 				this.wsConnection.send(JSON.stringify({
