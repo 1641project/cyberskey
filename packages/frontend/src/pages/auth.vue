@@ -77,8 +77,16 @@ export default defineComponent({
 		accepted() {
 			this.state = 'accepted';
 			const getUrlParams = () => window.location.search.substring(1).split('&').reduce((result, query) => { const [k, v] = query.split('='); result[k] = decodeURI(v); return result; }, {});
-			if (this.session.app.callbackUrl) {
-				location.href = `${this.session.app.callbackUrl}?token=${this.session.token}&code=${this.session.token}&state=${getUrlParams().state || ''}`;
+			const isMastodon = !!getUrlParams().mastodon
+			if (this.session.app.callbackUrl && isMastodon) {
+				const state = getUrlParams().state
+				const stateParam = `&state=${state}`
+				const tokenRaw = this.session.token
+				const token = tokenRaw.replaceAll('-', '')
+				location.href = `${this.session.app.callbackUrl}?code=${token}${stateParam}`;
+			} else if (this.session.app.callbackUrl) {
+				const tokenRaw = this.session.token
+				location.href = `${this.session.app.callbackUrl}?token=${tokenRaw}`;
 			}
 		}, onLogin(res) {
 			login(res.i);
