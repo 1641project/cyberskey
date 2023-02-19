@@ -1,15 +1,14 @@
 import type { FastifyInstance } from 'fastify';
-import megalodon, { MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleService.js';
 import fs from 'fs'
-import { pipeline } from 'node:stream';
-import { promisify } from 'node:util';
-import { createTemp } from '@/misc/create-temp.js';
 import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
 import axios from 'axios';
-import multipart from '@fastify/multipart';
-const pump = promisify(pipeline);
-
+import querystring from 'node:querystring'
+import qs from 'qs'
+function normalizeQuery(data: any) {
+    const str = querystring.stringify(data);
+    return qs.parse(str);
+}
 export function apiStatusMastodon(fastify: FastifyInstance): void {
     fastify.post('/v1/statuses', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
@@ -17,6 +16,9 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         try {
             let body: any = request.body
+            if ((!body.poll && body['poll[options][]']) || (!body.media_ids && body['media_ids[]'])) {
+                body = normalizeQuery(body)
+            }
             const text = body.status
             const removed = text.replace(/@\S+/g, '').replaceAll(' ', '')
             const isDefaultEmoji = emojiRegexAtStartToEnd.test(removed)
