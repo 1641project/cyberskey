@@ -15,7 +15,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
         try {
-            const body: any = request.body
+            let body: any = request.body
             const text = body.status
             const removed = text.replace(/@\S+/g, '').replaceAll(' ', '')
             const isDefaultEmoji = emojiRegexAtStartToEnd.test(removed)
@@ -40,6 +40,8 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             }
             if (!body.media_ids) delete body.media_ids
             if (body.media_ids && !body.media_ids.length) delete body.media_ids
+            const { sensitive } = body
+            body.sensitive = typeof sensitive === 'string' ? sensitive === 'true' : sensitive
             const data = await client.postStatus(text, body);
             return data.data;
         } catch (e: any) {
@@ -69,7 +71,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             const data = await client.deleteStatus(request.params.id);
             return data.data;
         } catch (e: any) {
-            console.error(e)
+            console.error(e.response.data, request.params.id)
             reply.code(401);
             return e.response.data;
         }
