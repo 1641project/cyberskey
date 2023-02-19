@@ -6,15 +6,22 @@ import Autolinker from 'autolinker';
 
 export function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
+    if (q.offset) if (typeof q.offset === 'string') q.offset = parseInt(q.offset, 10)
     return q
 }
 
 export function toTextWithReaction(status: Entity.Status[], host: string) {
     return status.map((t) => {
         if (!t) return statusModel(null, null, [], 'no content')
+        t.quote = null as any
         if (!t.emoji_reactions) return t
         if (t.reblog) t.reblog = toTextWithReaction([t.reblog], host)[0]
         const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
+        const reaction = t.emoji_reactions as Entity.Reaction[]
+        const isMe = reaction.findIndex((r) => r.me) > -1
+        const total = reaction.reduce((sum, reaction) => sum + reaction.count, 0)
+        t.favourited = isMe
+        t.favourites_count = total
         //t.emojis = getEmoji(t.content, host)
         t.content = `<p>${autoLinker(t.content, host)}</p><p>${reactions.join(', ')}</p>`
         return t
@@ -26,8 +33,8 @@ export function autoLinker(input: string, host: string) {
         mention: 'twitter',
         email: false,
         stripPrefix: false,
-        replaceFn : function (match) {
-            switch(match.type) {
+        replaceFn: function (match) {
+            switch (match.type) {
                 case 'url':
                     return true
                 case 'mention':
@@ -40,7 +47,7 @@ export function autoLinker(input: string, host: string) {
             }
             return false
         }
-    } );
+    });
 }
 
 export function apiTimelineMastodon(fastify: FastifyInstance): void {
@@ -73,7 +80,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { hashtag: string } }>('/v1/timelines/home', async (request, reply) => {
+    fastify.get('/v1/timelines/home', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
