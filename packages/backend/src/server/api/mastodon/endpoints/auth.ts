@@ -43,12 +43,10 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 
 	fastify.post('/v1/apps', async (request, reply) => {
 		const BASE_URL = request.protocol + '://' + request.hostname;
-		const accessTokens = request.headers.authorization;
-		const client = getClient(BASE_URL, accessTokens);
-		const body: any = request.body
+		const client = getClient(BASE_URL, '');
+		const body: any = request.body || request.query
 		try {
 			let scope = body.scopes
-			console.log(body)
 			if (typeof scope === 'string') scope = scope.split(' ')
 			const pushScope = new Set<string>()
 			for (const s of scope) {
@@ -62,14 +60,16 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 				red = 'https://thedesk.top/hello.html'
 			}
 			const appData = await client.registerApp(body.client_name, { scopes: scopeArr, redirect_uris: red, website: body.website });
-			return {
-				id: appData.id,
+			const returns = {
+				id: Math.floor(Math.random() * 100).toString(),
 				name: appData.name,
-				website: appData.website,
+				website: body.website,
 				redirect_uri: red,
 				client_id: Buffer.from(appData.url || '').toString('base64'),
-				client_secret: appData.clientSecret,
+				client_secret: appData.clientSecret
 			}
+			console.log(returns)
+			return returns
 		} catch (e: any) {
 			console.error(e)
 			reply.code(401);

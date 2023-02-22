@@ -9,7 +9,7 @@ export function getInstance (response: Entity.Instance) {
     "version": '3.0.0 compatible(Misskey)',
     "urls": response.urls,
     "stats": response.stats,
-    "thumbnail": response.thumbnail || '',
+    "thumbnail": response.thumbnail || 'https://http.cat/404',
     "languages": [
         "en",
         "ja"

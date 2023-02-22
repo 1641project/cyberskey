@@ -47,6 +47,21 @@ export function apiAccountMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
+
+    fastify.get('/v1/accounts/lookup', async (request, reply) => {
+        const BASE_URL = request.protocol + '://' + request.hostname;
+        const accessTokens = request.headers.authorization;
+        const client = getClient(BASE_URL, accessTokens);
+        try {
+            const data = await client.search((request.query as any).acct, 'accounts');
+            return data.data.accounts[0];
+        } catch (e: any) {
+            console.error(e)
+            console.error(e.response.data)
+            reply.code(401);
+            return e.response.data;
+        }
+    });
     fastify.get<{ Params: { id: string } }>('/v1/accounts/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;

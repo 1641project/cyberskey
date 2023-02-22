@@ -157,7 +157,7 @@ export class ServerService {
 		});
 
 		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
-			const body: any = request.body
+			const body: any = request.body || request.query
 			console.log('token-request', body)
 			const BASE_URL = request.protocol + '://' + request.hostname;
 			const generator = (megalodon as any).default;
@@ -171,7 +171,7 @@ export class ServerService {
 				const ret = {
 					access_token: atData.accessToken,
 					token_type: 'Bearer',
-					scope: body.scopes,
+					scope: body.scope || 'read write follow push',
 					created_at: Math.floor(new Date().getTime() / 1000)
 				};
 				console.log('token-response', ret)
