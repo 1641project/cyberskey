@@ -11,6 +11,8 @@ function normalizeQuery(data: any) {
 }
 export function apiStatusMastodon(fastify: FastifyInstance): void {
     fastify.post('/v1/statuses', async (request, reply) => {
+        reply.code(404);
+        return {};
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
