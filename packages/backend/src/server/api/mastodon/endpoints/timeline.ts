@@ -16,8 +16,21 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
         t.quote = null as any
         if (!t.emoji_reactions) return t
         if (t.reblog) t.reblog = toTextWithReaction([t.reblog], host)[0]
-        const reactions = t.emoji_reactions.map((r) => `${r.name.replace('@.', '')} (${r.count}${r.me ? `* ` : ''})`);
+        const reactions = t.emoji_reactions.map((r) => {
+            const emojiNotation = r.url ? `:${r.name.replace('@.', '')}:` : r.name
+            return `${emojiNotation} (${r.count}${r.me ? `* ` : ''})`
+        });
         const reaction = t.emoji_reactions as Entity.Reaction[]
+        const emoji = t.emojis || []
+        for (const r of reaction) {
+            if (!r.url) continue
+            emoji.push({
+                'shortcode': r.name,
+                'url': r.url,
+                'static_url': r.url,
+                'visible_in_picker': true,
+            },)
+        }
         const isMe = reaction.findIndex((r) => r.me) > -1
         const total = reaction.reduce((sum, reaction) => sum + reaction.count, 0)
         t.favourited = isMe
