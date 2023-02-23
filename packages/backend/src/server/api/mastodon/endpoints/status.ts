@@ -20,7 +20,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
                 body = normalizeQuery(body)
             }
             const text = body.status
-            const removed = text.replace(/@\S+/g, '').replaceAll(' ', '')
+            const removed = text.replace(/@\S+/g, '').replace(/\s|​/g, '')
             const isDefaultEmoji = emojiRegexAtStartToEnd.test(removed)
             const isCustomEmoji = /^:[a-zA-Z0-9@_]+:$/.test(removed)
             if (body.in_reply_to_id && isDefaultEmoji || isCustomEmoji) {
