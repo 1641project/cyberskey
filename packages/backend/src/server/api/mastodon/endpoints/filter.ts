@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { MegalodonInterface } from '@cutls/megalodon';
-import { getClient } from '../ApiMastodonCompatibleService.js'
+import { getClient } from '../ApiMastodonCompatibleCallService.js'
 
 export function apiFilterMastodon(fastify: FastifyInstance): void {
-    fastify.get('/v1/filters', async (request, reply) => {
+    fastify.get('/api/v1/filters', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -16,7 +16,7 @@ export function apiFilterMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/filters/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/filters/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -29,7 +29,7 @@ export function apiFilterMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post('/v1/filters', async (request, reply) => {
+    fastify.post('/api/v1/filters', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -43,7 +43,7 @@ export function apiFilterMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post<{ Params: { id: string } }>('/v1/filters/:id', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/filters/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -57,7 +57,7 @@ export function apiFilterMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.delete<{ Params: { id: string } }>('/v1/filters/:id', async (request, reply) => {
+    fastify.delete<{ Params: { id: string } }>('/api/v1/filters/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);

@@ -19,6 +19,7 @@ import { bindThis } from '@/decorators.js';
 import { ActivityPubServerService } from './ActivityPubServerService.js';
 import { NodeinfoServerService } from './NodeinfoServerService.js';
 import { ApiServerService } from './api/ApiServerService.js';
+import { ApiMastodonCompatibleService } from './api/mastodon/ApiMastodonCompatibleService.js'
 import { StreamingApiServerService } from './api/StreamingApiServerService.js';
 import { WellKnownServerService } from './WellKnownServerService.js';
 import { FileServerService } from './FileServerService.js';
@@ -43,6 +44,7 @@ export class ServerService {
 		private emojisRepository: EmojisRepository,
 
 		private userEntityService: UserEntityService,
+		private apiMastodonCompatibleService: ApiMastodonCompatibleService,
 		private apiServerService: ApiServerService,
 		private streamingApiServerService: StreamingApiServerService,
 		private activityPubServerService: ActivityPubServerService,
@@ -75,6 +77,7 @@ export class ServerService {
 
 		fastify.register(formBody);
 		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
+		fastify.register(this.apiMastodonCompatibleService.createServer);
 		fastify.register(this.fileServerService.createServer);
 		fastify.register(this.activityPubServerService.createServer);
 		fastify.register(this.nodeinfoServerService.createServer);
@@ -150,44 +153,6 @@ export class ServerService {
 			return fs.createReadStream(temp).on('close', () => cleanup());
 		});
 
-		fastify.get<{ Querystring: { client_id: string, state: string, redirect_uri: string } }>('/oauth/authorize', async (request, reply) => {
-			const { client_id, state, redirect_uri } = request.query
-			const param = state ? `state=${state}&mastodon=true` : `mastodon=true`
-			reply.redirect(302, Buffer.from(client_id || '', 'base64').toString() + `?${param}`)
-		});
-
-		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
-			const body: any = request.body || request.query
-			if (!body.code && body.grant_type === 'client_credentials') {
-				// For Subway Tooter
-				reply.code(422)
-				return {}
-			}
-			console.log('token-request', body)
-			const BASE_URL = request.protocol + '://' + request.hostname;
-			const generator = (megalodon as any).default;
-			const client = generator('misskey', BASE_URL, null) as MegalodonInterface;
-			const m = body.code.match(/^([a-zA-Z0-9]{8})([a-zA-Z0-9]{4})([a-zA-Z0-9]{4})([a-zA-Z0-9]{4})([a-zA-Z0-9]{12})/);
-			if (!m.length) return { error: 'Invalid code' }
-			const token = `${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}`
-			console.log(body.code, token)
-			try {
-				const atData = await client.fetchAccessToken(null, body.client_secret, token);
-				const ret = {
-					access_token: atData.accessToken,
-					token_type: 'Bearer',
-					scope: body.scope || 'read write follow push',
-					created_at: Math.floor(new Date().getTime() / 1000)
-				};
-				console.log('token-response', ret)
-				return ret
-			} catch (e: any) {
-				console.error(e)
-				reply.code(401);
-				return e.response.data;
-			}
-
-		});
 
 		fastify.get<{ Params: { code: string } }>('/verify-email/:code', async (request, reply) => {
 			const profile = await this.userProfilesRepository.findOneBy({

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { Entity, MegalodonInterface } from '@cutls/megalodon';
-import { getClient } from '../ApiMastodonCompatibleService.js'
+import { getClient } from '../ApiMastodonCompatibleCallService.js'
 import { statusModel } from './status.js';
 import Autolinker from 'autolinker';
 
@@ -64,7 +64,7 @@ export function autoLinker(input: string, host: string) {
 }
 
 export function apiTimelineMastodon(fastify: FastifyInstance): void {
-    fastify.get('/v1/timelines/public', async (request, reply) => {
+    fastify.get('/api/v1/timelines/public', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -79,7 +79,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { hashtag: string } }>('/v1/timelines/tag/:hashtag', async (request, reply) => {
+    fastify.get<{ Params: { hashtag: string } }>('/api/v1/timelines/tag/:hashtag', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -93,7 +93,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v1/timelines/home', async (request, reply) => {
+    fastify.get('/api/v1/timelines/home', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -107,7 +107,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { listId: string } }>('/v1/timelines/list/:listId', async (request, reply) => {
+    fastify.get<{ Params: { listId: string } }>('/api/v1/timelines/list/:listId', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -121,7 +121,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v1/conversations', async (request, reply) => {
+    fastify.get('/api/v1/conversations', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -135,7 +135,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v1/lists', async (request, reply) => {
+    fastify.get('/api/v1/lists', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -149,7 +149,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/lists/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/lists/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -163,7 +163,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post('/v1/lists', async (request, reply) => {
+    fastify.post('/api/v1/lists', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -177,7 +177,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.put<{ Params: { id: string } }>('/v1/lists/:id', async (request, reply) => {
+    fastify.put<{ Params: { id: string } }>('/api/v1/lists/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -191,7 +191,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.delete<{ Params: { id: string } }>('/v1/lists/:id', async (request, reply) => {
+    fastify.delete<{ Params: { id: string } }>('/api/v1/lists/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -205,7 +205,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/lists/:id/accounts', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/lists/:id/accounts', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -219,7 +219,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post<{ Params: { id: string } }>('/v1/lists/:id/accounts', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/lists/:id/accounts', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -233,7 +233,7 @@ export function apiTimelineMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.delete<{ Params: { id: string } }>('/v1/lists/:id/accounts', async (request, reply) => {
+    fastify.delete<{ Params: { id: string } }>('/api/v1/lists/:id/accounts', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);

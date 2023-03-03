@@ -40,7 +40,7 @@
 		"@bull-board/api": "4.12.1",
 		"@bull-board/fastify": "4.12.1",
 		"@bull-board/ui": "4.12.1",
-		"@cutls/megalodon": "5.1.22",
+		"@cutls/megalodon": "5.1.23",
 		"@discordapp/twemoji": "14.0.2",
 		"@fastify/accepts": "4.1.0",
 		"@fastify/cookie": "8.3.0",

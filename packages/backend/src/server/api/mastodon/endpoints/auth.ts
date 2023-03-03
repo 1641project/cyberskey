@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { MegalodonInterface } from '@cutls/megalodon';
-import { getClient } from '../ApiMastodonCompatibleService.js';
+import { getClient } from '../ApiMastodonCompatibleCallService.js';
 
 const readScope = [
 	'read:account',
@@ -41,15 +41,16 @@ const writeScope = [
 
 export function apiAuthMastodon(fastify: FastifyInstance): void {
 
-	fastify.get('/v1/apps/verify_credentials', async (request, reply) => {
+	fastify.get('/api/v1/apps/verify_credentials', async (request, reply) => {
 		reply.code(400)
 		return {}
 	})
 
-	fastify.post('/v1/apps', async (request, reply) => {
+	fastify.post('/api/v1/apps', async (request, reply) => {
 		const BASE_URL = request.protocol + '://' + request.hostname;
 		const client = getClient(BASE_URL, '');
 		const body: any = request.body || request.query
+		console.log('appRequest', body)
 		try {
 			let scope = body.scopes
 			if (typeof scope === 'string') scope = scope.split(' ')
@@ -71,8 +72,7 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 				client_id: Buffer.from(appData.url || '').toString('base64'),
 				client_secret: appData.clientSecret
 			}
-			console.log('appsResponse', appData)
-			console.log(returns)
+			console.log('appsResponse', returns)
 			return returns
 		} catch (e: any) {
 			console.error(e)

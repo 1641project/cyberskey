@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { MegalodonInterface } from '@cutls/megalodon';
-import { getClient } from '../ApiMastodonCompatibleService.js';
+import { getClient } from '../ApiMastodonCompatibleCallService.js';
 import { toTextWithReaction } from './timeline.js';
 function toLimitToInt(q: any) {
     if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
@@ -9,7 +9,7 @@ function toLimitToInt(q: any) {
 
 
 export function apiNotificationsMastodon(fastify: FastifyInstance): void {
-    fastify.get('/v1/notifications', async (request, reply) => {
+    fastify.get('/api/v1/notifications', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -32,7 +32,7 @@ export function apiNotificationsMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/notification/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/notification/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -51,7 +51,7 @@ export function apiNotificationsMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post('/v1/notifications/clear', async (request, reply) => {
+    fastify.post('/api/v1/notifications/clear', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -64,7 +64,7 @@ export function apiNotificationsMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post<{ Params: { id: string } }>('/v1/notification/:id/dismiss', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/notification/:id/dismiss', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);

@@ -1,12 +1,12 @@
 import type { FastifyInstance } from 'fastify';
 import megalodon, { MegalodonInterface } from '@cutls/megalodon';
-import { getClient } from '../ApiMastodonCompatibleService.js';
+import { getClient } from '../ApiMastodonCompatibleCallService.js';
 import axios from 'axios';
 import { Converter } from '@cutls/megalodon';
 import { toLimitToInt } from './timeline.js';
 
 export function apiSearchMastodon(fastify: FastifyInstance): void {
-    fastify.get('/v1/search', async (request, reply) => {
+    fastify.get('/api/v1/search', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -21,7 +21,7 @@ export function apiSearchMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v2/search', async (request, reply) => {
+    fastify.get('/api/v2/search', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -47,7 +47,7 @@ export function apiSearchMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v1/trends/statuses', async (request, reply) => {
+    fastify.get('/api/v1/trends/statuses', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         try {
@@ -59,7 +59,7 @@ export function apiSearchMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get('/v2/suggestions', async (request, reply) => {
+    fastify.get('/api/v2/suggestions', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         try {

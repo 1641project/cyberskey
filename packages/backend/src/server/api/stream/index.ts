@@ -14,7 +14,7 @@ import type { EventEmitter } from 'events';
 import type Channel from './channel.js';
 import type { StreamEventEmitter, StreamMessages } from './types.js';
 import { Converter } from '@cutls/megalodon'
-import { getClient } from '../mastodon/ApiMastodonCompatibleService.js';
+import { getClient } from '../mastodon/ApiMastodonCompatibleCallService.js';
 import { toTextWithReaction } from '../mastodon/endpoints/timeline.js';
 
 /**

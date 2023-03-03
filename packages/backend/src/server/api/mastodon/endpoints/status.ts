@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { getClient } from '../ApiMastodonCompatibleService.js';
+import { getClient } from '../ApiMastodonCompatibleCallService.js';
 import fs from 'fs'
 import { emojiRegex, emojiRegexAtStartToEnd } from '@/misc/emoji-regex.js';
 import axios from 'axios';
@@ -10,7 +10,7 @@ function normalizeQuery(data: any) {
     return qs.parse(str);
 }
 export function apiStatusMastodon(fastify: FastifyInstance): void {
-    fastify.post('/v1/statuses', async (request, reply) => {
+    fastify.post('/api/v1/statuses', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -53,7 +53,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/statuses/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/statuses/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -66,7 +66,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.delete<{ Params: { id: string } }>('/v1/statuses/:id', async (request, reply) => {
+    fastify.delete<{ Params: { id: string } }>('/api/v1/statuses/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -85,7 +85,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         user: MisskeyEntity.User,
         type: string
     }
-    fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/context', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/statuses/:id/context', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -104,7 +104,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/reblogged_by', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/statuses/:id/reblogged_by', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -117,7 +117,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/statuses/:id/favourited_by', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/statuses/:id/favourited_by', async (request, reply) => {
         return []
     });
     fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/favourite', async (request, reply) => {
@@ -136,7 +136,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/unfavourite', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/unfavourite', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -151,7 +151,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/reblog', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/reblog', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -165,7 +165,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/unreblog', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/unreblog', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -179,7 +179,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/bookmark', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/bookmark', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -193,7 +193,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/unbookmark', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/unbookmark', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -207,7 +207,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/pin', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/pin', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -221,7 +221,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         }
     });
 
-    fastify.post<{ Params: { id: string } }>('/v1/statuses/:id/unpin', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/statuses/:id/unpin', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -234,7 +234,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post('/v1/media', async (request, reply) => {
+    fastify.post('/api/v1/media', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -251,7 +251,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post('/v2/media', async (request, reply) => {
+    fastify.post('/api/v2/media', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -268,7 +268,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/media/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/media/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -281,7 +281,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.put<{ Params: { id: string } }>('/v1/media/:id', async (request, reply) => {
+    fastify.put<{ Params: { id: string } }>('/api/v1/media/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -294,7 +294,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.get<{ Params: { id: string } }>('/v1/polls/:id', async (request, reply) => {
+    fastify.get<{ Params: { id: string } }>('/api/v1/polls/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);
@@ -307,7 +307,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
             return e.response.data;
         }
     });
-    fastify.post<{ Params: { id: string } }>('/v1/polls/:id/votes', async (request, reply) => {
+    fastify.post<{ Params: { id: string } }>('/api/v1/polls/:id/votes', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;
         const accessTokens = request.headers.authorization;
         const client = getClient(BASE_URL, accessTokens);

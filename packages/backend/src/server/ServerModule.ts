@@ -17,6 +17,7 @@ import { SigninApiService } from './api/SigninApiService.js';
 import { SigninService } from './api/SigninService.js';
 import { SignupApiService } from './api/SignupApiService.js';
 import { StreamingApiServerService } from './api/StreamingApiServerService.js';
+import { ApiMastodonCompatibleService } from './api/mastodon/ApiMastodonCompatibleService.js';
 import { ClientServerService } from './web/ClientServerService.js';
 import { FeedService } from './web/FeedService.js';
 import { UrlPreviewService } from './web/UrlPreviewService.js';
@@ -52,6 +53,7 @@ import { UserListChannelService } from './api/stream/channels/user-list.js';
 		ChannelsService,
 		ApiCallService,
 		ApiLoggerService,
+		ApiMastodonCompatibleService,
 		ApiServerService,
 		AuthenticateService,
 		RateLimiterService,

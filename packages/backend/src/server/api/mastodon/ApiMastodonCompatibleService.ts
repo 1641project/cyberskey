@@ -1,58 +1,79 @@
+import { Inject, Injectable } from '@nestjs/common';
+import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
+import fastifyCookie from '@fastify/cookie';
+import { ModuleRef } from '@nestjs/core';
+import type { Config } from '@/config.js';
+import type { UsersRepository, InstancesRepository, AccessTokensRepository } from '@/models/index.js';
+import { DI } from '@/di-symbols.js';
+import { UserEntityService } from '@/core/entities/UserEntityService.js';
+import { bindThis } from '@/decorators.js';
+import endpoints from '../endpoints.js';
+import { ApiCallService } from '../ApiCallService.js';
+import { SignupApiService } from '../SignupApiService.js';
+import { SigninApiService } from '../SigninApiService.js';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
-import megalodon, { MegalodonInterface } from '@cutls/megalodon';
-import { apiAuthMastodon } from './endpoints/auth.js';
-import { apiAccountMastodon } from './endpoints/account.js';
-import { apiStatusMastodon } from './endpoints/status.js';
-import { apiFilterMastodon } from './endpoints/filter.js';
-import { apiTimelineMastodon } from './endpoints/timeline.js';
-import { apiNotificationsMastodon } from './endpoints/notifications.js';
-import { apiSearchMastodon } from './endpoints/search.js';
-import { getInstance } from './endpoints/meta.js';
+import { apiMastodonCompatible } from './ApiMastodonCompatibleCallService.js';
+import { createTemp } from '@/misc/create-temp.js';
+import { pipeline } from 'node:stream';
+import * as fs from 'node:fs';
+import { promisify } from 'node:util';
+const pump = promisify(pipeline);
 
-export function getClient(BASE_URL: string, authorization: string | undefined): MegalodonInterface {
-	const accessTokenArr = authorization?.split(' ') ?? [null];
-	const accessToken = accessTokenArr[accessTokenArr.length - 1];
-	const generator = (megalodon as any).default
-	const client = generator('misskey', BASE_URL, accessToken) as MegalodonInterface;
-	return client
-}
+@Injectable()
+export class ApiMastodonCompatibleService {
+	constructor(
+		private moduleRef: ModuleRef,
 
-export function apiMastodonCompatible(fastify: FastifyInstance): void {
-	apiAuthMastodon(fastify)
-	apiAccountMastodon(fastify)
-	apiStatusMastodon(fastify)
-	apiFilterMastodon(fastify)
-	apiTimelineMastodon(fastify)
-	apiNotificationsMastodon(fastify)
-	apiSearchMastodon(fastify)
+		@Inject(DI.config)
+		private config: Config,
 
-	fastify.get('/v1/custom_emojis', async (request, reply) => {
-		const BASE_URL = request.protocol + '://' + request.hostname;
-		const accessTokens = request.headers.authorization;
-		const client = getClient(BASE_URL, accessTokens);
-		try {
-			const data = await client.getInstanceCustomEmojis();
-			return data.data;
-		} catch (e: any) {
-			console.error(e)
-			reply.code(401);
-			return e.response.data;
+		@Inject(DI.usersRepository)
+		private usersRepository: UsersRepository,
+
+		@Inject(DI.instancesRepository)
+		private instancesRepository: InstancesRepository,
+
+		@Inject(DI.accessTokensRepository)
+		private accessTokensRepository: AccessTokensRepository,
+
+		private userEntityService: UserEntityService,
+		private apiCallService: ApiCallService,
+		private signupApiService: SignupApiService,
+		private signinApiService: SigninApiService,
+	) {
+		//this.createServer = this.createServer.bind(this);
+	}
+
+	@bindThis
+	public createServer(fastify: FastifyInstance, options: FastifyPluginOptions, done: (err?: Error) => void) {
+		fastify.register(cors, {
+			origin: '*',
+		});
+		async function onFile(part: any) {
+			const [path] = await createTemp();
+			await pump(part.file, fs.createWriteStream(path))
+			part.value = [part.filename, path]
 		}
-	});
+		fastify.register(multipart, {
+			attachFieldsToBody: 'keyValues',
+			onFile,
+			limits: {
+				fileSize: this.config.maxFileSize ?? 262144000,
+				files: 1,
+			},
+		});
 
-	fastify.get('/v1/instance', async (request, reply) => {
-		const BASE_URL = request.protocol + '://' + request.hostname;
-		const client = getClient(BASE_URL, undefined);
-		try {
-			const data = await client.getInstance();
-			return getInstance(data.data);
-		} catch (e: any) {
-			console.error(e)
-			reply.code(401);
-			return e.response.data;
-		}
-	});
+		fastify.register(fastifyCookie, {});
 
+		// Prevent cache
+		fastify.addHook('onRequest', (request, reply, done) => {
+			reply.header('Cache-Control', 'private, max-age=0, must-revalidate');
+			done();
+		});
 
+		apiMastodonCompatible(fastify)
 
+		done();
+	}
 }
