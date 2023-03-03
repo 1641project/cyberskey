@@ -3,7 +3,6 @@ import type { Channel as ChannelModel } from '@/models/entities/Channel.js';
 import type { FollowingsRepository, MutingsRepository, UserProfilesRepository, ChannelFollowingsRepository, BlockingsRepository } from '@/models/index.js';
 import type { AccessToken } from '@/models/entities/AccessToken.js';
 import type { UserProfile } from '@/models/entities/UserProfile.js';
-import type { UserGroup } from '@/models/entities/UserGroup.js';
 import type { Packed } from '@/misc/schema.js';
 import type { GlobalEventService } from '@/core/GlobalEventService.js';
 import type { NoteReadService } from '@/core/NoteReadService.js';
@@ -253,12 +252,6 @@ export default class Connection {
 				case 'disconnect': this.onChannelDisconnectRequested(body); break;
 				case 'channel': this.onChannelMessageRequested(body); break;
 				case 'ch': this.onChannelMessageRequested(body); break; // alias
-
-				// 個々のチャンネルではなくルートレベルでこれらのメッセージを受け取る理由は、
-				// クライアントの事情を考慮したとき、入力フォームはノートチャンネルやメッセージのメインコンポーネントとは別
-				// なこともあるため、それらのコンポーネントがそれぞれ各チャンネルに接続するようにするのは面倒なため。
-				case 'typingOnChannel': this.typingOnChannel(body.channel); break;
-				case 'typingOnMessaging': this.typingOnMessaging(body); break;
 			}
 		}
 	}
@@ -415,150 +408,132 @@ export default class Connection {
 						event: 'notification',
 						payload: JSON.stringify(body)
 					}));
+				}
 			}
-	}
 
-} else {
-	this.wsConnection.send(JSON.stringify({
-		type: type,
-		body: payload,
-	}));
-}
-	}
-
-/**
- * チャンネルに接続
- */
-@bindThis
-public connectChannel(id: string, params: any, channel: string, pong = false) {
-	const channelService = this.channelsService.getChannelService(channel);
-
-	if (channelService.requireCredential && this.user == null) {
-		return;
-	}
-
-	// 共有可能チャンネルに接続しようとしていて、かつそのチャンネルに既に接続していたら無意味なので無視
-	if (channelService.shouldShare && this.channels.some(c => c.chName === channel)) {
-		return;
-	}
-
-	const ch: Channel = channelService.create(id, this);
-	this.channels.push(ch);
-	ch.init(params);
-
-	if (pong) {
-		this.sendMessageToWs('connected', {
-			id: id,
-		});
-	}
-}
-
-/**
- * チャンネルから切断
- * @param id チャンネルコネクションID
- */
-@bindThis
-public disconnectChannel(id: string) {
-	const channel = this.channels.find(c => c.id === id);
-
-	if (channel) {
-		if (channel.dispose) channel.dispose();
-		this.channels = this.channels.filter(c => c.id !== id);
-	}
-}
-
-/**
- * チャンネルへメッセージ送信要求時
- * @param data メッセージ
- */
-@bindThis
-private onChannelMessageRequested(data: any) {
-	const channel = this.channels.find(c => c.id === data.id);
-	if (channel != null && channel.onMessage != null) {
-		channel.onMessage(data.type, data.body);
-	}
-}
-
-@bindThis
-private typingOnChannel(channel: ChannelModel['id']) {
-	if (this.user) {
-		this.globalEventService.publishChannelStream(channel, 'typing', this.user.id);
-	}
-}
-
-@bindThis
-private typingOnMessaging(param: { partner?: User['id']; group?: UserGroup['id']; }) {
-	if (this.user) {
-		if (param.partner) {
-			this.globalEventService.publishMessagingStream(param.partner, this.user.id, 'typing', this.user.id);
-		} else if (param.group) {
-			this.globalEventService.publishGroupMessagingStream(param.group, 'typing', this.user.id);
+		} else {
+			this.wsConnection.send(JSON.stringify({
+				type: type,
+				body: payload,
+			}));
 		}
 	}
-}
+	
+	/**
+	 * チャンネルに接続
+	 */
+	@bindThis
+	public connectChannel(id: string, params: any, channel: string, pong = false) {
+		const channelService = this.channelsService.getChannelService(channel);
 
-@bindThis
-private async updateFollowing() {
-	const followings = await this.followingsRepository.find({
-		where: {
-			followerId: this.user!.id,
-		},
-		select: ['followeeId'],
-	});
+		if (channelService.requireCredential && this.user == null) {
+			return;
+		}
 
-	this.following = new Set<string>(followings.map(x => x.followeeId));
-}
+		// 共有可能チャンネルに接続しようとしていて、かつそのチャンネルに既に接続していたら無意味なので無視
+		if (channelService.shouldShare && this.channels.some(c => c.chName === channel)) {
+			return;
+		}
 
-@bindThis
-private async updateMuting() {
-	const mutings = await this.mutingsRepository.find({
-		where: {
-			muterId: this.user!.id,
-		},
-		select: ['muteeId'],
-	});
+		const ch: Channel = channelService.create(id, this);
+		this.channels.push(ch);
+		ch.init(params);
 
-	this.muting = new Set<string>(mutings.map(x => x.muteeId));
-}
-
-@bindThis
-private async updateBlocking() { // ここでいうBlockingは被Blockingの意
-	const blockings = await this.blockingsRepository.find({
-		where: {
-			blockeeId: this.user!.id,
-		},
-		select: ['blockerId'],
-	});
-
-	this.blocking = new Set<string>(blockings.map(x => x.blockerId));
-}
-
-@bindThis
-private async updateFollowingChannels() {
-	const followings = await this.channelFollowingsRepository.find({
-		where: {
-			followerId: this.user!.id,
-		},
-		select: ['followeeId'],
-	});
-
-	this.followingChannels = new Set<string>(followings.map(x => x.followeeId));
-}
-
-@bindThis
-private async updateUserProfile() {
-	this.userProfile = await this.userProfilesRepository.findOneBy({
-		userId: this.user!.id,
-	});
-}
-
-/**
- * ストリームが切れたとき
- */
-@bindThis
-public dispose() {
-	for (const c of this.channels.filter(c => c.dispose)) {
-		if (c.dispose) c.dispose();
+		if (pong) {
+			this.sendMessageToWs('connected', {
+				id: id,
+			});
+		}
 	}
-}
+
+	/**
+	 * チャンネルから切断
+	 * @param id チャンネルコネクションID
+	 */
+	@bindThis
+	public disconnectChannel(id: string) {
+		const channel = this.channels.find(c => c.id === id);
+
+		if (channel) {
+			if (channel.dispose) channel.dispose();
+			this.channels = this.channels.filter(c => c.id !== id);
+		}
+	}
+
+	/**
+	 * チャンネルへメッセージ送信要求時
+	 * @param data メッセージ
+	 */
+	@bindThis
+	private onChannelMessageRequested(data: any) {
+		const channel = this.channels.find(c => c.id === data.id);
+		if (channel != null && channel.onMessage != null) {
+			channel.onMessage(data.type, data.body);
+		}
+	}
+
+	@bindThis
+	private async updateFollowing() {
+		const followings = await this.followingsRepository.find({
+			where: {
+				followerId: this.user!.id,
+			},
+			select: ['followeeId'],
+		});
+
+		this.following = new Set<string>(followings.map(x => x.followeeId));
+	}
+	
+	@bindThis
+	private async updateMuting() {
+		const mutings = await this.mutingsRepository.find({
+			where: {
+				muterId: this.user!.id,
+			},
+			select: ['muteeId'],
+		});
+
+		this.muting = new Set<string>(mutings.map(x => x.muteeId));
+	}
+
+	@bindThis
+	private async updateBlocking() { // ここでいうBlockingは被Blockingの意
+		const blockings = await this.blockingsRepository.find({
+			where: {
+				blockeeId: this.user!.id,
+			},
+			select: ['blockerId'],
+		});
+
+		this.blocking = new Set<string>(blockings.map(x => x.blockerId));
+	}
+
+	@bindThis
+	private async updateFollowingChannels() {
+		const followings = await this.channelFollowingsRepository.find({
+			where: {
+				followerId: this.user!.id,
+			},
+			select: ['followeeId'],
+		});
+
+		this.followingChannels = new Set<string>(followings.map(x => x.followeeId));
+	}
+
+	@bindThis
+	private async updateUserProfile() {
+		this.userProfile = await this.userProfilesRepository.findOneBy({
+			userId: this.user!.id,
+		});
+	}
+
+	/**
+	 * ストリームが切れたとき
+	 */
+	@bindThis
+	public dispose() {
+		for (const c of this.channels.filter(c => c.dispose)) {
+			if (c.dispose) c.dispose();
+		}
+	}
 }

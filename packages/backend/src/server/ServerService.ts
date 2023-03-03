@@ -209,6 +209,7 @@ export class ServerService {
 				return 'Verify succeeded!';
 			} else {
 				reply.code(404);
+				return;
 			}
 		});
 
