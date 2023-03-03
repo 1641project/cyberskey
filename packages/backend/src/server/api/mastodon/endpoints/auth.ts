@@ -41,6 +41,11 @@ const writeScope = [
 
 export function apiAuthMastodon(fastify: FastifyInstance): void {
 
+	fastify.get('/v1/apps/verify_credentials', async (request, reply) => {
+		reply.code(400)
+		return {}
+	})
+
 	fastify.post('/v1/apps', async (request, reply) => {
 		const BASE_URL = request.protocol + '://' + request.hostname;
 		const client = getClient(BASE_URL, '');
@@ -56,9 +61,7 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 			const scopeArr = Array.from(pushScope)
 
 			let red = body.redirect_uris
-			if (red === 'urn:ietf:wg:oauth:2.0:oob') {
-				red = 'https://thedesk.top/hello.html'
-			}
+			if (red === 'urn:ietf:wg:oauth:2.0:oob') red = 'https://thedesk.top/hello.html'
 			const appData = await client.registerApp(body.client_name, { scopes: scopeArr, redirect_uris: red, website: body.website });
 			const returns = {
 				id: Math.floor(Math.random() * 100).toString(),
@@ -68,6 +71,7 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 				client_id: Buffer.from(appData.url || '').toString('base64'),
 				client_secret: appData.clientSecret
 			}
+			console.log('appsResponse', appData)
 			console.log(returns)
 			return returns
 		} catch (e: any) {

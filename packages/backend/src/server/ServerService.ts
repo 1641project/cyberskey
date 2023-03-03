@@ -158,6 +158,11 @@ export class ServerService {
 
 		fastify.post<{ Body: Record<string, unknown> }>('/oauth/token', async (request, reply) => {
 			const body: any = request.body || request.query
+			if (!body.code && body.grant_type === 'client_credentials') {
+				// For Subway Tooter
+				reply.code(422)
+				return {}
+			}
 			console.log('token-request', body)
 			const BASE_URL = request.protocol + '://' + request.hostname;
 			const generator = (megalodon as any).default;
