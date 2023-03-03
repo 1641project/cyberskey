@@ -352,7 +352,6 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 				maxNoteTextLength: MAX_NOTE_TEXT_LENGTH,
 				defaultLightTheme: instance.defaultLightTheme,
 				defaultDarkTheme: instance.defaultDarkTheme,
-				emojis: await this.emojiEntityService.packMany(emojis),
 				ads: ads.map(ad => ({
 					id: ad.id,
 					url: ad.url,
