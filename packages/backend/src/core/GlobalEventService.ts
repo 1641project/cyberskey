@@ -18,6 +18,7 @@ import type { MiSignin } from '@/models/Signin.js';
 import type { MiPage } from '@/models/Page.js';
 import type { MiWebhook } from '@/models/Webhook.js';
 import type { MiMeta } from '@/models/Meta.js';
+import type { UserGroup } from '@/models/entities/UserGroup.js';
 import { MiAvatarDecoration, MiRole, MiRoleAssignment } from '@/models/_.js';
 import type { Packed } from '@/misc/json-schema.js';
 import { DI } from '@/di-symbols.js';

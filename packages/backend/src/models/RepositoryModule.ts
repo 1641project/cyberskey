@@ -5,7 +5,7 @@
 
 import { Module } from '@nestjs/common';
 import { DI } from '@/di-symbols.js';
-import { MiAbuseUserReport, MiAccessToken, MiAd, MiAnnouncement, MiAnnouncementRead, MiAntenna, MiApp, MiAuthSession, MiAvatarDecoration, MiBlocking, MiChannel, MiChannelFavorite, MiChannelFollowing, MiClip, MiClipFavorite, MiClipNote, MiDriveFile, MiDriveFolder, MiEmoji, MiEmojiRequest, MiFlash, MiFlashLike, MiFollowRequest, MiFollowing, MiGalleryLike, MiGalleryPost, MiHashtag, MiInstance, MiMeta, MiModerationLog, MiMuting, MiNote, MiNoteFavorite, MiNoteReaction, MiNoteThreadMuting, MiNoteUnread, MiPage, MiPageLike, MiPasswordResetRequest, MiPoll, MiPollVote, MiPromoNote, MiPromoRead, MiRegistrationTicket, MiRegistryItem, MiRelay, MiRenoteMuting, MiRetentionAggregation, MiRole, MiRoleAssignment, MiSignin, MiSwSubscription, MiUsedUsername, MiUser, MiUserIp, MiUserKeypair, MiUserList, MiUserListFavorite, MiUserListMembership, MiUserMemo, MiUserNotePining, MiUserPending, MiUserProfile, MiUserPublickey, MiUserSecurityKey, MiWebhook, NoteEdit } from './_.js';
+import { MiAbuseUserReport, MiAccessToken, MiAd, MiAnnouncement, MiAnnouncementRead, MiAntenna, MiApp, MiAuthSession, MiAvatarDecoration, MiBlocking, MiChannel, MiChannelFavorite, MiChannelFollowing, MiClip, MiClipFavorite, MiClipNote, MiDriveFile, MiDriveFolder, MiEmoji, MiEmojiRequest, MiFlash, MiFlashLike, MiFollowRequest, MiFollowing, MiGalleryLike, MiGalleryPost, MiHashtag, MiInstance, MiMeta, MiModerationLog, MiMuting, MiNote, MiNoteFavorite, MiNoteReaction, MiNoteThreadMuting, MiNoteUnread, MiPage, MiPageLike, MiPasswordResetRequest, MiPoll, MiPollVote, MiPromoNote, MiPromoRead, MiRegistrationTicket, MiRegistryItem, MiRelay, MiRenoteMuting, MiRetentionAggregation, MiRole, MiRoleAssignment, MiSignin, MiSwSubscription, MiUsedUsername, MiUser, MiUserIp, MiUserKeypair, MiUserList, MiUserListFavorite, MiUserListMembership, MiUserMemo, MiUserNotePining, MiUserPending, MiUserProfile, MiUserPublickey, MiUserSecurityKey, MiWebhook, NoteEdit, UserGroup, UserGroupJoining, UserGroupInvitation } from './_.js';
 import type { DataSource } from 'typeorm';
 import type { Provider } from '@nestjs/common';
 
@@ -126,6 +126,24 @@ const $userListFavoritesRepository: Provider = {
 const $userListMembershipsRepository: Provider = {
 	provide: DI.userListMembershipsRepository,
 	useFactory: (db: DataSource) => db.getRepository(MiUserListMembership),
+	inject: [DI.db],
+};
+
+const $userGroupsRepository: Provider = {
+	provide: DI.userGroupsRepository,
+	useFactory: (db: DataSource) => db.getRepository(UserGroup),
+	inject: [DI.db],
+};
+
+const $userGroupJoiningsRepository: Provider = {
+	provide: DI.userGroupJoiningsRepository,
+	useFactory: (db: DataSource) => db.getRepository(UserGroupJoining),
+	inject: [DI.db],
+};
+
+const $userGroupInvitationsRepository: Provider = {
+	provide: DI.userGroupInvitationsRepository,
+	useFactory: (db: DataSource) => db.getRepository(UserGroupInvitation),
 	inject: [DI.db],
 };
 
@@ -435,6 +453,9 @@ const $noteEditRepository: Provider = {
 		$userListsRepository,
 		$userListFavoritesRepository,
 		$userListMembershipsRepository,
+		$userGroupsRepository,
+		$userGroupJoiningsRepository,
+		$userGroupInvitationsRepository,
 		$userNotePiningsRepository,
 		$userIpsRepository,
 		$usedUsernamesRepository,
@@ -504,6 +525,9 @@ const $noteEditRepository: Provider = {
 		$userListsRepository,
 		$userListFavoritesRepository,
 		$userListMembershipsRepository,
+		$userGroupsRepository,
+		$userGroupJoiningsRepository,
+		$userGroupInvitationsRepository,
 		$userNotePiningsRepository,
 		$userIpsRepository,
 		$usedUsernamesRepository,

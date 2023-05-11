@@ -22,6 +22,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<template #label>{{ i18n.ts.userList }}</template>
 				<option v-for="list in userLists" :key="list.id" :value="list.id">{{ list.name }}</option>
 			</MkSelect>
+			<MkSelect v-else-if="src === 'group'" v-model="userGroupId">
+				<template #label>{{ i18n.ts.userGroup }}</template>
+				<option v-for="group in userGroups" :key="group.id" :value="group.id">{{ group.name }}</option>
+			</MkSelect>
 			<MkTextarea v-else-if="src === 'users' || src === 'users_blacklist'" v-model="users">
 				<template #label>{{ i18n.ts.users }}</template>
 				<template #caption>{{ i18n.ts.antennaUsersDescription }} <button class="_textButton" @click="addUser">{{ i18n.ts.addUser }}</button></template>
@@ -72,6 +76,7 @@ const emit = defineEmits<{
 let name: string = $ref(props.antenna.name);
 let src: string = $ref(props.antenna.src);
 let userListId: any = $ref(props.antenna.userListId);
+let userGroupId: any = $ref(props.antenna.userGroupId);
 let users: string = $ref(props.antenna.users.join('\n'));
 let keywords: string = $ref(props.antenna.keywords.map(x => x.join(' ')).join('\n'));
 let excludeKeywords: string = $ref(props.antenna.excludeKeywords.map(x => x.join(' ')).join('\n'));
@@ -81,10 +86,18 @@ let withReplies: boolean = $ref(props.antenna.withReplies);
 let withFile: boolean = $ref(props.antenna.withFile);
 let notify: boolean = $ref(props.antenna.notify);
 let userLists: any = $ref(null);
+let userGroups: any = $ref(null);
 
 watch(() => src, async () => {
 	if (src === 'list' && userLists === null) {
 		userLists = await os.api('users/lists/list');
+	}
+
+	if (src === 'group' && userGroups === null) {
+		const groups1 = await os.api('users/groups/owned');
+		const groups2 = await os.api('users/groups/joined');
+
+		userGroups = [...groups1, ...groups2];
 	}
 });
 
@@ -93,6 +106,7 @@ async function saveAntenna() {
 		name,
 		src,
 		userListId,
+		userGroupId,
 		withReplies,
 		withFile,
 		notify,

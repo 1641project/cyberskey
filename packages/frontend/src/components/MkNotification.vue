@@ -36,6 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<i v-else-if="notification.type === 'quote'" class="ph-quotes ph-bold ph-lg"></i>
 			<i v-else-if="notification.type === 'pollEnded'" class="ph-chart-bar-horizontal ph-bold ph-lg"></i>
 			<i v-else-if="notification.type === 'achievementEarned'" class="ph-trophy ph-bold ph-lg"></i>
+			<i v-else-if="notification.type === 'groupInvited'" class="ti ti-certificate-2"></i>
 			<!-- notification.reaction が null になることはまずないが、ここでoptional chaining使うと一部ブラウザで刺さるので念の為 -->
 			<MkReactionIcon
 				v-else-if="notification.type === 'reaction'"
@@ -101,6 +102,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<MkButton :class="$style.followRequestCommandButton" rounded danger @click="rejectFollowRequest()"><i class="ph-x ph-bold ph-lg"/> {{ i18n.ts.reject }}</MkButton>
 				</div>
 			</template>
+			<template v-else-if="notification.type === 'groupInvited'">
+				<span :class="$style.text" style="opacity: 0.6;">{{ i18n.ts.groupInvited }}: <b>{{ notification.invitation.group.name }}</b></span>
+				<div v-if="full && !groupInviteDone">
+					<button class="_textButton" @click="acceptGroupInvitation()">{{ i18n.ts.accept }}</button> | <button class="_textButton" @click="rejectGroupInvitation()">{{ i18n.ts.reject }}</button>
+				</div>
+			</template>
 			<span v-else-if="notification.type === 'test'" :class="$style.text">{{ i18n.ts._notification.notificationWillBeDisplayedLikeThis }}</span>
 			<span v-else-if="notification.type === 'app'" :class="$style.text">
 				<Mfm :text="notification.body" :nowrap="false"/>
@@ -153,6 +160,7 @@ const props = withDefaults(defineProps<{
 });
 
 const followRequestDone = ref(false);
+const groupInviteDone = ref(false);
 
 const acceptFollowRequest = () => {
 	followRequestDone.value = true;
@@ -163,6 +171,25 @@ const rejectFollowRequest = () => {
 	followRequestDone.value = true;
 	os.api('following/requests/reject', { userId: props.notification.user.id });
 };
+
+const acceptGroupInvitation = () => {
+	groupInviteDone.value = true;
+	os.apiWithDialog('users/groups/invitations/accept', { invitationId: props.notification.invitation.id });
+};
+
+const rejectGroupInvitation = () => {
+	groupInviteDone.value = true;
+	os.api('users/groups/invitations/reject', { invitationId: props.notification.invitation.id });
+};
+
+useTooltip(reactionRef, (showing) => {
+	os.popup(XReactionTooltip, {
+		showing,
+		reaction: props.notification.reaction ? props.notification.reaction.replace(/^:(\w+):$/, ':$1@.:') : props.notification.reaction,
+		emojis: props.notification.note.emojis,
+		targetElement: reactionRef.value.$el,
+	}, {}, 'closed');
+});
 </script>
 
 <style lang="scss" module>
@@ -235,7 +262,7 @@ const rejectFollowRequest = () => {
 	}
 }
 
-.t_follow, .t_followRequestAccepted, .t_receiveFollowRequest {
+.t_follow, .t_followRequestAccepted, .t_receiveFollowRequest, .t_groupInvited {
 	padding: 3px;
 	background: #36aed2;
 	pointer-events: none;
