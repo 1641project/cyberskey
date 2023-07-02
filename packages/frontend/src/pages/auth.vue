@@ -1,14 +1,31 @@
 <template>
-	<MkStickyContainer>
-		<template #header>
-			<MkPageHeader :actions="headerActions" :tabs="headerTabs" />
-		</template>
-		<MkSpacer :content-max="500">
-			<div v-if="state == 'fetch-session-error'">
-				<p>{{ i18n.ts.somethingHappened }}</p>
+<MkStickyContainer>
+	<template #header><MkPageHeader :actions="headerActions" :tabs="headerTabs"/></template>
+	<MkSpacer :contentMax="500">
+		<div v-if="state == 'fetch-session-error'">
+			<p>{{ i18n.ts.somethingHappened }}</p>
+		</div>
+		<div v-else-if="$i && !session">
+			<MkLoading/>
+		</div>
+		<div v-else-if="$i && session">
+			<XForm
+				v-if="state == 'waiting'"
+				class="form"
+				:session="session"
+				@denied="state = 'denied'"
+				@accepted="accepted"
+			/>
+			<div v-if="state == 'denied'">
+				<h1>{{ i18n.ts._auth.denied }}</h1>
 			</div>
-			<div v-else-if="$i && !session">
-				<MkLoading />
+			<div v-if="state == 'accepted' && session">
+				<h1>{{ session.app.isAuthorized ? i18n.t('already-authorized') : i18n.ts.allowed }}</h1>
+				<p v-if="session.app.callbackUrl">
+					{{ i18n.ts._auth.callback }}
+					<MkEllipsis/>
+				</p>
+				<p v-if="!session.app.callbackUrl">{{ i18n.ts._auth.pleaseGoBack }}</p>
 			</div>
 			<div v-else-if="$i && session">
 				<XForm v-if="state == 'waiting'" class="form" :session="session" @denied="state = 'denied'"

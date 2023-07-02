@@ -2,10 +2,20 @@
 <div>
 	<XBanner v-for="media in mediaList.filter(media => !previewable(media))" :key="media.id" :media="media"/>
 	<div v-if="mediaList.filter(media => previewable(media)).length > 0" :class="$style.container">
-		<div ref="gallery" :class="[$style.medias, count <= 4 ? $style['n' + count] : $style.nMany]">
+		<div
+			ref="gallery"
+			:class="[
+				$style.medias,
+				count === 1 ? [$style.n1, {
+					[$style.n116_9]: defaultStore.reactiveState.mediaListWithOneImageAppearance.value === '16_9',
+					[$style.n11_1]: defaultStore.reactiveState.mediaListWithOneImageAppearance.value === '1_1',
+					[$style.n12_3]: defaultStore.reactiveState.mediaListWithOneImageAppearance.value === '2_3',
+				}] : count === 2 ? $style.n2 : count === 3 ? $style.n3 : count === 4 ? $style.n4 : $style.nMany,
+			]"
+		>
 			<template v-for="media in mediaList.filter(media => previewable(media))">
-				<XVideo v-if="media.type.startsWith('video')" :key="media.id" :class="$style.media" :video="media"/>
-				<XImage v-else-if="media.type.startsWith('image')" :key="media.id" :class="$style.media" class="image" :data-id="media.id" :image="media" :raw="raw"/>
+				<XVideo v-if="media.type.startsWith('video')" :key="`video:${media.id}`" :class="$style.media" :video="media"/>
+				<XImage v-else-if="media.type.startsWith('image')" :key="`image:${media.id}`" :class="$style.media" class="image" :data-id="media.id" :image="media" :raw="raw"/>
 			</template>
 		</div>
 	</div>
@@ -13,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, useCssModule } from 'vue';
+import { onMounted, watch, shallowRef } from 'vue';
 import * as misskey from 'misskey-js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import PhotoSwipe from 'photoswipe';
@@ -23,18 +33,48 @@ import XImage from '@/components/MkMediaImage.vue';
 import XVideo from '@/components/MkMediaVideo.vue';
 import * as os from '@/os';
 import { FILE_TYPE_BROWSERSAFE } from '@/const';
+import { defaultStore } from '@/store';
 
 const props = defineProps<{
 	mediaList: misskey.entities.DriveFile[];
 	raw?: boolean;
 }>();
 
-const $style = useCssModule();
-
-const gallery = ref(null);
+const gallery = shallowRef<HTMLDivElement>();
 const pswpZIndex = os.claimZIndex('middle');
 document.documentElement.style.setProperty('--mk-pswp-root-z-index', pswpZIndex.toString());
 const count = $computed(() => props.mediaList.filter(media => previewable(media)).length);
+
+function calcAspectRatio() {
+	if (!gallery.value) return;
+
+	let img = props.mediaList[0];
+
+	if (props.mediaList.length !== 1 || !(img.properties.width && img.properties.height)) {
+		gallery.value.style.aspectRatio = '';
+		return;
+	}
+
+	// アスペクト比上限設定では、横長の場合は高さを縮小させる
+	const ratioMax = (ratio: number) => `${Math.max(ratio, img.properties.width / img.properties.height).toString()} / 1`;
+
+	switch (defaultStore.state.mediaListWithOneImageAppearance) {
+		case '16_9':
+			gallery.value.style.aspectRatio = ratioMax(16 / 9);
+			break;
+		case '1_1':
+			gallery.value.style.aspectRatio = ratioMax(1);
+			break;
+		case '2_3':
+			gallery.value.style.aspectRatio = ratioMax(2 / 3);
+			break;
+		default:
+			gallery.value.style.aspectRatio = '';
+			break;
+	}
+}
+
+watch([defaultStore.reactiveState.mediaListWithOneImageAppearance, gallery], () => calcAspectRatio());
 
 onMounted(() => {
 	const lightbox = new PhotoSwipeLightbox({
@@ -57,7 +97,7 @@ onMounted(() => {
 				return item;
 			}),
 		gallery: gallery.value,
-		mainClass: $style.pswp,
+		mainClass: 'pswp',
 		children: '.image',
 		thumbSelector: '.image',
 		loop: false,
@@ -118,7 +158,7 @@ onMounted(() => {
 	});
 
 	lightbox.init();
-	
+
 	window.addEventListener('popstate', () => {
 		if (lightbox.pswp && lightbox.pswp.isOpen === true) {
 			lightbox.pswp.close();
@@ -155,12 +195,37 @@ const previewable = (file: misskey.entities.DriveFile): boolean => {
 	display: grid;
 	grid-gap: 8px;
 
-	// for webkit
 	height: 100%;
+	width: 100%;
 
 	&.n1 {
-		aspect-ratio: 16/9;
 		grid-template-rows: 1fr;
+
+		// default (expand)
+		min-height: 64px;
+		max-height: clamp(
+			64px,
+			50cqh,
+			min(360px, 50vh)
+		);
+
+		&.n116_9 {
+			min-height: none;
+			max-height: none;
+			aspect-ratio: 16 / 9; // fallback
+		}
+
+		&.n11_1{
+			min-height: none;
+			max-height: none;
+			aspect-ratio: 1 / 1; // fallback
+		}
+
+		&.n12_3 {
+			min-height: none;
+			max-height: none;
+			aspect-ratio: 2 / 3; // fallback
+		}
 	}
 
 	&.n2 {
@@ -204,7 +269,7 @@ const previewable = (file: misskey.entities.DriveFile): boolean => {
 	border-radius: 8px;
 }
 
-.pswp {
+:global(.pswp) {
 	--pswp-root-z-index: var(--mk-pswp-root-z-index, 2000700) !important;
 	--pswp-bg: var(--modalBg) !important;
 }
@@ -239,5 +304,6 @@ const previewable = (file: misskey.entities.DriveFile): boolean => {
 	max-height: 8em;
 	overflow-y: auto;
 	text-shadow: var(--bg) 0 0 10px, var(--bg) 0 0 3px, var(--bg) 0 0 3px;
+	white-space: pre-line;
 }
 </style>

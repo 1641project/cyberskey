@@ -1,13 +1,13 @@
 <template>
 <MkStickyContainer>
 	<template #header><XHeader :tabs="headerTabs"/></template>
-	<MkSpacer :content-max="700" :margin-min="16" :margin-max="32">
+	<MkSpacer :contentMax="700" :marginMin="16" :marginMax="32">
 		<FormSuspense :p="init">
 			<div class="_gaps_m">
 				<MkSwitch v-model="useObjectStorage">{{ i18n.ts.useObjectStorage }}</MkSwitch>
 
 				<template v-if="useObjectStorage">
-					<MkInput v-model="objectStorageBaseUrl">
+					<MkInput v-model="objectStorageBaseUrl" :placeholder="'https://example.com'">
 						<template #label>{{ i18n.ts.objectStorageBaseUrl }}</template>
 						<template #caption>{{ i18n.ts.objectStorageBaseUrlDesc }}</template>
 					</MkInput>
@@ -22,8 +22,9 @@
 						<template #caption>{{ i18n.ts.objectStoragePrefixDesc }}</template>
 					</MkInput>
 
-					<MkInput v-model="objectStorageEndpoint">
+					<MkInput v-model="objectStorageEndpoint" :placeholder="'example.com'">
 						<template #label>{{ i18n.ts.objectStorageEndpoint }}</template>
+						<template #prefix>https://</template>
 						<template #caption>{{ i18n.ts.objectStorageEndpointDesc }}</template>
 					</MkInput>
 
@@ -32,7 +33,7 @@
 						<template #caption>{{ i18n.ts.objectStorageRegionDesc }}</template>
 					</MkInput>
 
-					<FormSplit :min-width="280">
+					<FormSplit :minWidth="280">
 						<MkInput v-model="objectStorageAccessKey">
 							<template #prefix><i class="ti ti-key"></i></template>
 							<template #label>Access key</template>
@@ -60,6 +61,7 @@
 
 					<MkSwitch v-model="objectStorageS3ForcePathStyle">
 						<template #label>s3ForcePathStyle</template>
+						<template #caption>{{ i18n.ts.s3ForcePathStyleDesc }}</template>
 					</MkSwitch>
 				</template>
 			</div>
@@ -67,7 +69,7 @@
 	</MkSpacer>
 	<template #footer>
 		<div :class="$style.footer">
-			<MkSpacer :content-max="700" :margin-min="16" :margin-max="16">
+			<MkSpacer :contentMax="700" :marginMin="16" :marginMax="16">
 				<MkButton primary rounded @click="save"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
 			</MkSpacer>
 		</div>

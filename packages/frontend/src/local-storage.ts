@@ -6,13 +6,14 @@ type Keys =
 	'accounts' |
 	'latestDonationInfoShownAt' |
 	'neverShowDonationInfo' |
+	'neverShowLocalOnlyInfo' |
 	'lastUsed' |
 	'lang' |
 	'drafts' |
 	'hashtags' |
 	'wallpaper' |
 	'theme' |
-	'colorSchema' |
+	'colorScheme' |
 	'useSystemFont' | 
 	'fontSize' |
 	'ui' |
@@ -23,6 +24,7 @@ type Keys =
 	'customCss' |
 	'message_drafts' |
 	'scratchpad' |
+	'debug' |
 	`miux:${string}` |
 	`ui:folder:${string}` |
 	`themes:${string}` |
@@ -31,7 +33,7 @@ type Keys =
 	'emojis' // DEPRECATED, stored in indexeddb (13.9.0~);
 
 export const miLocalStorage = {
-	getItem: (key: Keys) => window.localStorage.getItem(key),
-	setItem: (key: Keys, value: string) => window.localStorage.setItem(key, value),
-	removeItem: (key: Keys) => window.localStorage.removeItem(key),
+	getItem: (key: Keys): string | null => window.localStorage.getItem(key),
+	setItem: (key: Keys, value: string): void => window.localStorage.setItem(key, value),
+	removeItem: (key: Keys): void => window.localStorage.removeItem(key),
 };

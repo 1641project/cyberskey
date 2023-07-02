@@ -1,7 +1,9 @@
 import cluster from 'node:cluster';
 import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import Fastify, { FastifyInstance } from 'fastify';
+import fastifyStatic from '@fastify/static';
 import { IsNull } from 'typeorm';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import type { Config } from '@/config.js';
@@ -24,6 +26,9 @@ import { StreamingApiServerService } from './api/StreamingApiServerService.js';
 import { WellKnownServerService } from './WellKnownServerService.js';
 import { FileServerService } from './FileServerService.js';
 import { ClientServerService } from './web/ClientServerService.js';
+import { OpenApiServerService } from './api/openapi/OpenApiServerService.js';
+
+const _dirname = fileURLToPath(new URL('.', import.meta.url));
 
 
 @Injectable()
@@ -47,6 +52,7 @@ export class ServerService implements OnApplicationShutdown {
 		private userEntityService: UserEntityService,
 		private apiMastodonCompatibleService: ApiMastodonCompatibleService,
 		private apiServerService: ApiServerService,
+		private openApiServerService: OpenApiServerService,
 		private streamingApiServerService: StreamingApiServerService,
 		private activityPubServerService: ActivityPubServerService,
 		private wellKnownServerService: WellKnownServerService,
@@ -78,8 +84,16 @@ export class ServerService implements OnApplicationShutdown {
 		}
 
 		fastify.register(formBody);
-		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
 		fastify.register(this.apiMastodonCompatibleService.createServer);
+		// Register non-serving static server so that the child services can use reply.sendFile.
+		// `root` here is just a placeholder and each call must use its own `rootPath`.
+		fastify.register(fastifyStatic, {
+			root: _dirname,
+			serve: false,
+		});
+
+		fastify.register(this.apiServerService.createServer, { prefix: '/api' });
+		fastify.register(this.openApiServerService.createServer);
 		fastify.register(this.fileServerService.createServer);
 		fastify.register(this.activityPubServerService.createServer);
 		fastify.register(this.nodeinfoServerService.createServer);
@@ -143,13 +157,12 @@ export class ServerService implements OnApplicationShutdown {
 					host: (host == null) || (host === this.config.host) ? IsNull() : host,
 					isSuspended: false,
 				},
-				relations: ['avatar'],
 			});
 
 			reply.header('Cache-Control', 'public, max-age=86400');
 
 			if (user) {
-				reply.redirect(this.userEntityService.getAvatarUrlSync(user));
+				reply.redirect(user.avatarUrl ?? this.userEntityService.getIdenticonUrl(user));
 			} else {
 				reply.redirect('/static-assets/user-unknown.png');
 			}
@@ -190,7 +203,7 @@ export class ServerService implements OnApplicationShutdown {
 
 		fastify.register(this.clientServerService.createServer);
 
-		this.streamingApiServerService.attachStreamingApi(fastify.server);
+		this.streamingApiServerService.attach(fastify.server);
 
 		fastify.server.on('error', err => {
 			switch ((err as any).code) {
@@ -218,7 +231,14 @@ export class ServerService implements OnApplicationShutdown {
 		await fastify.ready();
 	}
 
-	async onApplicationShutdown(signal: string): Promise<void> {
+	@bindThis
+	public async dispose(): Promise<void> {
+    await this.streamingApiServerService.detach();
 		await this.#fastify.close();
+	}
+
+	@bindThis
+	async onApplicationShutdown(signal: string): Promise<void> {
+		await this.dispose();
 	}
 }
