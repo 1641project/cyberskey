@@ -87,8 +87,8 @@ importers:
         specifier: 5.2.0
         version: 5.2.0
       '@cutls/megalodon':
-        specifier: 5.1.23
-        version: 5.1.23(bufferutil@4.0.7)(utf-8-validate@6.0.3)
+        specifier: 5.1.27
+        version: 5.1.27(bufferutil@4.0.7)(utf-8-validate@6.0.3)
       '@discordapp/twemoji':
         specifier: 14.1.2
         version: 14.1.2
@@ -4501,8 +4501,8 @@ packages:
     resolution: {integrity: sha512-RJu5IWzH6vcygwLsx9KEqzwjnEqApPkSFViMzxCRbe0IuAXt2ZlSUmYKgLFZY+YJIdaZ+/P7PwiUcZ7GYH3Msw==}
     dev: false
 
-  /@cutls/megalodon@5.1.23(bufferutil@4.0.7)(utf-8-validate@6.0.3):
-    resolution: {integrity: sha512-Ly5+olJQEi7SXfnIuSTyNztajp5FPPQPc2BFcEykTEKqxYpXFvTffygdNjnkkwKsRfLPmsuqRwxoROVBb2i5ig==}
+  /@cutls/megalodon@5.1.27(bufferutil@4.0.7)(utf-8-validate@6.0.3):
+    resolution: {integrity: sha512-uJF4h5++73RaZ0bSUU3K3ZqSQ9y1wP49As52N6d9GamzvtOGLrdH8uLO0kF4BYmYitOPg8KwJNFLWnBybXE1EQ==}
     engines: {node: '>=15.0.0'}
     dependencies:
       '@types/oauth': 0.9.1

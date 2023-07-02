@@ -63,6 +63,7 @@ export function apiAuthMastodon(fastify: FastifyInstance): void {
 
 			let red = body.redirect_uris
 			if (red === 'urn:ietf:wg:oauth:2.0:oob') red = 'https://thedesk.top/hello.html'
+			if (red === 'https://mastodon-app.covelline.com/callback feather-mastodon://') red = 'feather-mastodon://'
 			const appData = await client.registerApp(body.client_name, { scopes: scopeArr, redirect_uris: red, website: body.website });
 			const returns = {
 				id: Math.floor(Math.random() * 100).toString(),

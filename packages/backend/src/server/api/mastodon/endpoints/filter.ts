@@ -3,18 +3,11 @@ import megalodon, { MegalodonInterface } from '@cutls/megalodon';
 import { getClient } from '../ApiMastodonCompatibleCallService.js'
 
 export function apiFilterMastodon(fastify: FastifyInstance): void {
-    fastify.get('/api/v1/filters', async (request, reply) => {
-        const BASE_URL = request.protocol + '://' + request.hostname;
-        const accessTokens = request.headers.authorization;
-        const client = getClient(BASE_URL, accessTokens);
-        try {
-            const data = await client.getFilters();
-            return data.data;
-        } catch (e: any) {
-            console.error(e)
-            reply.code(401);
-            return e.response.data;
-        }
+    fastify.get('/api/:vx/filters', async (request, reply) => {
+        return []
+    });
+    fastify.get('/api/v1/featured_tags', async (request, reply) => {
+        return []
     });
     fastify.get<{ Params: { id: string } }>('/api/v1/filters/:id', async (request, reply) => {
         const BASE_URL = request.protocol + '://' + request.hostname;

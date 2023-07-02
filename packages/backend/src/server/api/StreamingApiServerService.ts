@@ -54,12 +54,16 @@ export class StreamingApiServerService {
 			}
 
 			const q = new URL(request.url, `http://${request.headers.host}`).searchParams;
+			const qObj = Object.fromEntries(q)
+			const cred = qObj.i || qObj.access_token || request.headers
+			const accessToken = cred.toString()
+			const i = q.get('i') || accessToken
 
 			let user: LocalUser | null = null;
 			let app: AccessToken | null = null;
 
 			try {
-				[user, app] = await this.authenticateService.authenticate(q.get('i'));
+				[user, app] = await this.authenticateService.authenticate(i);
 			} catch (e) {
 				if (e instanceof AuthenticationError) {
 					socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
@@ -75,13 +79,14 @@ export class StreamingApiServerService {
 				socket.destroy();
 				return;
 			}
-
+			const host = 'https://' + request.headers.host
+			const prepareStream = qObj.stream?.toString()
 			const stream = new MainStreamConnection(
 				this.channelsService,
 				this.noteReadService,
 				this.notificationService,
 				this.cacheService,
-				user, app,
+				user, app, host, accessToken, prepareStream
 			);
 
 			await stream.init();

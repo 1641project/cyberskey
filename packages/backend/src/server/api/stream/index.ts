@@ -50,13 +50,17 @@ export default class Connection {
 		accessToken: string,
 		prepareStream: string | undefined
 	) {
-		console.log('constructor', prepareStream)
+		console.log('constructor', host)
 		this.wsConnection = this.wsConnection;
 		this.subscriber = this.subscriber;
 		if (user) this.user = user;
 		if (token) this.token = token;
 		if (host) this.host = host;
 		if (accessToken) this.accessToken = accessToken;
+		console.log('prepare', prepareStream);
+		if (prepareStream) {
+			this.onWsConnectionMessage(Buffer.from(JSON.stringify({ stream: prepareStream, type: 'subscribe' })))
+		}
 	}
 
 	@bindThis
@@ -133,7 +137,8 @@ export default class Connection {
 						type: 'connect',
 						body: {
 							channel: 'homeTimeline',
-							id: simpleObj.stream
+							id: simpleObj.stream,
+							params: { withReplies: false }
 						}
 					}
 					]
@@ -326,6 +331,7 @@ export default class Connection {
 	 */
 	@bindThis
 	public sendMessageToWs(type: string, payload: any) {
+		console.log('sending', this.isMastodonCompatible, payload)
 		if (this.isMastodonCompatible) {
 			if (payload.type === 'note') {
 				this.wsConnection.send(JSON.stringify({
@@ -386,15 +392,18 @@ export default class Connection {
 	@bindThis
 	public connectChannel(id: string, params: any, channel: string, pong = false) {
 		const channelService = this.channelsService.getChannelService(channel);
+		console.log('channelSubscribe', params, channel)
 
 		if (channelService.requireCredential && this.user == null) {
 			return;
 		}
+		console.log('channelSubscribe2', params, channel)
 
 		// 共有可能チャンネルに接続しようとしていて、かつそのチャンネルに既に接続していたら無意味なので無視
 		if (channelService.shouldShare && this.channels.some(c => c.chName === channel)) {
 			return;
 		}
+		console.log('channelSubscribe3', params, channel)
 
 		const ch: Channel = channelService.create(id, this);
 		this.channels.push(ch);

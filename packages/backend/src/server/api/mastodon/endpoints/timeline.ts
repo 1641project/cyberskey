@@ -5,7 +5,11 @@ import { statusModel } from './status.js';
 import Autolinker from 'autolinker';
 
 export function toLimitToInt(q: any) {
-    if (q.limit) if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
+    if (q.limit) {
+        if (typeof q.limit === 'string') q.limit = parseInt(q.limit, 10)
+    } else {
+        q.limit = 40
+    }
     if (q.offset) if (typeof q.offset === 'string') q.offset = parseInt(q.offset, 10)
     return q
 }
@@ -21,21 +25,30 @@ export function toTextWithReaction(status: Entity.Status[], host: string) {
             return `${emojiNotation} (${r.count}${r.me ? `* ` : ''})`
         });
         const reaction = t.emoji_reactions as Entity.Reaction[]
-        const emoji = t.emojis || []
         for (const r of reaction) {
             if (!r.url) continue
-            emoji.push({
-                'shortcode': r.name,
-                'url': r.url,
-                'static_url': r.url,
-                'visible_in_picker': true,
-            },)
+            const targetOnEmoji = t.emojis.find((e) => {
+                return e.shortcode.replace(/\./g, '').replace(/@/g, '').replace(/-/g, '') === r.name
+            })
+            t.emoji_reactions = t.emoji_reactions.map((er) => {
+                if (er.name === r.name) {
+                    const { count, me, name } = er
+                    return {
+                        count,
+                        me,
+                        name,
+                        url: targetOnEmoji?.url || er.url,
+                        static_url: targetOnEmoji?.static_url || er.static_url
+                    }
+                } else {
+                    return er
+                }
+            })
         }
         const isMe = reaction.findIndex((r) => r.me) > -1
         const total = reaction.reduce((sum, reaction) => sum + reaction.count, 0)
         t.favourited = isMe
         t.favourites_count = total
-        //t.emojis = getEmoji(t.content, host)
         t.content = `<p>${autoLinker(t.content, host)}</p><p>${reactions.join(', ')}</p>`
         return t
     })
