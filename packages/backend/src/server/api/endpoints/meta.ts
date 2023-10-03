@@ -1,7 +1,12 @@
-import { IsNull, LessThanOrEqual, MoreThan } from 'typeorm';
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
+import { IsNull, LessThanOrEqual, MoreThan, Brackets } from 'typeorm';
 import { Inject, Injectable } from '@nestjs/common';
 import JSON5 from 'json5';
-import type { AdsRepository, UsersRepository } from '@/models/index.js';
+import type { AdsRepository, UsersRepository } from '@/models/_.js';
 import { MAX_NOTE_TEXT_LENGTH } from '@/const.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
@@ -35,6 +40,10 @@ export const meta = {
 			name: {
 				type: 'string',
 				optional: false, nullable: false,
+			},
+			shortName: {
+				type: 'string',
+				optional: false, nullable: true,
 			},
 			uri: {
 				type: 'string',
@@ -81,6 +90,10 @@ export const meta = {
 				optional: false, nullable: false,
 			},
 			cacheRemoteFiles: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
+			cacheRemoteSensitiveFiles: {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
@@ -282,13 +295,12 @@ export const paramDef = {
 	required: [],
 } as const;
 
-// eslint-disable-next-line import/no-default-export
 @Injectable()
-export default class extends Endpoint<typeof meta, typeof paramDef> {
+export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-disable-line import/no-default-export
 	constructor(
 		@Inject(DI.config)
 		private config: Config,
-	
+
 		@Inject(DI.usersRepository)
 		private usersRepository: UsersRepository,
 		
@@ -317,12 +329,15 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 				},
 			});
 
-			const ads = await this.adsRepository.find({
-				where: {
-					expiresAt: MoreThan(new Date()),
-					startsAt: LessThanOrEqual(new Date()),
-				},
-			});
+			const ads = await this.adsRepository.createQueryBuilder('ads')
+				.where('ads.expiresAt > :now', { now: new Date() })
+				.andWhere('ads.startsAt <= :now', { now: new Date() })
+				.andWhere(new Brackets(qb => {
+					// 曜日のビットフラグを確認する
+					qb.where('ads.dayOfWeek & :dayOfWeek > 0', { dayOfWeek: 1 << new Date().getDay() })
+						.orWhere('ads.dayOfWeek = 0');
+				}))
+				.getMany();
 
 			const response: any = {
 				maintainerName: instance.maintainerName,
@@ -331,6 +346,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 				version: this.config.version,
 
 				name: instance.name,
+				shortName: instance.shortName,
 				uri: this.config.url,
 				description: instance.description,
 				langs: instance.langs,
@@ -365,6 +381,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 					place: ad.place,
 					ratio: ad.ratio,
 					imageUrl: ad.imageUrl,
+					dayOfWeek: ad.dayOfWeek,
 				})),
 				enableEmail: instance.enableEmail,
 				enableServiceWorker: instance.enableServiceWorker,
@@ -379,6 +396,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> {
 
 				...(ps.detail ? {
 					cacheRemoteFiles: instance.cacheRemoteFiles,
+					cacheRemoteSensitiveFiles: instance.cacheRemoteSensitiveFiles,
 					requireSetup: (await this.usersRepository.countBy({
 						host: IsNull(),
 					})) === 0,

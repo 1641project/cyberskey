@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: syuilo and other misskey contributors
+ * SPDX-License-Identifier: AGPL-3.0-only
+ */
+
 import cluster from 'node:cluster';
 import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -7,7 +12,7 @@ import fastifyStatic from '@fastify/static';
 import { IsNull } from 'typeorm';
 import { GlobalEventService } from '@/core/GlobalEventService.js';
 import type { Config } from '@/config.js';
-import type { EmojisRepository, UserProfilesRepository, UsersRepository } from '@/models/index.js';
+import type { EmojisRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
 import { DI } from '@/di-symbols.js';
 import type Logger from '@/logger.js';
 import formBody from '@fastify/formbody'
@@ -18,6 +23,7 @@ import { createTemp } from '@/misc/create-temp.js';
 import { UserEntityService } from '@/core/entities/UserEntityService.js';
 import { LoggerService } from '@/core/LoggerService.js';
 import { bindThis } from '@/decorators.js';
+import { MetaService } from '@/core/MetaService.js';
 import { ActivityPubServerService } from './ActivityPubServerService.js';
 import { NodeinfoServerService } from './NodeinfoServerService.js';
 import { ApiServerService } from './api/ApiServerService.js';
@@ -27,6 +33,7 @@ import { WellKnownServerService } from './WellKnownServerService.js';
 import { FileServerService } from './FileServerService.js';
 import { ClientServerService } from './web/ClientServerService.js';
 import { OpenApiServerService } from './api/openapi/OpenApiServerService.js';
+import { OAuth2ProviderService } from './oauth/OAuth2ProviderService.js';
 
 const _dirname = fileURLToPath(new URL('.', import.meta.url));
 
@@ -49,6 +56,7 @@ export class ServerService implements OnApplicationShutdown {
 		@Inject(DI.emojisRepository)
 		private emojisRepository: EmojisRepository,
 
+		private metaService: MetaService,
 		private userEntityService: UserEntityService,
 		private apiMastodonCompatibleService: ApiMastodonCompatibleService,
 		private apiServerService: ApiServerService,
@@ -61,12 +69,13 @@ export class ServerService implements OnApplicationShutdown {
 		private clientServerService: ClientServerService,
 		private globalEventService: GlobalEventService,
 		private loggerService: LoggerService,
+		private oauth2ProviderService: OAuth2ProviderService,
 	) {
 		this.logger = this.loggerService.getLogger('server', 'gray', false);
 	}
 
 	@bindThis
-	public async launch() {
+	public async launch(): Promise<void> {
 		const fastify = Fastify({
 			trustProxy: true,
 			ignoreTrailingSlash: true,
@@ -98,6 +107,7 @@ export class ServerService implements OnApplicationShutdown {
 		fastify.register(this.activityPubServerService.createServer);
 		fastify.register(this.nodeinfoServerService.createServer);
 		fastify.register(this.wellKnownServerService.createServer);
+		fastify.register(this.oauth2ProviderService.createServer);
 
 		fastify.get<{ Params: { path: string }; Querystring: { static?: any; badge?: any; }; }>('/emoji/:path(.*)', async (request, reply) => {
 			const path = request.params.path;
@@ -169,11 +179,16 @@ export class ServerService implements OnApplicationShutdown {
 		});
 
 		fastify.get<{ Params: { x: string } }>('/identicon/:x', async (request, reply) => {
-			const [temp, cleanup] = await createTemp();
-			await genIdenticon(request.params.x, fs.createWriteStream(temp));
 			reply.header('Content-Type', 'image/png');
 			reply.header('Cache-Control', 'public, max-age=86400');
-			return fs.createReadStream(temp).on('close', () => cleanup());
+
+			if ((await this.metaService.fetch()).enableIdenticonGeneration) {
+				const [temp, cleanup] = await createTemp();
+				await genIdenticon(request.params.x, fs.createWriteStream(temp));
+				return fs.createReadStream(temp).on('close', () => cleanup());
+			} else {
+				return reply.redirect('/static-assets/avatar.png');
+			}
 		});
 
 
@@ -226,14 +241,25 @@ export class ServerService implements OnApplicationShutdown {
 			}
 		});
 
-		fastify.listen({ port: this.config.port, host: '0.0.0.0' });
+		if (this.config.socket) {
+			if (fs.existsSync(this.config.socket)) {
+				fs.unlinkSync(this.config.socket);
+			}
+			fastify.listen({ path: this.config.socket }, (err, address) => {
+				if (this.config.chmodSocket) {
+					fs.chmodSync(this.config.socket!, this.config.chmodSocket);
+				}
+			});
+		} else {
+			fastify.listen({ port: this.config.port, host: '0.0.0.0' });
+		}
 
 		await fastify.ready();
 	}
 
 	@bindThis
 	public async dispose(): Promise<void> {
-    await this.streamingApiServerService.detach();
+		await this.streamingApiServerService.detach();
 		await this.#fastify.close();
 	}
 
