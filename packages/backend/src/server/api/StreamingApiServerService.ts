@@ -96,7 +96,7 @@ export class StreamingApiServerService {
 				this.noteReadService,
 				this.notificationService,
 				this.cacheService,
-				user, app, host, accessToken, prepareStream
+				host, accessToken, prepareStream, user, app
 			);
 
 			await stream.init();
