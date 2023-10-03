@@ -101,7 +101,7 @@ export class StreamingApiServerService {
 
 			await stream.init();
 
-			this.#wss.handleUpgrade(request, socket, head, (ws) => {
+			this.#wss.handleUpgrade(request, socket, head, (ws: any) => {
 				this.#wss.emit('connection', ws, request, {
 					stream, user, app,
 				});

@@ -75,6 +75,7 @@ export const ROLE_POLICIES = [
 	'pinLimit',
 	'antennaLimit',
 	'wordMuteLimit',
+	'noteLengthLimit',
 	'webhookLimit',
 	'clipLimit',
 	'noteEachClipsLimit',
