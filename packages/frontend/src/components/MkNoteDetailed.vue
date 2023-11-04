@@ -107,8 +107,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				ref="renoteButton"
 				class="_button"
 				:class="$style.noteFooterButton"
-				:style="renoted ? 'color: var(--accent) !important;' : ''"
-				@mousedown="renoted ? undoRenote() : renote()"
+				@mousedown="renote()"
 			>
 				<i class="ti ti-repeat"></i>
 				<p v-if="appearNote.renoteCount > 0" :class="$style.noteFooterButtonCount">{{ appearNote.renoteCount }}</p>
@@ -258,7 +257,6 @@ let appearNote = $computed(() => isRenote ? note.renote as Misskey.entities.Note
 const isMyRenote = $i && ($i.id === note.userId);
 const showContent = ref(false);
 const isDeleted = ref(false);
-const renoted = ref(false);
 const muted = ref($i ? checkWordMute(appearNote, $i, $i.mutedWords) : false);
 const translation = ref(null);
 const translating = ref(false);
@@ -268,16 +266,6 @@ const showTicker = (defaultStore.state.instanceTicker === 'always') || (defaultS
 const conversation = ref<Misskey.entities.Note[]>([]);
 const replies = ref<Misskey.entities.Note[]>([]);
 const canRenote = computed(() => ['public', 'home'].includes(appearNote.visibility) || appearNote.userId === $i.id);
-
-if ($i){
-	os.api("notes/renotes", {
-		noteId: appearNote.id,
-		userId: $i.id,
-		limit: 1,
-	}).then((res) => {
-		renoted.value = res.length > 0;
-	});
-}
 
 const keymap = {
 	'r': () => reply(true),
@@ -392,14 +380,6 @@ function undoReact(note): void {
 	os.api('notes/reactions/delete', {
 		noteId: note.id,
 	});
-}
-
-function undoRenote() : void {
-	if (!renoted) return;
-	os.api("notes/unrenote", {
-		noteId: appearNote.id,
-	});
-	renoted.value = false;
 }
 
 function onContextmenu(ev: MouseEvent): void {
