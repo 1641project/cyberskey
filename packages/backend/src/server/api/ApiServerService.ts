@@ -18,6 +18,12 @@ import { ApiCallService } from './ApiCallService.js';
 import { SignupApiService } from './SignupApiService.js';
 import { SigninApiService } from './SigninApiService.js';
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify';
+import { apiMastodonCompatible } from './mastodon/ApiMastodonCompatibleCallService.js';
+import { createTemp } from '@/misc/create-temp.js';
+import { pipeline } from 'node:stream';
+import * as fs from 'node:fs';
+import { promisify } from 'node:util';
+const pump = promisify(pipeline);
 
 @Injectable()
 export class ApiServerService {
@@ -63,6 +69,7 @@ export class ApiServerService {
 		});
 
 		for (const endpoint of endpoints) {
+
 			const ep = {
 				name: endpoint.name,
 				meta: endpoint.meta,
@@ -143,6 +150,9 @@ export class ApiServerService {
 
 			return instances.map(instance => instance.host);
 		});
+
+
+
 
 		fastify.post<{ Params: { session: string; } }>('/miauth/:session/check', async (request, reply) => {
 			const token = await this.accessTokensRepository.findOneBy({

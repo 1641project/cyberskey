@@ -15,6 +15,8 @@ import type { Config } from '@/config.js';
 import type { EmojisRepository, UserProfilesRepository, UsersRepository } from '@/models/_.js';
 import { DI } from '@/di-symbols.js';
 import type Logger from '@/logger.js';
+import formBody from '@fastify/formbody'
+import megalodon, { MegalodonInterface } from '@cutls/megalodon';
 import * as Acct from '@/misc/acct.js';
 import { genIdenticon } from '@/misc/gen-identicon.js';
 import { createTemp } from '@/misc/create-temp.js';
@@ -25,6 +27,7 @@ import { MetaService } from '@/core/MetaService.js';
 import { ActivityPubServerService } from './ActivityPubServerService.js';
 import { NodeinfoServerService } from './NodeinfoServerService.js';
 import { ApiServerService } from './api/ApiServerService.js';
+import { ApiMastodonCompatibleService } from './api/mastodon/ApiMastodonCompatibleService.js'
 import { StreamingApiServerService } from './api/StreamingApiServerService.js';
 import { WellKnownServerService } from './WellKnownServerService.js';
 import { FileServerService } from './FileServerService.js';
@@ -33,6 +36,7 @@ import { OpenApiServerService } from './api/openapi/OpenApiServerService.js';
 import { OAuth2ProviderService } from './oauth/OAuth2ProviderService.js';
 
 const _dirname = fileURLToPath(new URL('.', import.meta.url));
+
 
 @Injectable()
 export class ServerService implements OnApplicationShutdown {
@@ -54,6 +58,7 @@ export class ServerService implements OnApplicationShutdown {
 
 		private metaService: MetaService,
 		private userEntityService: UserEntityService,
+		private apiMastodonCompatibleService: ApiMastodonCompatibleService,
 		private apiServerService: ApiServerService,
 		private openApiServerService: OpenApiServerService,
 		private streamingApiServerService: StreamingApiServerService,
@@ -86,6 +91,8 @@ export class ServerService implements OnApplicationShutdown {
 			});
 		}
 
+		fastify.register(formBody);
+		fastify.register(this.apiMastodonCompatibleService.createServer);
 		// Register non-serving static server so that the child services can use reply.sendFile.
 		// `root` here is just a placeholder and each call must use its own `rootPath`.
 		fastify.register(fastifyStatic, {
@@ -182,6 +189,7 @@ export class ServerService implements OnApplicationShutdown {
 				return reply.redirect('/static-assets/avatar.png');
 			}
 		});
+
 
 		fastify.get<{ Params: { code: string } }>('/verify-email/:code', async (request, reply) => {
 			const profile = await this.userProfilesRepository.findOneBy({

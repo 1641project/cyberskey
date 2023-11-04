@@ -1469,6 +1469,7 @@ _role:
     pinMax: "จํานวนสูงสุดของโน้ตที่ปักหมุดไว้"
     antennaMax: "จำนวนสูงสุดของเสาอากาศ"
     wordMuteMax: "จำนวนอักขระสูงสุดที่อนุญาตในการปิดเสียงคำ"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "จำนวนเว็บฮุคสูงสุด"
     clipMax: "จำนวนคลิปสูงสุด"
     noteEachClipsMax: "จำนวนโน้ตสูงสุดภายในคลิป"

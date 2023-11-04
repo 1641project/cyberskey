@@ -1672,6 +1672,7 @@ export interface Locale {
             "pinMax": string;
             "antennaMax": string;
             "wordMuteMax": string;
+            "noteLengthMax": string;
             "webhookMax": string;
             "clipMax": string;
             "noteEachClipsMax": string;

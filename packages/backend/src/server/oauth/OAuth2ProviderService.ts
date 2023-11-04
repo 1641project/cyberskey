@@ -350,6 +350,8 @@ export class OAuth2ProviderService {
 
 	@bindThis
 	public async createServer(fastify: FastifyInstance): Promise<void> {
+		// commented out because our `kids` has Mastodon Compatible API.
+		/*
 		// https://datatracker.ietf.org/doc/html/rfc8414.html
 		// https://indieauth.spec.indieweb.org/#indieauth-server-metadata
 		fastify.get('/.well-known/oauth-authorization-server', async (_request, reply) => {
@@ -482,5 +484,6 @@ export class OAuth2ProviderService {
 				},
 			});
 		});
+		*/
 	}
 }

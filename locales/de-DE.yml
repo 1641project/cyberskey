@@ -1497,6 +1497,7 @@ _role:
     pinMax: "Maximale Anzahl an angehefteten Notizen"
     antennaMax: "Maximale Anzahl an Antennen"
     wordMuteMax: "Maximale Zeichenlänge für Wortstummschaltungen"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Maximale Anzahl an Webhooks"
     clipMax: "Maximale Anzahl an Clips"
     noteEachClipsMax: "Maximale Anzahl an Notizen innerhalb eines Clips"

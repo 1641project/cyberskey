@@ -1497,6 +1497,7 @@ _role:
     pinMax: "置頂貼文的最大數量"
     antennaMax: "可建立的天線數量"
     wordMuteMax: "靜音文字的最大字數"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "可建立的 Webhook 數量"
     clipMax: "可建立的摘錄數量"
     noteEachClipsMax: "摘錄內貼文的最大數量"

@@ -721,6 +721,10 @@ export class ClientServerService {
 			reply.code(503);
 			reply.header('Cache-Control', 'private, max-age=0');
 		});
+		fastify.get('/api/v1/streaming', async (request, reply) => {
+			reply.code(503);
+			reply.header('Cache-Control', 'private, max-age=0');
+		});
 
 		// Render base html for all requests
 		fastify.get('*', async (request, reply) => {

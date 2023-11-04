@@ -327,7 +327,7 @@ export class CustomEmojiService implements OnApplicationShutdown {
 	public async populateEmoji(emojiName: string, noteUserHost: string | null): Promise<string | null> {
 		const { name, host } = this.parseEmojiStr(emojiName, noteUserHost);
 		if (name == null) return null;
-		if (host == null) return null;
+		//if (host == null) return null;
 
 		const queryOrNull = async () => (await this.emojisRepository.findOneBy({
 			name,

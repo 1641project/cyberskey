@@ -1459,6 +1459,7 @@ _role:
     pinMax: "고정할 수 있는 노트 수"
     antennaMax: "최대 안테나 생성 허용 수"
     wordMuteMax: "단어 뮤트할 수 있는 문자 수"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "생성할 수 있는 웹훅 수"
     clipMax: "생성할 수 있는 클립 수"
     noteEachClipsMax: "각 클립에 추가할 수 있는 노트 수"

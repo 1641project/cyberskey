@@ -1230,6 +1230,7 @@ _role:
     pinMax: "Número máximo de notas fixadas"
     antennaMax: "Número máximo de antenas"
     wordMuteMax: "Número máximo de caracteres nas palavras silenciadas"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Número máximo de webhooks"
     clipMax: "Número máximo de clipes"
     noteEachClipsMax: "Número máximo de notas em um clipe"

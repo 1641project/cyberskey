@@ -58,6 +58,10 @@ export class StreamingApiServerService {
 			}
 
 			const q = new URL(request.url, `http://${request.headers.host}`).searchParams;
+			const qObj = Object.fromEntries(q)
+			const cred = qObj.i || qObj.access_token || request.headers
+			const accessToken = cred.toString()
+			const i = q.get('i') || accessToken
 
 			let user: MiLocalUser | null = null;
 			let app: MiAccessToken | null = null;
@@ -89,19 +93,20 @@ export class StreamingApiServerService {
 				socket.destroy();
 				return;
 			}
-
+			const host = 'https://' + request.headers.host
+			const prepareStream = qObj.stream?.toString()
 			const stream = new MainStreamConnection(
 				this.channelsService,
 				this.noteReadService,
 				this.notificationService,
 				this.cacheService,
 				this.channelFollowingService,
-				user, app,
+				host, accessToken, prepareStream, user, app
 			);
 
 			await stream.init();
 
-			this.#wss.handleUpgrade(request, socket, head, (ws) => {
+			this.#wss.handleUpgrade(request, socket, head, (ws: any) => {
 				this.#wss.emit('connection', ws, request, {
 					stream, user, app,
 				});

@@ -1417,6 +1417,7 @@ _role:
     pinMax: "Maximální počet připnutých poznámek"
     antennaMax: "Maximální počet antén"
     wordMuteMax: "Maximální počet znaků povolených v ztlumených slovech"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Maximální počet Webhooků"
     clipMax: "Maximální počet připnutí"
     noteEachClipsMax: "Maximální počet poznámek v připnutí"

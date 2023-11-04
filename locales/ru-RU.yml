@@ -1357,6 +1357,7 @@ _role:
     pinMax: "Доступное количество закреплённых заметок"
     antennaMax: "Доступное количество антенн"
     wordMuteMax: "Доступное количество знаков в списке скрытия слов"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Максимум web-хуков"
     clipMax: "Максимальное количество подборок"
     noteEachClipsMax: "Максимальное количество заметок в подборке"

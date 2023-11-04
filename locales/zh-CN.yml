@@ -1471,6 +1471,7 @@ _role:
     pinMax: "帖子置顶数量限制"
     antennaMax: "可创建的最大天线数量"
     wordMuteMax: "屏蔽词的字数限制"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Webhook 创建数量限制"
     clipMax: "便签创建数量限制"
     noteEachClipsMax: "单个便签内的贴文数量限制"

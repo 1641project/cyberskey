@@ -15,6 +15,7 @@ import { MAX_NOTE_TEXT_LENGTH } from '@/const.js';
 import { Endpoint } from '@/server/api/endpoint-base.js';
 import { NoteEntityService } from '@/core/entities/NoteEntityService.js';
 import { NoteCreateService } from '@/core/NoteCreateService.js';
+import { RoleService } from '@/core/RoleService.js';
 import { DI } from '@/di-symbols.js';
 import { isPureRenote } from '@/misc/is-pure-renote.js';
 import { ApiError } from '../../error.js';
@@ -27,8 +28,8 @@ export const meta = {
 	prohibitMoved: true,
 
 	limit: {
-		duration: ms('1hour'),
-		max: 300,
+		duration: ms('20s'),
+		max: 3,
 	},
 
 	kind: 'write:notes',
@@ -86,6 +87,12 @@ export const meta = {
 			message: 'No such channel.',
 			code: 'NO_SUCH_CHANNEL',
 			id: 'b1653923-5453-4edc-b786-7c4f39bb0bbb',
+		},
+
+		tooLongNote: {
+			message: 'This is too long note.',
+			code: 'TOO_LONG_NOTE',
+			id: '8050c0a0-686a-4049-9686-4ed153539337',
 		},
 
 		youHaveBeenBlocked: {
@@ -195,6 +202,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 		private noteEntityService: NoteEntityService,
 		private noteCreateService: NoteCreateService,
+		private roleService: RoleService,
 	) {
 		super(meta, paramDef, async (ps, me) => {
 			let visibleUsers: MiUser[] = [];
@@ -309,6 +317,11 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				if (channel == null) {
 					throw new ApiError(meta.errors.noSuchChannel);
 				}
+			}
+
+			const maxLength = (await this.roleService.getUserPolicies(me.id));
+			if ((ps.text?.length || 0) >= maxLength.noteLengthLimit) {
+				throw new ApiError(meta.errors.tooLongNote);
 			}
 
 			// 投稿を作成

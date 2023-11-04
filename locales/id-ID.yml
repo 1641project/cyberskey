@@ -1479,6 +1479,7 @@ _role:
     pinMax: "Jumlah maksimal catatan yang disematkan"
     antennaMax: "Jumlah maksimum antena"
     wordMuteMax: "Jumlah maksimum karakter yang diperbolehkan dalam membisukan kata"
+    noteLengthMax: "Maximum number of characters allowed in notes"
     webhookMax: "Jumlah maksimum Webhook"
     clipMax: "Jumlah maksimum Klip"
     noteEachClipsMax: "Jumlah maksimum catatan di dalam Klip"

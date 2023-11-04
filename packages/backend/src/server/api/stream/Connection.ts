@@ -17,6 +17,9 @@ import { ChannelFollowingService } from '@/core/ChannelFollowingService.js';
 import type { ChannelsService } from './ChannelsService.js';
 import type { EventEmitter } from 'events';
 import type Channel from './channel.js';
+import { Converter } from '@cutls/megalodon'
+import { getClient } from '../mastodon/ApiMastodonCompatibleCallService.js';
+import { toTextWithReaction } from '../mastodon/endpoints/timeline.js';
 
 /**
  * Main stream connection
@@ -30,6 +33,10 @@ export default class Connection {
 	private channels: Channel[] = [];
 	private subscribingNotes: any = {};
 	private cachedNotes: Packed<'Note'>[] = [];
+	private isMastodonCompatible: boolean = false;
+	private host: string;
+	private accessToken: string;
+	private currentSubscribe: string[][] = [];
 	public userProfile: MiUserProfile | null = null;
 	public following: Record<string, Pick<MiFollowing, 'withReplies'> | undefined> = {};
 	public followingChannels: Set<string> = new Set();
@@ -45,11 +52,23 @@ export default class Connection {
 		private cacheService: CacheService,
 		private channelFollowingService: ChannelFollowingService,
 
+		host: string,
+		accessToken: string,
+		prepareStream: string | undefined,
 		user: MiUser | null | undefined,
 		token: MiAccessToken | null | undefined,
 	) {
+		console.log('constructor', host)
+		this.wsConnection = this.wsConnection;
+		this.subscriber = this.subscriber;
 		if (user) this.user = user;
 		if (token) this.token = token;
+		if (host) this.host = host;
+		if (accessToken) this.accessToken = accessToken;
+		console.log('prepare', prepareStream);
+		if (prepareStream) {
+			this.onWsConnectionMessage(Buffer.from(JSON.stringify({ stream: prepareStream, type: 'subscribe' })))
+		}
 	}
 
 	@bindThis
@@ -99,27 +118,119 @@ export default class Connection {
 	 */
 	@bindThis
 	private async onWsConnectionMessage(data: WebSocket.RawData) {
-		let obj: Record<string, any>;
-
+		let object: Record<string, any>;
+		let objs: Record<string, any>[] = [];
 		try {
-			obj = JSON.parse(data.toString());
+			object = JSON.parse(data.toString());
 		} catch (e) {
 			return;
 		}
+		objs = [object]
+		const simpleObj = object
+		if (simpleObj.stream) {
+			// is Mastodon Compatible
+			this.isMastodonCompatible = true
+			if (simpleObj.type === 'subscribe') {
+				let forSubscribe = []
+				if (simpleObj.stream === 'user') {
+					this.currentSubscribe.push(['user'])
+					objs = [{
+						type: 'connect',
+						body: {
+							channel: 'main',
+							id: simpleObj.stream
+						}
+					},
+					{
+						type: 'connect',
+						body: {
+							channel: 'homeTimeline',
+							id: simpleObj.stream,
+							params: { withReplies: false }
+						}
+					}
+					]
+					const client = getClient(this.host, this.accessToken);
+					try {
+						const tl = await client.getHomeTimeline()
+						for (const t of tl.data) forSubscribe.push(t.id)
 
-		const { type, body } = obj;
+					} catch (e: any) {
+						console.log(e)
+						console.error(e.response.data)
+					}
+				} else if (simpleObj.stream === 'public:local') {
+					this.currentSubscribe.push(['public:local'])
+					objs = [
+						{
+							type: 'connect',
+							body: {
+								channel: 'localTimeline',
+								id: simpleObj.stream
+							}
+						}
+					]
+					const client = getClient(this.host, this.accessToken);
+					const tl = await client.getLocalTimeline()
+					for (const t of tl.data) forSubscribe.push(t.id)
+				} else if (simpleObj.stream === 'public') {
+					this.currentSubscribe.push(['public'])
+					objs = [
+						{
+							type: 'connect',
+							body: {
+								channel: 'globalTimeline',
+								id: simpleObj.stream
+							}
+						}
+					]
+					const client = getClient(this.host, this.accessToken);
+					const tl = await client.getPublicTimeline()
+					for (const t of tl.data) forSubscribe.push(t.id)
+				} else if (simpleObj.stream === 'list') {
+					this.currentSubscribe.push(['list', simpleObj.list])
+					objs = [
+						{
+							type: 'connect',
+							body: {
+								channel: 'list',
+								id: simpleObj.stream,
+								params: {
+									listId: simpleObj.list
+								}
+							}
+						}
+					]
+					const client = getClient(this.host, this.accessToken);
+					const tl = await client.getListTimeline(simpleObj.list)
+					for (const t of tl.data) forSubscribe.push(t.id)
+				}
+				for (const s of forSubscribe) {
+					objs.push({
+						type: 's',
+						body: {
+							id: s
+						}
+					})
+				}
+			}
+		}
 
-		switch (type) {
-			case 'readNotification': this.onReadNotification(body); break;
-			case 'subNote': this.onSubscribeNote(body); break;
-			case 's': this.onSubscribeNote(body); break; // alias
-			case 'sr': this.onSubscribeNote(body); this.readNote(body); break;
-			case 'unsubNote': this.onUnsubscribeNote(body); break;
-			case 'un': this.onUnsubscribeNote(body); break; // alias
-			case 'connect': this.onChannelConnectRequested(body); break;
-			case 'disconnect': this.onChannelDisconnectRequested(body); break;
-			case 'channel': this.onChannelMessageRequested(body); break;
-			case 'ch': this.onChannelMessageRequested(body); break; // alias
+		for (const obj of objs) {
+			const { type, body } = obj;
+			console.log(type, body)
+			switch (type) {
+				case 'readNotification': this.onReadNotification(body); break;
+				case 'subNote': this.onSubscribeNote(body); break;
+				case 's': this.onSubscribeNote(body); break; // alias
+				case 'sr': this.onSubscribeNote(body); this.readNote(body); break;
+				case 'unsubNote': this.onUnsubscribeNote(body); break;
+				case 'un': this.onUnsubscribeNote(body); break; // alias
+				case 'connect': this.onChannelConnectRequested(body); break;
+				case 'disconnect': this.onChannelDisconnectRequested(body); break;
+				case 'channel': this.onChannelMessageRequested(body); break;
+				case 'ch': this.onChannelMessageRequested(body); break; // alias
+			}
 		}
 	}
 
@@ -223,16 +334,64 @@ export default class Connection {
 		const { id } = payload;
 		this.disconnectChannel(id);
 	}
-
 	/**
 	 * クライアントにメッセージ送信
 	 */
 	@bindThis
 	public sendMessageToWs(type: string, payload: any) {
-		this.wsConnection.send(JSON.stringify({
-			type: type,
-			body: payload,
-		}));
+		console.log('sending', this.isMastodonCompatible, payload)
+		if (this.isMastodonCompatible) {
+			if (payload.type === 'note') {
+				this.wsConnection.send(JSON.stringify({
+					stream: [payload.id],
+					event: 'update',
+					payload: JSON.stringify(toTextWithReaction([Converter.note(payload.body, this.host)], this.host)[0])
+				}));
+				this.onSubscribeNote({
+					id: payload.body.id
+				})
+			} else if (payload.type === 'reacted' || payload.type === 'unreacted') {
+				// reaction
+				const client = getClient(this.host, this.accessToken);
+				client.getStatus(payload.id).then((data) => {
+					const newPost = toTextWithReaction([data.data], this.host);
+					const targetPost = newPost[0]
+					for (const stream of this.currentSubscribe) {
+						this.wsConnection.send(JSON.stringify({
+							stream,
+							event: 'status.update',
+							payload: JSON.stringify(targetPost)
+						}));
+					}
+				})
+			} else if (payload.type === 'deleted') {
+				// delete
+				for (const stream of this.currentSubscribe) {
+					this.wsConnection.send(JSON.stringify({
+						stream,
+						event: 'delete',
+						payload: payload.id
+					}));
+				}
+			} else if (payload.type === 'unreadNotification') {
+				if (payload.id === 'user') {
+					const body = Converter.notification(payload.body, this.host)
+					if (body.type === 'reaction') body.type = 'favourite'
+					body.status = toTextWithReaction(body.status ? [body.status] : [], '')[0]
+					this.wsConnection.send(JSON.stringify({
+						stream: ['user'],
+						event: 'notification',
+						payload: JSON.stringify(body)
+					}));
+				}
+			}
+
+		} else {
+			this.wsConnection.send(JSON.stringify({
+				type: type,
+				body: payload,
+			}));
+		}
 	}
 
 	/**
@@ -241,15 +400,18 @@ export default class Connection {
 	@bindThis
 	public connectChannel(id: string, params: any, channel: string, pong = false) {
 		const channelService = this.channelsService.getChannelService(channel);
+		console.log('channelSubscribe', params, channel)
 
 		if (channelService.requireCredential && this.user == null) {
 			return;
 		}
+		console.log('channelSubscribe2', params, channel)
 
 		// 共有可能チャンネルに接続しようとしていて、かつそのチャンネルに既に接続していたら無意味なので無視
 		if (channelService.shouldShare && this.channels.some(c => c.chName === channel)) {
 			return;
 		}
+		console.log('channelSubscribe3', params, channel)
 
 		const ch: Channel = channelService.create(id, this);
 		this.channels.push(ch);

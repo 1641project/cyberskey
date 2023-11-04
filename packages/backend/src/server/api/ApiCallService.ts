@@ -138,13 +138,12 @@ export class ApiCallService implements OnApplicationShutdown {
 			reply.send();
 			return;
 		}
-
 		const [path] = await createTemp();
 		await stream.pipeline(multipartData.file, fs.createWriteStream(path));
 
-		const fields = {} as Record<string, unknown>;
+		const fields = {} as Record<string, string | undefined>;
 		for (const [k, v] of Object.entries(multipartData.fields)) {
-			fields[k] = typeof v === 'object' && 'value' in v ? v.value : undefined;
+			fields[k] = v.value;
 		}
 
 		// https://datatracker.ietf.org/doc/html/rfc6750.html#section-2.1 (case sensitive)
