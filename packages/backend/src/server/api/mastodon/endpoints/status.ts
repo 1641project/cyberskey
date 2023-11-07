@@ -126,7 +126,7 @@ export function apiStatusMastodon(fastify: FastifyInstance): void {
         const client = getClient(BASE_URL, accessTokens);
         const react = await getFirstReaction(BASE_URL, accessTokens);
         try {
-            const a = await client.createEmojiReaction(request.params.id, react) as any;
+					const a = (await client.createEmojiReaction(request.params.id, react, '⭐')) as any;
             //const data = await client.favouriteStatus(request.params.id) as any;
             return a.data;
         } catch (e: any) {
