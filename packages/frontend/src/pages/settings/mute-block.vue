@@ -6,21 +6,21 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <div class="_gaps_m">
 	<MkFolder>
-		<template #icon><i class="ti ti-message-off"></i></template>
+		<template #icon><i class="ph-envelope ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.wordMute }}</template>
 
 		<XWordMute/>
 	</MkFolder>
 
 	<MkFolder>
-		<template #icon><i class="ti ti-planet-off"></i></template>
+		<template #icon><i class="ph-globe-simple ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.instanceMute }}</template>
 
 		<XInstanceMute/>
 	</MkFolder>
 
 	<MkFolder>
-		<template #icon><i class="ti ti-repeat-off"></i></template>
+		<template #icon><i class="ph-repeat ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.mutedUsers }} ({{ i18n.ts.renote }})</template>
 
 		<MkPagination :pagination="renoteMutingPagination">
@@ -38,8 +38,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkA :class="$style.userItemMainBody" :to="userPage(item.mutee)">
 								<MkUserCardMini :user="item.mutee"/>
 							</MkA>
-							<button class="_button" :class="$style.userToggle" @click="toggleRenoteMuteItem(item)"><i :class="$style.chevron" class="ti ti-chevron-down"></i></button>
-							<button class="_button" :class="$style.remove" @click="unrenoteMute(item.mutee, $event)"><i class="ti ti-x"></i></button>
+							<button class="_button" :class="$style.userToggle" @click="toggleRenoteMuteItem(item)"><i :class="$style.chevron" class="ph-caret-down ph-bold ph-lg"></i></button>
+							<button class="_button" :class="$style.remove" @click="unrenoteMute(item.mutee, $event)"><i class="ph-x ph-bold ph-lg"></i></button>
 						</div>
 						<div v-if="expandedRenoteMuteItems.includes(item.id)" :class="$style.userItemSub">
 							<div>Muted at: <MkTime :time="item.createdAt" mode="detail"/></div>
@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</MkFolder>
 
 	<MkFolder>
-		<template #icon><i class="ti ti-eye-off"></i></template>
+		<template #icon><i class="ph-eye-slash ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.mutedUsers }}</template>
 
 		<MkPagination :pagination="mutingPagination">
@@ -69,8 +69,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkA :class="$style.userItemMainBody" :to="userPage(item.mutee)">
 								<MkUserCardMini :user="item.mutee"/>
 							</MkA>
-							<button class="_button" :class="$style.userToggle" @click="toggleMuteItem(item)"><i :class="$style.chevron" class="ti ti-chevron-down"></i></button>
-							<button class="_button" :class="$style.remove" @click="unmute(item.mutee, $event)"><i class="ti ti-x"></i></button>
+							<button class="_button" :class="$style.userToggle" @click="toggleMuteItem(item)"><i :class="$style.chevron" class="ph-caret-down ph-bold ph-lg"></i></button>
+							<button class="_button" :class="$style.remove" @click="unmute(item.mutee, $event)"><i class="ph-x ph-bold ph-lg"></i></button>
 						</div>
 						<div v-if="expandedMuteItems.includes(item.id)" :class="$style.userItemSub">
 							<div>Muted at: <MkTime :time="item.createdAt" mode="detail"/></div>
@@ -84,7 +84,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</MkFolder>
 
 	<MkFolder>
-		<template #icon><i class="ti ti-ban"></i></template>
+		<template #icon><i class="ph-prohibit ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.blockedUsers }}</template>
 
 		<MkPagination :pagination="blockingPagination">
@@ -102,8 +102,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkA :class="$style.userItemMainBody" :to="userPage(item.blockee)">
 								<MkUserCardMini :user="item.blockee"/>
 							</MkA>
-							<button class="_button" :class="$style.userToggle" @click="toggleBlockItem(item)"><i :class="$style.chevron" class="ti ti-chevron-down"></i></button>
-							<button class="_button" :class="$style.remove" @click="unblock(item.blockee, $event)"><i class="ti ti-x"></i></button>
+							<button class="_button" :class="$style.userToggle" @click="toggleBlockItem(item)"><i :class="$style.chevron" class="ph-caret-down ph-bold ph-lg"></i></button>
+							<button class="_button" :class="$style.remove" @click="unblock(item.blockee, $event)"><i class="ph-x ph-bold ph-lg"></i></button>
 						</div>
 						<div v-if="expandedBlockItems.includes(item.id)" :class="$style.userItemSub">
 							<div>Blocked at: <MkTime :time="item.createdAt" mode="detail"/></div>
@@ -153,7 +153,7 @@ let expandedBlockItems = $ref([]);
 async function unrenoteMute(user, ev) {
 	os.popupMenu([{
 		text: i18n.ts.renoteUnmute,
-		icon: 'ti ti-x',
+		icon: 'ph-x ph-bold ph-lg',
 		action: async () => {
 			await os.apiWithDialog('renote-mute/delete', { userId: user.id });
 			//role.users = role.users.filter(u => u.id !== user.id);
@@ -164,7 +164,7 @@ async function unrenoteMute(user, ev) {
 async function unmute(user, ev) {
 	os.popupMenu([{
 		text: i18n.ts.unmute,
-		icon: 'ti ti-x',
+		icon: 'ph-x ph-bold ph-lg',
 		action: async () => {
 			await os.apiWithDialog('mute/delete', { userId: user.id });
 			//role.users = role.users.filter(u => u.id !== user.id);
@@ -175,7 +175,7 @@ async function unmute(user, ev) {
 async function unblock(user, ev) {
 	os.popupMenu([{
 		text: i18n.ts.unblock,
-		icon: 'ti ti-x',
+		icon: 'ph-x ph-bold ph-lg',
 		action: async () => {
 			await os.apiWithDialog('blocking/delete', { userId: user.id });
 			//role.users = role.users.filter(u => u.id !== user.id);
@@ -213,7 +213,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.muteAndBlock,
-	icon: 'ti ti-ban',
+	icon: 'ph-prohibit ph-bold ph-lg',
 });
 </script>
 

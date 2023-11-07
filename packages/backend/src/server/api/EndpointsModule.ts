@@ -68,7 +68,12 @@ import * as ep___admin_serverInfo from './endpoints/admin/server-info.js';
 import * as ep___admin_showModerationLogs from './endpoints/admin/show-moderation-logs.js';
 import * as ep___admin_showUser from './endpoints/admin/show-user.js';
 import * as ep___admin_showUsers from './endpoints/admin/show-users.js';
+import * as ep___admin_nsfwUser from './endpoints/admin/nsfw-user.js';
+import * as ep___admin_unnsfwUser from './endpoints/admin/unnsfw-user.js';
+import * as ep___admin_silenceUser from './endpoints/admin/silence-user.js';
+import * as ep___admin_unsilenceUser from './endpoints/admin/unsilence-user.js';
 import * as ep___admin_suspendUser from './endpoints/admin/suspend-user.js';
+import * as ep___admin_approveUser from './endpoints/admin/approve-user.js';
 import * as ep___admin_unsuspendUser from './endpoints/admin/unsuspend-user.js';
 import * as ep___admin_updateMeta from './endpoints/admin/update-meta.js';
 import * as ep___admin_deleteAccount from './endpoints/admin/delete-account.js';
@@ -228,6 +233,7 @@ import * as ep___i_readAllUnreadNotes from './endpoints/i/read-all-unread-notes.
 import * as ep___i_readAnnouncement from './endpoints/i/read-announcement.js';
 import * as ep___i_regenerateToken from './endpoints/i/regenerate-token.js';
 import * as ep___i_registry_getAll from './endpoints/i/registry/get-all.js';
+import * as ep___i_registry_getUnsecure from './endpoints/i/registry/get-unsecure.js';
 import * as ep___i_registry_getDetail from './endpoints/i/registry/get-detail.js';
 import * as ep___i_registry_get from './endpoints/i/registry/get.js';
 import * as ep___i_registry_keysWithType from './endpoints/i/registry/keys-with-type.js';
@@ -282,6 +288,8 @@ import * as ep___notes_reactions_create from './endpoints/notes/reactions/create
 import * as ep___notes_reactions_delete from './endpoints/notes/reactions/delete.js';
 import * as ep___notes_renotes from './endpoints/notes/renotes.js';
 import * as ep___notes_replies from './endpoints/notes/replies.js';
+import * as ep___notes_edit from './endpoints/notes/edit.js';
+import * as ep___notes_versions from './endpoints/notes/versions.js';
 import * as ep___notes_searchByTag from './endpoints/notes/search-by-tag.js';
 import * as ep___notes_search from './endpoints/notes/search.js';
 import * as ep___notes_show from './endpoints/notes/show.js';
@@ -364,6 +372,7 @@ import * as ep___users_updateMemo from './endpoints/users/update-memo.js';
 import * as ep___fetchRss from './endpoints/fetch-rss.js';
 import * as ep___fetchExternalResources from './endpoints/fetch-external-resources.js';
 import * as ep___retention from './endpoints/retention.js';
+import * as ep___sponsors from './endpoints/sponsors.js';
 import { GetterService } from './GetterService.js';
 import { ApiLoggerService } from './ApiLoggerService.js';
 import type { Provider } from '@nestjs/common';
@@ -430,7 +439,12 @@ const $admin_serverInfo: Provider = { provide: 'ep:admin/server-info', useClass:
 const $admin_showModerationLogs: Provider = { provide: 'ep:admin/show-moderation-logs', useClass: ep___admin_showModerationLogs.default };
 const $admin_showUser: Provider = { provide: 'ep:admin/show-user', useClass: ep___admin_showUser.default };
 const $admin_showUsers: Provider = { provide: 'ep:admin/show-users', useClass: ep___admin_showUsers.default };
+const $admin_nsfwUser: Provider = { provide: 'ep:admin/nsfw-user', useClass: ep___admin_nsfwUser.default };
+const $admin_unnsfwUser: Provider = { provide: 'ep:admin/unnsfw-user', useClass: ep___admin_unnsfwUser.default };
+const $admin_silenceUser: Provider = { provide: 'ep:admin/silence-user', useClass: ep___admin_silenceUser.default };
+const $admin_unsilenceUser: Provider = { provide: 'ep:admin/unsilence-user', useClass: ep___admin_unsilenceUser.default };
 const $admin_suspendUser: Provider = { provide: 'ep:admin/suspend-user', useClass: ep___admin_suspendUser.default };
+const $admin_approveUser: Provider = { provide: 'ep:admin/approve-user', useClass: ep___admin_approveUser.default };
 const $admin_unsuspendUser: Provider = { provide: 'ep:admin/unsuspend-user', useClass: ep___admin_unsuspendUser.default };
 const $admin_updateMeta: Provider = { provide: 'ep:admin/update-meta', useClass: ep___admin_updateMeta.default };
 const $admin_deleteAccount: Provider = { provide: 'ep:admin/delete-account', useClass: ep___admin_deleteAccount.default };
@@ -590,6 +604,7 @@ const $i_readAllUnreadNotes: Provider = { provide: 'ep:i/read-all-unread-notes',
 const $i_readAnnouncement: Provider = { provide: 'ep:i/read-announcement', useClass: ep___i_readAnnouncement.default };
 const $i_regenerateToken: Provider = { provide: 'ep:i/regenerate-token', useClass: ep___i_regenerateToken.default };
 const $i_registry_getAll: Provider = { provide: 'ep:i/registry/get-all', useClass: ep___i_registry_getAll.default };
+const $i_registry_getUnsecure: Provider = { provide: 'ep:i/registry/get-unsecure', useClass: ep___i_registry_getUnsecure.default };
 const $i_registry_getDetail: Provider = { provide: 'ep:i/registry/get-detail', useClass: ep___i_registry_getDetail.default };
 const $i_registry_get: Provider = { provide: 'ep:i/registry/get', useClass: ep___i_registry_get.default };
 const $i_registry_keysWithType: Provider = { provide: 'ep:i/registry/keys-with-type', useClass: ep___i_registry_keysWithType.default };
@@ -654,6 +669,8 @@ const $notes_timeline: Provider = { provide: 'ep:notes/timeline', useClass: ep__
 const $notes_translate: Provider = { provide: 'ep:notes/translate', useClass: ep___notes_translate.default };
 const $notes_unrenote: Provider = { provide: 'ep:notes/unrenote', useClass: ep___notes_unrenote.default };
 const $notes_userListTimeline: Provider = { provide: 'ep:notes/user-list-timeline', useClass: ep___notes_userListTimeline.default };
+const $notes_edit: Provider = { provide: 'ep:notes/edit', useClass: ep___notes_edit.default };
+const $notes_versions: Provider = { provide: 'ep:notes/versions', useClass: ep___notes_versions.default };
 const $notifications_create: Provider = { provide: 'ep:notifications/create', useClass: ep___notifications_create.default };
 const $notifications_markAllAsRead: Provider = { provide: 'ep:notifications/mark-all-as-read', useClass: ep___notifications_markAllAsRead.default };
 const $notifications_testNotification: Provider = { provide: 'ep:notifications/test-notification', useClass: ep___notifications_testNotification.default };
@@ -726,6 +743,7 @@ const $users_updateMemo: Provider = { provide: 'ep:users/update-memo', useClass:
 const $fetchRss: Provider = { provide: 'ep:fetch-rss', useClass: ep___fetchRss.default };
 const $fetchExternalResources: Provider = { provide: 'ep:fetch-external-resources', useClass: ep___fetchExternalResources.default };
 const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention.default };
+const $sponsors: Provider = { provide: 'ep:sponsors', useClass: ep___sponsors.default };
 
 @Module({
 	imports: [
@@ -796,7 +814,12 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$admin_showModerationLogs,
 		$admin_showUser,
 		$admin_showUsers,
+		$admin_nsfwUser,
+		$admin_unnsfwUser,
+		$admin_silenceUser,
+		$admin_unsilenceUser,
 		$admin_suspendUser,
+		$admin_approveUser,
 		$admin_unsuspendUser,
 		$admin_updateMeta,
 		$admin_deleteAccount,
@@ -956,6 +979,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$i_readAnnouncement,
 		$i_regenerateToken,
 		$i_registry_getAll,
+		$i_registry_getUnsecure,
 		$i_registry_getDetail,
 		$i_registry_get,
 		$i_registry_keysWithType,
@@ -1020,6 +1044,8 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$notes_translate,
 		$notes_unrenote,
 		$notes_userListTimeline,
+		$notes_edit,
+		$notes_versions,
 		$notifications_create,
 		$notifications_markAllAsRead,
 		$notifications_testNotification,
@@ -1092,6 +1118,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$fetchRss,
 		$fetchExternalResources,
 		$retention,
+		$sponsors,
 	],
 	exports: [
 		$admin_meta,
@@ -1156,7 +1183,12 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$admin_showModerationLogs,
 		$admin_showUser,
 		$admin_showUsers,
+		$admin_nsfwUser,
+		$admin_unnsfwUser,
+		$admin_silenceUser,
+		$admin_unsilenceUser,
 		$admin_suspendUser,
+		$admin_approveUser,
 		$admin_unsuspendUser,
 		$admin_updateMeta,
 		$admin_deleteAccount,
@@ -1316,6 +1348,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$i_readAnnouncement,
 		$i_regenerateToken,
 		$i_registry_getAll,
+		$i_registry_getUnsecure,
 		$i_registry_getDetail,
 		$i_registry_get,
 		$i_registry_keysWithType,
@@ -1380,6 +1413,8 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$notes_translate,
 		$notes_unrenote,
 		$notes_userListTimeline,
+		$notes_edit,
+		$notes_versions,
 		$notifications_create,
 		$notifications_markAllAsRead,
 		$pagePush,
@@ -1449,6 +1484,7 @@ const $retention: Provider = { provide: 'ep:retention', useClass: ep___retention
 		$fetchRss,
 		$fetchExternalResources,
 		$retention,
+		$sponsors,
 	],
 })
 export class EndpointsModule {}

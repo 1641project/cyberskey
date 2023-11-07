@@ -15,6 +15,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<span class="name"><MkUserName class="name" :user="user"/></span>
 						<span class="sub"><span class="acct _monospace">@{{ acct(user) }}</span></span>
 						<span class="state">
+							<span v-if="!approved" class="silenced">{{ i18n.ts.notApproved }}</span>
+							<span v-if="approved && !user.host" class="moderator">{{ i18n.ts.approved }}</span>
 							<span v-if="suspended" class="suspended">Suspended</span>
 							<span v-if="silenced" class="silenced">Silenced</span>
 							<span v-if="moderator" class="moderator">Moderator</span>
@@ -55,52 +57,37 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #label>{{ i18n.ts.moderationNote }}</template>
 				</MkTextarea>
 
-				<!--
-				<FormSection>
+				<FormSection v-if="user.host">
 					<template #label>ActivityPub</template>
 
 					<div class="_gaps_m">
 						<div style="display: flex; flex-direction: column; gap: 1em;">
-							<MkKeyValue v-if="user.host" oneline>
+							<MkKeyValue oneline>
 								<template #key>{{ i18n.ts.instanceInfo }}</template>
-								<template #value><MkA :to="`/instance-info/${user.host}`" class="_link">{{ user.host }} <i class="ti ti-chevron-right"></i></MkA></template>
-							</MkKeyValue>
-							<MkKeyValue v-else oneline>
-								<template #key>{{ i18n.ts.instanceInfo }}</template>
-								<template #value>(Local user)</template>
+								<template #value><MkA :to="`/instance-info/${user.host}`" class="_link">{{ user.host }} <i class="ph-caret-right ph-bold ph-lg"></i></MkA></template>
 							</MkKeyValue>
 							<MkKeyValue oneline>
 								<template #key>{{ i18n.ts.updatedAt }}</template>
-								<template #value><MkTime v-if="user.lastFetchedAt" mode="detail" :time="user.lastFetchedAt"/><span v-else>N/A</span></template>
-							</MkKeyValue>
-							<MkKeyValue v-if="ap" oneline>
-								<template #key>Type</template>
-								<template #value><span class="_monospace">{{ ap.type }}</span></template>
+								<template #value><MkTime mode="detail" :time="user.lastFetchedAt"/></template>
 							</MkKeyValue>
 						</div>
 
-						<MkButton v-if="user.host != null" @click="updateRemoteUser"><i class="ti ti-refresh"></i> {{ i18n.ts.updateRemoteUser }}</MkButton>
-
-						<MkFolder>
-							<template #label>Raw</template>
-
-							<MkObjectView v-if="ap" tall :value="ap">
-							</MkObjectView>
-						</MkFolder>
+						<MkButton @click="updateRemoteUser"><i class="ph-arrows-counter-clockwise ph-bold ph-lg"></i> {{ i18n.ts.updateRemoteUser }}</MkButton>
 					</div>
 				</FormSection>
-			-->
 
 				<FormSection>
 					<div class="_gaps">
+						<MkSwitch v-model="silenced" @update:modelValue="toggleSilence">{{ i18n.ts.silence }}</MkSwitch>
 						<MkSwitch v-model="suspended" @update:modelValue="toggleSuspend">{{ i18n.ts.suspend }}</MkSwitch>
+						<MkSwitch v-model="markedAsNSFW" @update:modelValue="toggleNSFW">{{ i18n.ts.markAsNSFW }}</MkSwitch>
 
 						<div>
-							<MkButton v-if="user.host == null" inline style="margin-right: 8px;" @click="resetPassword"><i class="ti ti-key"></i> {{ i18n.ts.resetPassword }}</MkButton>
+							<MkButton v-if="user.host == null" inline style="margin-right: 8px;" @click="resetPassword"><i class="ph-key ph-bold ph-lg"></i> {{ i18n.ts.resetPassword }}</MkButton>
 						</div>
 
 						<MkFolder>
-							<template #icon><i class="ti ti-license"></i></template>
+							<template #icon><i class="ph-scroll ph-bold ph-lg"></i></template>
 							<template #label>{{ i18n.ts._role.policies }}</template>
 							<div class="_gaps">
 								<div v-for="policy in Object.keys(info.policies)" :key="policy">
@@ -110,7 +97,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</MkFolder>
 
 						<MkFolder>
-							<template #icon><i class="ti ti-password"></i></template>
+							<template #icon><i class="ph-password ph-bold ph-lg"></i></template>
 							<template #label>IP</template>
 							<MkInfo v-if="!iAmAdmin" warn>{{ i18n.ts.requireAdminForView }}</MkInfo>
 							<MkInfo v-else>The date is the IP address was first acknowledged.</MkInfo>
@@ -128,14 +115,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</div>
 
 			<div v-else-if="tab === 'roles'" class="_gaps">
-				<MkButton v-if="user.host == null" primary rounded @click="assignRole"><i class="ti ti-plus"></i> {{ i18n.ts.assign }}</MkButton>
+				<MkButton v-if="user.host == null" primary rounded @click="assignRole"><i class="ph-plus ph-bold ph-lg"></i> {{ i18n.ts.assign }}</MkButton>
 
 				<div v-for="role in info.roles" :key="role.id" :class="$style.roleItem">
 					<div :class="$style.roleItemMain">
 						<MkRolePreview :class="$style.role" :role="role" :forModeration="true"/>
-						<button class="_button" :class="$style.roleToggle" @click="toggleRoleItem(role)"><i class="ti ti-chevron-down"></i></button>
-						<button v-if="role.target === 'manual'" class="_button" :class="$style.roleUnassign" @click="unassignRole(role, $event)"><i class="ti ti-x"></i></button>
-						<button v-else class="_button" :class="$style.roleUnassign" disabled><i class="ti ti-ban"></i></button>
+						<button class="_button" :class="$style.roleToggle" @click="toggleRoleItem(role)"><i class="ph-caret-down ph-bold ph-lg"></i></button>
+						<button v-if="role.target === 'manual'" class="_button" :class="$style.roleUnassign" @click="unassignRole(role, $event)"><i class="ph-x ph-bold ph-lg"></i></button>
+						<button v-else class="_button" :class="$style.roleUnassign" disabled><i class="ph-prohibit ph-bold ph-lg"></i></button>
 					</div>
 					<div v-if="expandedRoles.includes(role.id)" :class="$style.roleItemSub">
 						<div>Assigned: <MkTime :time="info.roleAssigns.find(a => a.roleId === role.id).createdAt" mode="detail"/></div>
@@ -146,17 +133,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</div>
 
 			<div v-else-if="tab === 'announcements'" class="_gaps">
-				<MkButton primary rounded @click="createAnnouncement"><i class="ti ti-plus"></i> {{ i18n.ts.new }}</MkButton>
+				<MkButton primary rounded @click="createAnnouncement"><i class="ph-plus ph-bold ph-lg"></i> {{ i18n.ts.new }}</MkButton>
 
 				<MkPagination :pagination="announcementsPagination">
 					<template #default="{ items }">
 						<div class="_gaps_s">
 							<div v-for="announcement in items" :key="announcement.id" v-panel :class="$style.announcementItem" @click="editAnnouncement(announcement)">
 								<span style="margin-right: 0.5em;">
-									<i v-if="announcement.icon === 'info'" class="ti ti-info-circle"></i>
-									<i v-else-if="announcement.icon === 'warning'" class="ti ti-alert-triangle" style="color: var(--warn);"></i>
-									<i v-else-if="announcement.icon === 'error'" class="ti ti-circle-x" style="color: var(--error);"></i>
-									<i v-else-if="announcement.icon === 'success'" class="ti ti-check" style="color: var(--success);"></i>
+									<i v-if="announcement.icon === 'info'" class="ph-info ph-bold ph-lg"></i>
+									<i v-else-if="announcement.icon === 'warning'" class="ph-warning ph-bold ph-lg" style="color: var(--warn);"></i>
+									<i v-else-if="announcement.icon === 'error'" class="ph-x-circle ph-bold ph-lg" style="color: var(--error);"></i>
+									<i v-else-if="announcement.icon === 'success'" class="ph-check ph-bold ph-lg" style="color: var(--success);"></i>
 								</span>
 								<span>{{ announcement.title }}</span>
 								<span v-if="announcement.reads > 0" style="margin-left: auto; opacity: 0.7;">{{ i18n.ts.messageRead }}</span>
@@ -239,8 +226,11 @@ let ips = $ref(null);
 let ap = $ref(null);
 let moderator = $ref(false);
 let silenced = $ref(false);
+let approved = $ref(false);
 let suspended = $ref(false);
+let markedAsNSFW = $ref(false);
 let moderationNote = $ref('');
+
 const filesPagination = {
 	endpoint: 'admin/drive/files' as const,
 	limit: 10,
@@ -270,8 +260,10 @@ function createFetcher() {
 		ips = _ips;
 		moderator = info.isModerator;
 		silenced = info.isSilenced;
+		approved = info.approved;
 		suspended = info.isSuspended;
 		moderationNote = info.moderationNote;
+		markedAsNSFW = info.alwaysMarkNsfw;
 
 		watch($$(moderationNote), async () => {
 			await os.api('admin/update-user-note', { userId: user.id, text: moderationNote });
@@ -304,6 +296,32 @@ async function resetPassword() {
 			type: 'success',
 			text: i18n.t('newPasswordIs', { password }),
 		});
+	}
+}
+
+async function toggleNSFW(v) {
+	const confirm = await os.confirm({
+		type: 'warning',
+		text: v ? i18n.ts.nsfwConfirm : i18n.ts.unNsfwConfirm,
+	});
+	if (confirm.canceled) {
+		markedAsNSFW = !v;
+	} else {
+		await os.api(v ? 'admin/nsfw-user' : 'admin/unnsfw-user', { userId: user.id });
+		await refreshUser();
+	}
+}
+
+async function toggleSilence(v) {
+	const confirm = await os.confirm({
+		type: 'warning',
+		text: v ? i18n.ts.silenceConfirm : i18n.ts.unsilenceConfirm,
+	});
+	if (confirm.canceled) {
+		silenced = !v;
+	} else {
+		await os.api(v ? 'admin/silence-user' : 'admin/unsilence-user', { userId: user.id });
+		await refreshUser();
 	}
 }
 
@@ -403,7 +421,7 @@ async function assignRole() {
 async function unassignRole(role, ev) {
 	os.popupMenu([{
 		text: i18n.ts.unassign,
-		icon: 'ti ti-x',
+		icon: 'ph-x ph-bold ph-lg',
 		danger: true,
 		action: async () => {
 			await os.apiWithDialog('admin/roles/unassign', { roleId: role.id, userId: user.id });
@@ -452,32 +470,32 @@ const headerActions = $computed(() => []);
 const headerTabs = $computed(() => [{
 	key: 'overview',
 	title: i18n.ts.overview,
-	icon: 'ti ti-info-circle',
+	icon: 'ph-info ph-bold ph-lg',
 }, {
 	key: 'roles',
 	title: i18n.ts.roles,
-	icon: 'ti ti-badges',
+	icon: 'ph-seal-check ph-bold ph-lg',
 }, {
 	key: 'announcements',
 	title: i18n.ts.announcements,
-	icon: 'ti ti-speakerphone',
+	icon: 'ph-megaphone ph-bold ph-lg',
 }, {
 	key: 'drive',
 	title: i18n.ts.drive,
-	icon: 'ti ti-cloud',
+	icon: 'ph-cloud ph-bold ph-lg',
 }, {
 	key: 'chart',
 	title: i18n.ts.charts,
-	icon: 'ti ti-chart-line',
+	icon: 'ph-chart-line ph-bold ph-lg',
 }, {
 	key: 'raw',
 	title: 'Raw',
-	icon: 'ti ti-code',
+	icon: 'ph-code ph-bold ph-lg',
 }]);
 
 definePageMetadata(computed(() => ({
 	title: user ? acct(user) : i18n.ts.userInfo,
-	icon: 'ti ti-user-exclamation',
+	icon: 'ph-warning-circle ph-bold ph-lg',
 })));
 </script>
 
@@ -528,7 +546,7 @@ definePageMetadata(computed(() => ({
 			> .suspended, > .silenced, > .moderator {
 				display: inline-block;
 				border: solid 1px;
-				border-radius: 6px;
+				border-radius: var(--radius-sm);
 				padding: 2px 6px;
 				font-size: 85%;
 			}
@@ -562,6 +580,18 @@ definePageMetadata(computed(() => ({
 			margin-bottom: 12px;
 			font-weight: bold;
 		}
+	}
+}
+
+.casdwq {
+	.silenced {
+		color: var(--warn);
+		border-color: var(--warn);
+	}
+
+	.moderator {
+		color: var(--success);
+		border-color: var(--success);
 	}
 }
 </style>
@@ -608,7 +638,7 @@ definePageMetadata(computed(() => ({
 .announcementItem {
 	display: flex;
 	padding: 8px 12px;
-	border-radius: 6px;
+	border-radius: var(--radius-sm);
 	cursor: pointer;
 }
 </style>

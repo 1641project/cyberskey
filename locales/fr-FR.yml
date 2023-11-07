@@ -1046,8 +1046,8 @@ icon: "Avatar"
 forYou: "Pour vous"
 currentAnnouncements: "Annonces actuelles"
 pastAnnouncements: "Annonces passées"
-replies: "Répondre"
-renotes: "Renoter"
+replies: "Réponses"
+renotes: "Renotes"
 loadReplies: "Inclure les réponses"
 pinnedList: "Liste épinglée"
 notifyNotes: "Notifier à propos des nouvelles notes"
@@ -1120,7 +1120,7 @@ _accountMigration:
 _achievements:
   _types:
     _notes1:
-      title: "Je viens tout juste de configurer mon msky"
+      title: "Je viens tout juste de configurer mon shonk"
       description: "Publiez votre première note"
       flavor: "Passez un bon moment avec Misskey !"
     _notes10:

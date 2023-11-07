@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<span>{{ i18n.ts.silencedInstances }}</span>
 				<template #caption>{{ i18n.ts.silencedInstancesDescription }}</template>
 			</MkTextarea>
-			<MkButton primary @click="save"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
+			<MkButton primary @click="save"><i class="ph-floppy-disk ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
 		</FormSuspense>
 	</MkSpacer>
 </MkStickyContainer>
@@ -57,15 +57,15 @@ const headerActions = $computed(() => []);
 const headerTabs = $computed(() => [{
 	key: 'block',
 	title: i18n.ts.block,
-	icon: 'ti ti-ban',
+	icon: 'ph-prohibit ph-bold ph-lg',
 }, {
 	key: 'silence',
 	title: i18n.ts.silence,
-	icon: 'ti ti-eye-off',
+	icon: 'ph-eye-closed ph-bold ph-lg',
 }]);
 
 definePageMetadata({
 	title: i18n.ts.instanceBlocking,
-	icon: 'ti ti-ban',
+	icon: 'ph-prohibit ph-bold ph-lg',
 });
 </script>

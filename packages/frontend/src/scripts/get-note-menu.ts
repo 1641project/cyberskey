@@ -61,7 +61,7 @@ export async function getNoteClipMenu(props: {
 			);
 		},
 	})), null, {
-		icon: 'ti ti-plus',
+		icon: 'ph-plus ph-bold ph-lg',
 		text: i18n.ts.createNew,
 		action: async () => {
 			const { canceled, result } = await os.form(i18n.ts.createNewClip, {
@@ -95,7 +95,7 @@ export async function getNoteClipMenu(props: {
 
 export function getAbuseNoteMenu(note: misskey.entities.Note, text: string): MenuItem {
 	return {
-		icon: 'ti ti-exclamation-circle',
+		icon: 'ph-warning-circle ph-bold ph-lg',
 		text,
 		action: (): void => {
 			const u = note.url ?? note.uri ?? `${url}/notes/${note.id}`;
@@ -109,10 +109,21 @@ export function getAbuseNoteMenu(note: misskey.entities.Note, text: string): Men
 
 export function getCopyNoteLinkMenu(note: misskey.entities.Note, text: string): MenuItem {
 	return {
-		icon: 'ti ti-link',
+		icon: 'ph-link ph-bold ph-lg',
 		text,
 		action: (): void => {
 			copyToClipboard(`${url}/notes/${note.id}`);
+			os.success();
+		},
+	};
+}
+
+export function getCopyNoteOriginLinkMenu(note: misskey.entities.Note, text: string): MenuItem {
+	return {
+		icon: 'ph-link ph-bold ph-lg',
+		text,
+		action: (): void => {
+			copyToClipboard(note.url ?? note.uri);
 			os.success();
 		},
 	};
@@ -170,6 +181,17 @@ export function getNoteMenu(props: {
 			if (Date.now() - new Date(appearNote.createdAt).getTime() < 1000 * 60) {
 				claimAchievement('noteDeletedWithin1min');
 			}
+		});
+	}
+
+	function edit(): void {
+		os.post({
+			initialNote: appearNote,
+			renote: appearNote.renote,
+			reply: appearNote.reply,
+			channel: appearNote.channel,
+			editId: appearNote.id,
+			initialFiles: appearNote.files,
 		});
 	}
 
@@ -259,74 +281,77 @@ export function getNoteMenu(props: {
 		menu = [
 			...(
 				props.currentClip?.userId === $i.id ? [{
-					icon: 'ti ti-backspace',
+					icon: 'ph-backspace ph-bold ph-lg',
 					text: i18n.ts.unclip,
 					danger: true,
 					action: unclip,
 				}, null] : []
 			), {
-				icon: 'ti ti-info-circle',
+				icon: 'ph-info ph-bold ph-lg',
 				text: i18n.ts.details,
 				action: openDetail,
 			}, {
-				icon: 'ti ti-copy',
+				icon: 'ph-copy ph-bold ph-lg',
 				text: i18n.ts.copyContent,
 				action: copyContent,
 			}, getCopyNoteLinkMenu(appearNote, i18n.ts.copyLink)
-			, (appearNote.url || appearNote.uri) ? {
-				icon: 'ti ti-external-link',
+			, (appearNote.url || appearNote.uri) ? 
+				getCopyNoteOriginLinkMenu(appearNote, 'Copy link (Origin)')
+			: undefined,
+			(appearNote.url || appearNote.uri) ? {
+				icon: 'ph-arrow-square-out ph-bold ph-lg',
 				text: i18n.ts.showOnRemote,
 				action: () => {
 					window.open(appearNote.url ?? appearNote.uri, '_blank');
 				},
 			} : undefined,
 			{
-				icon: 'ti ti-share',
+				icon: 'ph-share-network ph-bold ph-lg',
 				text: i18n.ts.share,
 				action: share,
 			},
 			$i && $i.policies.canUseTranslator && instance.translatorAvailable ? {
-				icon: 'ti ti-language-hiragana',
+				icon: 'ph-translate ph-bold ph-lg',
 				text: i18n.ts.translate,
 				action: translate,
 			} : undefined,
 			null,
 			statePromise.then(state => state.isFavorited ? {
-				icon: 'ti ti-star-off',
+				icon: 'ph-star-half ph-bold ph-lg',
 				text: i18n.ts.unfavorite,
 				action: () => toggleFavorite(false),
 			} : {
-				icon: 'ti ti-star',
+				icon: 'ph-star ph-bold ph-lg',
 				text: i18n.ts.favorite,
 				action: () => toggleFavorite(true),
 			}),
 			{
 				type: 'parent' as const,
-				icon: 'ti ti-paperclip',
+				icon: 'ph-paperclip ph-bold ph-lg',
 				text: i18n.ts.clip,
 				children: () => getNoteClipMenu(props),
 			},
 			statePromise.then(state => state.isMutedThread ? {
-				icon: 'ti ti-message-off',
+				icon: 'ph-bell-slash ph-bold ph-lg',
 				text: i18n.ts.unmuteThread,
 				action: () => toggleThreadMute(false),
 			} : {
-				icon: 'ti ti-message-off',
+				icon: 'ph-bell-slash ph-bold ph-lg',
 				text: i18n.ts.muteThread,
 				action: () => toggleThreadMute(true),
 			}),
 			appearNote.userId === $i.id ? ($i.pinnedNoteIds ?? []).includes(appearNote.id) ? {
-				icon: 'ti ti-pinned-off',
+				icon: 'ph-push-pin ph-bold ph-lgned-off',
 				text: i18n.ts.unpin,
 				action: () => togglePin(false),
 			} : {
-				icon: 'ti ti-pin',
+				icon: 'ph-push-pin ph-bold ph-lg',
 				text: i18n.ts.pin,
 				action: () => togglePin(true),
 			} : undefined,
 			{
 				type: 'parent' as const,
-				icon: 'ti ti-user',
+				icon: 'ph-user ph-bold ph-lg',
 				text: i18n.ts.user,
 				children: async () => {
 					const user = appearNote.userId === $i?.id ? $i : await os.api('users/show', { userId: appearNote.userId });
@@ -339,7 +364,7 @@ export function getNoteMenu(props: {
 		...($i.isModerator || $i.isAdmin ? [
 			null,
 			{
-				icon: 'ti ti-speakerphone',
+				icon: 'ph-megaphone ph-bold ph-lg',
 				text: i18n.ts.promote,
 				action: promote
 			}]
@@ -354,12 +379,18 @@ export function getNoteMenu(props: {
 			...(appearNote.userId === $i.id || $i.isModerator || $i.isAdmin ? [
 				null,
 				appearNote.userId === $i.id ? {
-					icon: 'ti ti-edit',
-					text: i18n.ts.deleteAndEdit,
-					action: delEdit,
+					icon: 'ph-pencil ph-bold ph-lg',
+					text: i18n.ts.edit,
+					action: edit,
 				} : undefined,
 				{
-					icon: 'ti ti-trash',
+					icon: 'ph-pencil-line ph-bold ph-lg',
+					text: i18n.ts.deleteAndEdit,
+					danger: true,
+					action: delEdit,
+				}, 
+				{
+					icon: 'ph-trash ph-bold ph-lg',
 					text: i18n.ts.delete,
 					danger: true,
 					action: del,
@@ -369,16 +400,19 @@ export function getNoteMenu(props: {
 			.filter(x => x !== undefined);
 	} else {
 		menu = [{
-			icon: 'ti ti-info-circle',
+			icon: 'ph-info ph-bold ph-lg',
 			text: i18n.ts.details,
 			action: openDetail,
 		}, {
-			icon: 'ti ti-copy',
+			icon: 'ph-copy ph-bold ph-lg',
 			text: i18n.ts.copyContent,
 			action: copyContent,
 		}, getCopyNoteLinkMenu(appearNote, i18n.ts.copyLink)
-		, (appearNote.url || appearNote.uri) ? {
-			icon: 'ti ti-external-link',
+		, (appearNote.url || appearNote.uri) ? 
+			getCopyNoteOriginLinkMenu(appearNote, 'Copy link (Origin)')
+		: undefined,
+		(appearNote.url || appearNote.uri) ? {
+			icon: 'ph-arrow-square-out ph-bold ph-lg',
 			text: i18n.ts.showOnRemote,
 			action: () => {
 				window.open(appearNote.url ?? appearNote.uri, '_blank');
@@ -389,7 +423,7 @@ export function getNoteMenu(props: {
 
 	if (noteActions.length > 0) {
 		menu = menu.concat([null, ...noteActions.map(action => ({
-			icon: 'ti ti-plug',
+			icon: 'ph-plug ph-bold ph-lg',
 			text: action.title,
 			action: () => {
 				action.handler(appearNote);
@@ -399,7 +433,7 @@ export function getNoteMenu(props: {
 
 	if (defaultStore.state.devMode) {
 		menu = menu.concat([null, {
-			icon: 'ti ti-id',
+			icon: 'ph-identification-card ph-bold ph-lg',
 			text: i18n.ts.copyNoteId,
 			action: () => {
 				copyToClipboard(appearNote.id);

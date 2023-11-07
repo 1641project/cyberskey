@@ -225,8 +225,8 @@ export class ApPersonService implements OnModuleInit {
 		return null;
 	}
 
-	private async resolveAvatarAndBanner(user: MiRemoteUser, icon: any, image: any): Promise<Pick<MiRemoteUser, 'avatarId' | 'bannerId' | 'avatarUrl' | 'bannerUrl' | 'avatarBlurhash' | 'bannerBlurhash'>> {
-		const [avatar, banner] = await Promise.all([icon, image].map(img => {
+	private async resolveAvatarAndBanner(user: MiRemoteUser, icon: any, image: any, bgimg: any): Promise<Pick<MiRemoteUser, 'avatarId' | 'bannerId' | 'backgroundId' | 'avatarUrl' | 'bannerUrl' | 'backgroundUrl' | 'avatarBlurhash' | 'bannerBlurhash' | 'backgroundBlurhash'>> {
+		const [avatar, banner, background] = await Promise.all([icon, image, bgimg].map(img => {
 			if (img == null) return null;
 			if (user == null) throw new Error('failed to create user: user is null');
 			return this.apImageService.resolveImage(user, img).catch(() => null);
@@ -235,10 +235,13 @@ export class ApPersonService implements OnModuleInit {
 		return {
 			avatarId: avatar?.id ?? null,
 			bannerId: banner?.id ?? null,
+			backgroundId: background?.id ?? null,
 			avatarUrl: avatar ? this.driveFileEntityService.getPublicUrl(avatar, 'avatar') : null,
 			bannerUrl: banner ? this.driveFileEntityService.getPublicUrl(banner) : null,
+			backgroundUrl: background ? this.driveFileEntityService.getPublicUrl(background) : null,
 			avatarBlurhash: avatar?.blurhash ?? null,
 			bannerBlurhash: banner?.blurhash ?? null,
+			backgroundBlurhash: background?.blurhash ?? null
 		};
 	}
 
@@ -336,6 +339,12 @@ export class ApPersonService implements OnModuleInit {
 			});
 		//#endregion
 
+		//#region resolve counts
+		const _resolver = resolver ?? this.apResolverService.createResolver();
+		const outboxcollection = await _resolver.resolveCollection(person.outbox).catch(() => { return null; });
+		const followerscollection = await _resolver.resolveCollection(person.followers!).catch(() => { return null; });
+		const followingcollection = await _resolver.resolveCollection(person.following!).catch(() => { return null; });
+
 		try {
 			// Start transaction
 			await this.db.transaction(async transactionalEntityManager => {
@@ -343,6 +352,7 @@ export class ApPersonService implements OnModuleInit {
 					id: this.idService.gen(),
 					avatarId: null,
 					bannerId: null,
+					backgroundId: null,
 					lastFetchedAt: new Date(),
 					name: truncate(person.name, nameLength),
 					isLocked: person.manuallyApprovesFollowers,
@@ -351,10 +361,14 @@ export class ApPersonService implements OnModuleInit {
 					alsoKnownAs: person.alsoKnownAs,
 					isExplorable: person.discoverable,
 					username: person.preferredUsername,
+					approved: true,
 					usernameLower: person.preferredUsername?.toLowerCase(),
 					host,
 					inbox: person.inbox,
 					sharedInbox: person.sharedInbox ?? person.endpoints?.sharedInbox,
+					notesCount: outboxcollection?.totalItems ?? 0,
+					followersCount: followerscollection?.totalItems ?? 0,
+					followingCount: followingcollection?.totalItems ?? 0,
 					followersUri: person.followers ? getApId(person.followers) : undefined,
 					followersCount:
 						followersCount !== undefined
@@ -385,6 +399,7 @@ export class ApPersonService implements OnModuleInit {
 					tags,
 					isBot,
 					isCat: (person as any).isCat === true,
+					speakAsCat: (person as any).speakAsCat != null ? (person as any).speakAsCat === true : (person as any).isCat === true,
 					emojis,
 				})) as MiRemoteUser;
 
@@ -404,6 +419,7 @@ export class ApPersonService implements OnModuleInit {
 					birthday: bday?.[0] ?? null,
 					location: person['vcard:Address'] ?? null,
 					userHost: host,
+					listenbrainz: person.listenbrainz ?? null,
 				}));
 
 				if (person.publicKey) {
@@ -449,7 +465,7 @@ export class ApPersonService implements OnModuleInit {
 
 		//#region アバターとヘッダー画像をフェッチ
 		try {
-			const updates = await this.resolveAvatarAndBanner(user, person.icon, person.image);
+			const updates = await this.resolveAvatarAndBanner(user, person.icon, person.image, person.backgroundUrl);
 			await this.usersRepository.update(user.id, updates);
 			user = { ...user, ...updates };
 
@@ -594,14 +610,16 @@ export class ApPersonService implements OnModuleInit {
 			emojis: emojiNames,
 			name: truncate(person.name, nameLength),
 			tags,
+			approved: true,
 			isBot: getApType(object) === 'Service' || getApType(object) === 'Application',
 			isCat: (person as any).isCat === true,
+			speakAsCat: (person as any).speakAsCat != null ? (person as any).speakAsCat === true : (person as any).isCat === true,
 			isLocked: person.manuallyApprovesFollowers,
 			movedToUri: person.movedTo ?? null,
 			alsoKnownAs: person.alsoKnownAs ?? null,
 			isExplorable: person.discoverable,
-			...(await this.resolveAvatarAndBanner(exist, person.icon, person.image).catch(() => ({}))),
-		} as Partial<MiRemoteUser> & Pick<MiRemoteUser, 'isBot' | 'isCat' | 'isLocked' | 'movedToUri' | 'alsoKnownAs' | 'isExplorable'>;
+			...(await this.resolveAvatarAndBanner(exist, person.icon, person.image, person.backgroundUrl).catch(() => ({}))),
+		} as Partial<MiRemoteUser> & Pick<MiRemoteUser, 'isBot' | 'isCat' | 'speakAsCat' | 'isLocked' | 'movedToUri' | 'alsoKnownAs' | 'isExplorable'>;
 
 		const moving = ((): boolean => {
 			// 移行先がない→ある
@@ -647,6 +665,7 @@ export class ApPersonService implements OnModuleInit {
 			description: _description,
 			birthday: bday?.[0] ?? null,
 			location: person['vcard:Address'] ?? null,
+			listenbrainz: person.listenbrainz ?? null,
 		});
 
 		this.globalEventService.publishInternalEvent('remoteUserUpdated', { id: exist.id });

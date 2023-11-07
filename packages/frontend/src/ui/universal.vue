@@ -22,19 +22,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<XWidgets/>
 	</div>
 
-	<button v-if="!isDesktop && !isMobile" :class="$style.widgetButton" class="_button" @click="widgetsShowing = true"><i class="ti ti-apps"></i></button>
+	<button v-if="!isDesktop && !isMobile" :class="$style.widgetButton" class="_button" @click="widgetsShowing = true"><i class="ph-squares-four ph-bold ph-lg"></i></button>
 
 	<div v-if="isMobile" ref="navFooter" :class="$style.nav">
-		<button :class="$style.navButton" class="_button" @click="drawerMenuShowing = true"><i :class="$style.navButtonIcon" class="ti ti-menu-2"></i><span v-if="menuIndicated" :class="$style.navButtonIndicator"><i class="_indicatorCircle"></i></span></button>
-		<button :class="$style.navButton" class="_button" @click="mainRouter.currentRoute.value.name === 'index' ? top() : mainRouter.push('/')"><i :class="$style.navButtonIcon" class="ti ti-home"></i></button>
+		<button :class="$style.navButton" class="_button" @click="drawerMenuShowing = true"><i :class="$style.navButtonIcon" class="ph-list ph-bold ph-lg-2"></i><span v-if="menuIndicated" :class="$style.navButtonIndicator"><i class="_indicatorCircle"></i></span></button>
+		<button :class="$style.navButton" class="_button" @click="mainRouter.currentRoute.value.name === 'index' ? top() : mainRouter.push('/')"><i :class="$style.navButtonIcon" class="ph-house ph-bold ph-lg"></i></button>
 		<button :class="$style.navButton" class="_button" @click="mainRouter.push('/my/notifications')">
-			<i :class="$style.navButtonIcon" class="ti ti-bell"></i>
+			<i :class="$style.navButtonIcon" class="ph-bell ph-bold ph-lg"></i>
 			<span v-if="$i?.hasUnreadNotification" :class="$style.navButtonIndicator">
 				<span class="_indicateCounter" :class="$style.itemIndicateValueIcon">{{ $i.unreadNotificationsCount > 99 ? '99+' : $i.unreadNotificationsCount }}</span>
 			</span>
 		</button>
-		<button :class="$style.navButton" class="_button" @click="widgetsShowing = true"><i :class="$style.navButtonIcon" class="ti ti-apps"></i></button>
-		<button :class="$style.postButton" class="_button" @click="os.post()"><i :class="$style.navButtonIcon" class="ti ti-pencil"></i></button>
+		<button :class="$style.navButton" class="_button" @click="widgetsShowing = true"><i :class="$style.navButtonIcon" class="ph-squares-four ph-bold ph-lg"></i></button>
+		<button :class="$style.postButton" class="_button" @click="os.post()"><i :class="$style.navButtonIcon" class="ph-pencil ph-bold ph-lg"></i></button>
 	</div>
 
 	<Transition
@@ -85,7 +85,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		:leaveToClass="defaultStore.state.animation ? $style.transition_widgetsDrawer_leaveTo : ''"
 	>
 		<div v-if="widgetsShowing" :class="$style.widgetsDrawer">
-			<button class="_button" :class="$style.widgetsCloseButton" @click="widgetsShowing = false"><i class="ti ti-x"></i></button>
+			<button class="_button" :class="$style.widgetsCloseButton" @click="widgetsShowing = false"><i class="ph-x ph-bold ph-lg"></i></button>
 			<XWidgets/>
 		</div>
 	</Transition>
@@ -201,7 +201,7 @@ const onContextmenu = (ev) => {
 		type: 'label',
 		text: path,
 	}, {
-		icon: 'ti ti-window-maximize',
+		icon: 'ph-frame-corners ph-bold ph-lg',
 		text: i18n.ts.openInWindow,
 		action: () => {
 			os.pageWindow(path);
@@ -350,7 +350,7 @@ $widgets-hide-threshold: 1090px;
 	right: 32px;
 	width: 64px;
 	height: 64px;
-	border-radius: 100%;
+	border-radius: var(--radius-full);
 	box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12);
 	font-size: 22px;
 	background: var(--panel);
@@ -410,7 +410,7 @@ $widgets-hide-threshold: 1090px;
 	width: 100%;
 	max-width: 60px;
 	margin: auto;
-	border-radius: 100%;
+	border-radius: var(--radius-full);
 	background: var(--panel);
 	color: var(--fg);
 

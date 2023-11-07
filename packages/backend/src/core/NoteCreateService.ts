@@ -224,6 +224,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 		host: MiUser['host'];
 		isBot: MiUser['isBot'];
 		isCat: MiUser['isCat'];
+		speakAsCat: MiUser['speakAsCat'];
 	}, data: Option, silent = false): Promise<MiNote> {
 		// チャンネル外にリプライしたら対象のスコープに合わせる
 		// (クライアントサイドでやっても良い処理だと思うけどとりあえずサーバーサイドで)
@@ -492,7 +493,11 @@ export class NoteCreateService implements OnApplicationShutdown {
 		// Register host
 		if (this.userEntityService.isRemoteUser(user)) {
 			this.federatedInstanceService.fetch(user.host).then(async i => {
-				this.instancesRepository.increment({ id: i.id }, 'notesCount', 1);
+				if (note.renote && note.text) {
+					this.instancesRepository.increment({ id: i.id }, 'notesCount', 1);
+				} else if (!note.renote) {
+					this.instancesRepository.increment({ id: i.id }, 'notesCount', 1);
+				}
 				if ((await this.metaService.fetch()).enableChartsForFederatedInstances) {
 					this.instanceChart.updateNote(i.host, note, true);
 				}
@@ -501,11 +506,20 @@ export class NoteCreateService implements OnApplicationShutdown {
 
 		// ハッシュタグ更新
 		if (data.visibility === 'public' || data.visibility === 'home') {
-			this.hashtagService.updateHashtags(user, tags);
+			if (user.isBot && meta.enableBotTrending) {
+				this.hashtagService.updateHashtags(user, tags);
+			} else if (!user.isBot) {
+				this.hashtagService.updateHashtags(user, tags);
+			}
 		}
 
-		// Increment notes count (user)
-		this.incNotesCountOfUser(user);
+		if (data.renote && data.text) {
+			// Increment notes count (user)
+			this.incNotesCountOfUser(user);
+		} else if (!data.renote) {
+			// Increment notes count (user)
+			this.incNotesCountOfUser(user);
+		}
 
 		this.pushToTl(note, user);
 
@@ -530,7 +544,7 @@ export class NoteCreateService implements OnApplicationShutdown {
 			});
 		}
 
-		if (data.renote && data.renote.userId !== user.id && !user.isBot) {
+		if (data.renote && data.text == null && data.renote.userId !== user.id && !user.isBot) {
 			this.incRenoteCount(data.renote);
 		}
 

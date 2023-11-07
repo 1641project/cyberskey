@@ -119,6 +119,8 @@ export interface IPost extends IObject {
 	_misskey_quote?: string;
 	_misskey_content?: string;
 	quoteUrl?: string;
+	quoteUri?: string;
+	updated?: string;
 }
 
 export interface IQuestion extends IObject {
@@ -130,6 +132,7 @@ export interface IQuestion extends IObject {
 	};
 	_misskey_quote?: string;
 	quoteUrl?: string;
+	quoteUri?: string;
 	oneOf?: IQuestionChoice[];
 	anyOf?: IQuestionChoice[];
 	endTime?: Date;
@@ -181,6 +184,8 @@ export interface IActor extends IObject {
 	};
 	'vcard:bday'?: string;
 	'vcard:Address'?: string;
+	listenbrainz?: string;
+	backgroundUrl?: string;
 }
 
 export const isCollection = (object: IObject): object is ICollection =>

@@ -40,12 +40,13 @@ type MfmProps = {
 	parsedNodes?: mfm.MfmNode[] | null;
 	enableEmojiMenu?: boolean;
 	enableEmojiMenuReaction?: boolean;
+	isAnim?: boolean;
 };
 
 // eslint-disable-next-line import/no-default-export
 export default function(props: MfmProps) {
 	const isNote = props.isNote ?? true;
-	const shouldNyaize = props.nyaize ? props.nyaize === 'account' ? props.author?.isCat : false : false;
+	const shouldNyaize = props.nyaize ? props.nyaize === 'account' ? props.author?.isCat ? props.author?.speakAsCat : false : false : false;
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (props.text == null || props.text === '') return;
@@ -57,7 +58,7 @@ export default function(props: MfmProps) {
 		return t.match(/^[0-9.]+s$/) ? t : null;
 	};
 
-	const useAnim = defaultStore.state.advancedMfm && defaultStore.state.animatedMfm;
+	const useAnim = defaultStore.state.advancedMfm && defaultStore.state.animatedMfm ? true : props.isAnim ? true : false;
 
 	/**
 	 * Gen Vue Elements from MFM AST

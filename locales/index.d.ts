@@ -37,6 +37,7 @@ export interface Locale {
     "uploading": string;
     "save": string;
     "users": string;
+    "approvals": string;
     "addUser": string;
     "favorite": string;
     "favorites": string;
@@ -111,6 +112,9 @@ export interface Locale {
     "renote": string;
     "unrenote": string;
     "renoted": string;
+    "quoted": string;
+    "rmboost": string;
+    "rmquote": string;
     "cantRenote": string;
     "cantReRenote": string;
     "quote": string;
@@ -137,11 +141,15 @@ export interface Locale {
     "renoteUnmute": string;
     "block": string;
     "unblock": string;
+    "markAsNSFW": string;
     "suspend": string;
     "unsuspend": string;
     "blockConfirm": string;
     "unblockConfirm": string;
+    "nsfwConfirm": string;
+    "unNsfwConfirm": string;
     "suspendConfirm": string;
+    "approveConfirm": string;
     "unsuspendConfirm": string;
     "selectList": string;
     "editList": string;
@@ -167,6 +175,8 @@ export interface Locale {
     "flagAsBotDescription": string;
     "flagAsCat": string;
     "flagAsCatDescription": string;
+    "flagSpeakAsCat": string;
+    "flagSpeakAsCatDescription": string;
     "flagShowTimelineReplies": string;
     "flagShowTimelineRepliesDescription": string;
     "autoAcceptFollowed": string;
@@ -328,6 +338,7 @@ export interface Locale {
     "rename": string;
     "avatar": string;
     "banner": string;
+    "background": string;
     "displayOfSensitiveMedia": string;
     "whenServerDisconnected": string;
     "disconnectedFromServer": string;
@@ -457,6 +468,8 @@ export interface Locale {
     "next": string;
     "retype": string;
     "noteOf": string;
+    "expandAllCws": string;
+    "collapseAllCws": string;
     "quoteAttached": string;
     "quoteQuestion": string;
     "noMessagesYet": string;
@@ -498,6 +511,7 @@ export interface Locale {
     "existingAccount": string;
     "regenerate": string;
     "fontSize": string;
+    "cornerRadius": string;
     "mediaListWithOneImageAppearance": string;
     "limitTo": string;
     "noFollowRequests": string;
@@ -864,6 +878,7 @@ export interface Locale {
     "on": string;
     "off": string;
     "emailRequiredForSignup": string;
+    "approvalRequiredForSignup": string;
     "unread": string;
     "filter": string;
     "controlPanel": string;
@@ -914,6 +929,7 @@ export interface Locale {
     "recentNDays": string;
     "noEmailServerWarning": string;
     "thereIsUnresolvedAbuseReportWarning": string;
+    "pendingUserApprovals": string;
     "recommended": string;
     "check": string;
     "driveCapOverrideLabel": string;
@@ -922,6 +938,11 @@ export interface Locale {
     "isSystemAccount": string;
     "typeToConfirm": string;
     "deleteAccount": string;
+    "approveAccount": string;
+    "denyAccount": string;
+    "approved": string;
+    "notApproved": string;
+    "approvalStatus": string;
     "document": string;
     "numberOfPageCache": string;
     "numberOfPageCacheDescription": string;
@@ -1003,6 +1024,8 @@ export interface Locale {
     "thisPostMayBeAnnoyingCancel": string;
     "thisPostMayBeAnnoyingIgnore": string;
     "collapseRenotes": string;
+    "collapseFiles": string;
+    "autoloadConversation": string;
     "internalServerError": string;
     "internalServerErrorDescription": string;
     "copyErrorInfo": string;
@@ -1013,6 +1036,7 @@ export interface Locale {
     "disableFederationConfirmWarn": string;
     "disableFederationOk": string;
     "invitationRequiredToRegister": string;
+    "approvalRequiredToRegister": string;
     "emailNotSupported": string;
     "postToTheChannel": string;
     "cannotBeChangedLater": string;
@@ -1095,6 +1119,10 @@ export interface Locale {
     "installed": string;
     "branding": string;
     "enableServerMachineStats": string;
+    "enableAchievements": string;
+    "turnOffAchievements": string;
+    "enableBotTrending": string;
+    "turnOffBotTrending": string;
     "enableIdenticonGeneration": string;
     "turnOffToImprovePerformance": string;
     "createInviteCode": string;
@@ -1130,6 +1158,8 @@ export interface Locale {
     "loadConversation": string;
     "pinnedList": string;
     "keepScreenOn": string;
+    "clickToOpen": string;
+    "showBots": string;
     "verifiedLink": string;
     "notifyNotes": string;
     "unnotifyNotes": string;
@@ -1735,6 +1765,8 @@ export interface Locale {
         "almostThere": string;
         "emailAddressInfo": string;
         "emailSent": string;
+        "approvalPending": string;
+        "reasonInfo": string;
     };
     "_accountDelete": {
         "accountDelete": string;
@@ -2153,6 +2185,7 @@ export interface Locale {
         "metadataContent": string;
         "changeAvatar": string;
         "changeBanner": string;
+        "changeBackground": string;
         "verifiedLinkDescription": string;
     };
     "_exportOrImport": {
@@ -2382,6 +2415,7 @@ export interface Locale {
         "updateRole": string;
         "assignRole": string;
         "unassignRole": string;
+        "approve": string;
         "suspend": string;
         "unsuspend": string;
         "addCustomEmoji": string;
@@ -2473,6 +2507,14 @@ export interface Locale {
                 "title": string;
                 "description": string;
             };
+        };
+    };
+    "_animatedMFM": {
+        "play": string;
+        "stop": string;
+        "_alert": {
+            "text": string;
+            "confirm": string;
         };
     };
 }

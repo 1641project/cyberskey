@@ -23,8 +23,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<template #label>{{ i18n.ts.imageUrl }}</template>
 					</MkInput>
 					<div class="buttons _buttons">
-						<MkButton class="button" inline primary @click="save(avatarDecoration)"><i class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
-						<MkButton v-if="avatarDecoration.id != null" class="button" inline danger @click="del(avatarDecoration)"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
+						<MkButton class="button" inline primary @click="save(avatarDecoration)"><i class="ph-floppy ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
+						<MkButton v-if="avatarDecoration.id != null" class="button" inline danger @click="del(avatarDecoration)"><i class="ph-trash ph-bold ph-lg"></i> {{ i18n.ts.delete }}</MkButton>
 					</div>
 				</div>
 			</MkFolder>
@@ -88,7 +88,7 @@ load();
 
 const headerActions = $computed(() => [{
 	asFullButton: true,
-	icon: 'ti ti-plus',
+	icon: 'ph-plus ph-bold ph-lg',
 	text: i18n.ts.add,
 	handler: add,
 }]);
@@ -97,6 +97,6 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.avatarDecorations,
-	icon: 'ti ti-sparkles',
+	icon: 'ph-sparkle ph-bold ph-lg',
 });
 </script>

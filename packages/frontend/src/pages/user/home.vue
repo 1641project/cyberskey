@@ -4,12 +4,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 -->
 
 <template>
-<MkSpacer :contentMax="narrow ? 800 : 1100">
+<MkSpacer :contentMax="narrow ? 800 : 1100" :style="background">
 	<div ref="rootEl" class="ftskorzw" :class="{ wide: !narrow }" style="container-type: inline-size;">
 		<div class="main _gaps">
-			<!-- TODO -->
-			<!-- <div class="punished" v-if="user.isSuspended"><i class="ti ti-alert-triangle" style="margin-right: 8px;"></i> {{ i18n.ts.userSuspended }}</div> -->
-			<!-- <div class="punished" v-if="user.isSilenced"><i class="ti ti-alert-triangle" style="margin-right: 8px;"></i> {{ i18n.ts.userSilenced }}</div> -->
+			<MkInfo v-if="user.isSuspended" :warn="true">{{ i18n.ts.userSuspended }}</MkInfo>
+			<MkInfo v-if="user.isSilenced" :warn="true">{{ i18n.ts.userSilenced }}</MkInfo>
 
 			<div class="profile _gaps">
 				<MkAccountMoved v-if="user.movedTo" :movedTo="user.movedTo"/>
@@ -23,17 +22,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 							<MkUserName class="name" :user="user" :nowrap="true"/>
 							<div class="bottom">
 								<span class="username"><MkAcct :user="user" :detail="true"/></span>
-								<span v-if="user.isAdmin" :title="i18n.ts.isAdmin" style="color: var(--badge);"><i class="ti ti-shield"></i></span>
-								<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ti ti-lock"></i></span>
-								<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ti ti-robot"></i></span>
+								<span v-if="user.isAdmin" :title="i18n.ts.isAdmin" style="color: var(--badge);"><i class="ph-shield ph-bold ph-lg"></i></span>
+								<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ph-lock ph-bold ph-lg"></i></span>
+								<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ph-robot ph-bold ph-lg"></i></span>
 								<button v-if="!isEditingMemo && !memoDraft" class="_button add-note-button" @click="showMemoTextarea">
-									<i class="ti ti-edit"/> {{ i18n.ts.addMemo }}
+									<i class="ph-pencil-line ph-bold ph-lg"/> {{ i18n.ts.addMemo }}
 								</button>
 							</div>
 						</div>
 						<span v-if="$i && $i.id != user.id && user.isFollowed" class="followed">{{ i18n.ts.followsYou }}</span>
 						<div v-if="$i" class="actions">
-							<button class="menu _button" @click="menu"><i class="ti ti-dots"></i></button>
+							<button class="menu _button" @click="menu"><i class="ph-dots-three ph-bold ph-lg"></i></button>
 							<MkFollowButton v-if="$i.id != user.id" v-model:user="user" :inline="true" :transparent="false" :full="true" class="koudoku"/>
 						</div>
 					</div>
@@ -42,9 +41,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<MkUserName :user="user" :nowrap="false" class="name"/>
 						<div class="bottom">
 							<span class="username"><MkAcct :user="user" :detail="true"/></span>
-							<span v-if="user.isAdmin" :title="i18n.ts.isAdmin" style="color: var(--badge);"><i class="ti ti-shield"></i></span>
-							<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ti ti-lock"></i></span>
-							<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ti ti-robot"></i></span>
+							<span v-if="user.isAdmin" :title="i18n.ts.isAdmin" style="color: var(--badge);"><i class="ph-shield ph-bold ph-lg"></i></span>
+							<span v-if="user.isLocked" :title="i18n.ts.isLocked"><i class="ph-lock ph-bold ph-lg"></i></span>
+							<span v-if="user.isBot" :title="i18n.ts.isBot"><i class="ph-robot ph-bold ph-lg"></i></span>
 						</div>
 					</div>
 					<div v-if="user.roles.length > 0" class="roles">
@@ -82,15 +81,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</div>
 					<div class="fields system">
 						<dl v-if="user.location" class="field">
-							<dt class="name"><i class="ti ti-map-pin ti-fw"></i> {{ i18n.ts.location }}</dt>
+							<dt class="name"><i class="ph-map-pin ph-bold ph-lg ti-fw"></i> {{ i18n.ts.location }}</dt>
 							<dd class="value">{{ user.location }}</dd>
 						</dl>
 						<dl v-if="user.birthday" class="field">
-							<dt class="name"><i class="ti ti-cake ti-fw"></i> {{ i18n.ts.birthday }}</dt>
+							<dt class="name"><i class="ph-cake ph-bold ph-lg ti-fw"></i> {{ i18n.ts.birthday }}</dt>
 							<dd class="value">{{ user.birthday.replace('-', '/').replace('-', '/') }} ({{ i18n.t('yearsOld', { age }) }})</dd>
 						</dl>
 						<dl class="field">
-							<dt class="name"><i class="ti ti-calendar ti-fw"></i> {{ i18n.ts.registeredDate }}</dt>
+							<dt class="name"><i class="ph-calendar ph-bold ph-lg ti-fw"></i> {{ i18n.ts.registeredDate }}</dt>
 							<dd class="value">{{ dateString(user.createdAt) }} (<MkTime :time="user.createdAt"/>)</dd>
 						</dl>
 					</div>
@@ -101,7 +100,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 							</dt>
 							<dd class="value">
 								<Mfm :text="field.value" :author="user" :colored="false"/>
-								<i v-if="user.verifiedLinks.includes(field.value)" v-tooltip:dialog="i18n.ts.verifiedLink" class="ti ti-circle-check" :class="$style.verifiedLink"></i>
+								<i v-if="user.verifiedLinks.includes(field.value)" v-tooltip:dialog="i18n.ts.verifiedLink" class="ph-seal-check ph-bold ph-lg" :class="$style.verifiedLink"></i>
 							</dd>
 						</dl>
 					</div>
@@ -130,24 +129,38 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<template v-if="narrow">
 					<XFiles :key="user.id" :user="user"/>
 					<XActivity :key="user.id" :user="user"/>
+					<XListenBrainz v-if="user.listenbrainz && listenbrainzdata" :key="user.id" :user="user"/>
 				</template>
-				<div v-if="!disableNotes">
-					<div style="margin-bottom: 8px;">{{ i18n.ts.featured }}</div>
+				<!-- <div v-if="!disableNotes">
+					<div style="margin-bottom: 8px; z-index: 1;">{{ i18n.ts.featured }}</div>
 					<MkNotes :class="$style.tl" :noGap="true" :pagination="pagination"/>
-				</div>
+				</div> -->
+				<MkStickyContainer>
+					<template #header>
+						<MkTab v-model="noteview" :class="$style.tab">
+							<option :value="null">{{ i18n.ts.notes }}</option>
+							<option value="all">{{ i18n.ts.all }}</option>
+							<option value="files">{{ i18n.ts.withFiles }}</option>
+						</MkTab>
+					</template>
+					<MkNotes :class="$style.tl" :noGap="true" :pagination="AllPagination"/>
+				</MkStickyContainer>
 			</div>
 		</div>
 		<div v-if="!narrow" class="sub _gaps" style="container-type: inline-size;">
 			<XFiles :key="user.id" :user="user"/>
 			<XActivity :key="user.id" :user="user"/>
+			<XListenBrainz v-if="user.listenbrainz && listenbrainzdata" :key="user.id" :user="user"/>
 		</div>
 	</div>
+	<div class="background"></div>
 </MkSpacer>
 </template>
 
 <script lang="ts" setup>
 import { defineAsyncComponent, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import * as Misskey from 'misskey-js';
+import MkTab from '@/components/MkTab.vue';
 import MkNote from '@/components/MkNote.vue';
 import MkFollowButton from '@/components/MkFollowButton.vue';
 import MkAccountMoved from '@/components/MkAccountMoved.vue';
@@ -187,6 +200,7 @@ function calcAge(birthdate: string): number {
 
 const XFiles = defineAsyncComponent(() => import('./index.files.vue'));
 const XActivity = defineAsyncComponent(() => import('./index.activity.vue'));
+const XListenBrainz = defineAsyncComponent(() => import("./index.listenbrainz.vue"));
 
 const props = withDefaults(defineProps<{
 	user: Misskey.entities.UserDetailed;
@@ -208,6 +222,32 @@ let memoDraft = $ref(props.user.memo);
 let isEditingMemo = $ref(false);
 let moderationNote = $ref(props.user.moderationNote);
 let editModerationNote = $ref(false);
+let noteview = $ref<string | null>(null);
+
+let listenbrainzdata = false;
+if (props.user.listenbrainz) {
+	try {
+		const response = await fetch(`https://api.listenbrainz.org/1/user/${props.user.listenbrainz}/playing-now`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		});
+		const data = await response.json();
+		if (data.payload.listens && data.payload.listens.length !== 0) {
+			listenbrainzdata = true;
+		}
+	} catch (err) {
+		listenbrainzdata = false;
+	}
+}
+
+const background = computed(() => {
+	if (props.user.backgroundUrl == null) return {};
+	return {
+		'--backgroundImageStatic': `url('${props.user.backgroundUrl}')`
+	};
+});
 
 watch($$(moderationNote), async () => {
 	await os.api('admin/update-user-note', { userId: props.user.id, text: moderationNote });
@@ -217,7 +257,19 @@ const pagination = {
 	endpoint: 'users/featured-notes' as const,
 	limit: 10,
 	params: computed(() => ({
+		userId: props.user.id
+	})),
+};
+
+const AllPagination = {
+	endpoint: 'users/notes' as const,
+	limit: 10,
+	params: computed(() => ({
 		userId: props.user.id,
+		withRenotes: noteview === 'all',
+		withReplies: noteview === 'all' || noteview === 'files',
+		withChannelNotes: noteview === 'all',
+		withFiles: noteview === 'files',
 	})),
 };
 
@@ -308,6 +360,22 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.background{
+	position: fixed;
+	z-index: -1;
+	background: var(--backgroundImageStatic);
+	background-size: cover;
+	background-position: center;
+	pointer-events: none;
+	filter: var(--blur, blur(10px)) opacity(0.6);
+	// Funny CSS schenanigans to make background escape container
+	left: -100%;
+	top: -5%;
+	right: -100%;
+	bottom: -100%;
+	background-attachment: fixed;
+}
+
 .ftskorzw {
 
 	> .main {
@@ -322,6 +390,7 @@ onUnmounted(() => {
 			> .main {
 				position: relative;
 				overflow: clip;
+				background: color-mix(in srgb, var(--panel) 65%, transparent);
 
 				> .banner-container {
 					position: relative;
@@ -356,7 +425,7 @@ onUnmounted(() => {
 						color: #fff;
 						background: rgba(0, 0, 0, 0.7);
 						font-size: 0.7em;
-						border-radius: 6px;
+						border-radius: var(--radius-sm);
 					}
 
 					> .actions {
@@ -367,7 +436,7 @@ onUnmounted(() => {
 						backdrop-filter: var(--blur, blur(8px));
 						background: rgba(0, 0, 0, 0.2);
 						padding: 8px;
-						border-radius: 24px;
+						border-radius: var(--radius-lg);
 
 						> .menu {
 							vertical-align: bottom;
@@ -419,7 +488,7 @@ onUnmounted(() => {
 								color: #fff;
 								-webkit-backdrop-filter: var(--blur, blur(8px));
 								backdrop-filter: var(--blur, blur(8px));
-								border-radius: 24px;
+								border-radius: var(--radius-lg);
 								padding: 4px 8px;
 								font-size: 80%;
 							}
@@ -451,7 +520,7 @@ onUnmounted(() => {
 					z-index: 2;
 					width: 120px;
 					height: 120px;
-					box-shadow: 1px 1px 3px rgba(#000, 0.2);
+					filter: drop-shadow(1px 1px 3px rgba(#000, 0.2));
 				}
 
 				> .roles {
@@ -463,7 +532,7 @@ onUnmounted(() => {
 
 					> .role {
 						border: solid 1px var(--color, var(--divider));
-						border-radius: 999px;
+						border-radius: var(--radius-ellipse);
 						margin-right: 4px;
 						padding: 3px 8px;
 					}
@@ -478,7 +547,7 @@ onUnmounted(() => {
 					background: transparent;
 					color: var(--fg);
 					border: 1px solid var(--divider);
-					border-radius: 8px;
+					border-radius: var(--radius-sm);
 					padding: 8px;
 					line-height: 0;
 
@@ -675,9 +744,24 @@ onUnmounted(() => {
 
 <style lang="scss" module>
 .tl {
-	background: var(--bg);
+	background-color: rgba(0, 0, 0, 0);
 	border-radius: var(--radius);
 	overflow: clip;
+	z-index: 0;
+}
+
+.tab {
+	margin: calc(var(--margin) / 2) 0;
+	padding: calc(var(--margin) / 2) 0;
+	background: color-mix(in srgb, var(--bg) 65%, transparent);
+	backdrop-filter: var(--blur, blur(15px));
+	border-radius: var(--radius-sm);
+
+	> button {
+		border-radius: var(--radius-sm);
+		margin-left: 0.4rem;
+		margin-right: 0.4rem;
+	}
 }
 
 .verifiedLink {

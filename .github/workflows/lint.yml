@@ -5,7 +5,11 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - packages/**
   pull_request:
+    branches-ignore:
+      - weblate
 
 jobs:
   pnpm_install:
@@ -19,7 +23,7 @@ jobs:
       with:
         version: 8
         run_install: false
-    - uses: actions/setup-node@v4.0.0
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.node-version'
         cache: 'pnpm'
@@ -46,7 +50,7 @@ jobs:
       with:
         version: 7
         run_install: false
-    - uses: actions/setup-node@v4.0.0
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.node-version'
         cache: 'pnpm'
@@ -72,7 +76,7 @@ jobs:
       with:
         version: 7
         run_install: false
-    - uses: actions/setup-node@v4.0.0
+    - uses: actions/setup-node@v4
       with:
         node-version-file: '.node-version'
         cache: 'pnpm'

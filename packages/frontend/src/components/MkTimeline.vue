@@ -28,11 +28,13 @@ const props = withDefaults(defineProps<{
 	sound?: boolean;
 	withRenotes?: boolean;
 	withReplies?: boolean;
+	withBots?: boolean;
 	onlyFiles?: boolean;
 }>(), {
 	withRenotes: true,
 	withReplies: false,
 	onlyFiles: false,
+	withBots: true,
 });
 
 const emit = defineEmits<{
@@ -85,17 +87,20 @@ const connectChannel = () => {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
+			withBots: props.withBots,
 		});
 	} else if (props.src === 'social') {
 		connection = stream.useChannel('hybridTimeline', {
 			withRenotes: props.withRenotes,
 			withReplies: props.withReplies,
 			withFiles: props.onlyFiles ? true : undefined,
+			withBots: props.withBots,
 		});
 	} else if (props.src === 'global') {
 		connection = stream.useChannel('globalTimeline', {
 			withRenotes: props.withRenotes,
 			withFiles: props.onlyFiles ? true : undefined,
+			withBots: props.withBots,
 		});
 	} else if (props.src === 'mentions') {
 		connection = stream.useChannel('main');
@@ -135,12 +140,14 @@ if (props.src === 'antenna') {
 	query = {
 		withRenotes: props.withRenotes,
 		withFiles: props.onlyFiles ? true : undefined,
+		withBots: props.withBots,
 	};
 } else if (props.src === 'local') {
 	endpoint = 'notes/local-timeline';
 	query = {
 		withRenotes: props.withRenotes,
 		withReplies: props.withReplies,
+		withBots: props.withBots,
 		withFiles: props.onlyFiles ? true : undefined,
 	};
 } else if (props.src === 'social') {
@@ -148,12 +155,14 @@ if (props.src === 'antenna') {
 	query = {
 		withRenotes: props.withRenotes,
 		withReplies: props.withReplies,
+		withBots: props.withBots,
 		withFiles: props.onlyFiles ? true : undefined,
 	};
 } else if (props.src === 'global') {
 	endpoint = 'notes/global-timeline';
 	query = {
 		withRenotes: props.withRenotes,
+		withBots: props.withBots,
 		withFiles: props.onlyFiles ? true : undefined,
 	};
 } else if (props.src === 'mentions') {

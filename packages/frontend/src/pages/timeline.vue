@@ -23,6 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:withRenotes="withRenotes"
 					:withReplies="withReplies"
 					:onlyFiles="onlyFiles"
+					:withBots="withBots"
 					:sound="true"
 					@queue="queueUpdated"
 				/>
@@ -65,6 +66,7 @@ let srcWhenNotSignin = $ref(isLocalTimelineAvailable ? 'local' : 'global');
 const src = $computed({ get: () => ($i ? defaultStore.reactiveState.tl.value.src : srcWhenNotSignin), set: (x) => saveSrc(x) });
 const withRenotes = $ref(true);
 const withReplies = $ref($i ? defaultStore.state.tlWithReplies : false);
+const withBots = $ref($i ? defaultStore.state.tlWithBots : true);
 const onlyFiles = $ref(false);
 
 watch($$(src), () => queue = 0);
@@ -151,13 +153,13 @@ function closeTutorial(): void {
 const headerActions = $computed(() => {
 	const tmp = [
 		{
-			icon: 'ti ti-dots',
+			icon: 'ph-dots-three ph-bold ph-lg',
 			text: i18n.ts.options,
 			handler: (ev) => {
 				os.popupMenu([{
 					type: 'switch',
 					text: i18n.ts.showRenotes,
-					icon: 'ti ti-repeat',
+					icon: 'ph-rocket-launch ph-bold ph-lg',
 					ref: $$(withRenotes),
 				}, src === 'local' || src === 'social' ? {
 					type: 'switch',
@@ -166,7 +168,7 @@ const headerActions = $computed(() => {
 				} : undefined, {
 					type: 'switch',
 					text: i18n.ts.fileAttachedOnly,
-					icon: 'ti ti-photo',
+					icon: 'ph-image ph-bold ph-lg',
 					ref: $$(onlyFiles),
 				}], ev.currentTarget ?? ev.target);
 			},
@@ -174,7 +176,7 @@ const headerActions = $computed(() => {
 	];
 	if (deviceKind === 'desktop') {
 		tmp.unshift({
-			icon: 'ti ti-refresh',
+			icon: 'ph-arrows-counter-clockwise ph-bold ph-lg',
 			text: i18n.ts.reload,
 			handler: (ev: Event) => {
 				console.log('called');
@@ -188,40 +190,40 @@ const headerActions = $computed(() => {
 const headerTabs = $computed(() => [...(defaultStore.reactiveState.pinnedUserLists.value.map(l => ({
 	key: 'list:' + l.id,
 	title: l.name,
-	icon: 'ti ti-star',
+	icon: 'ph-star ph-bold ph-lg',
 	iconOnly: true,
 }))), {
 	key: 'home',
 	title: i18n.ts._timelines.home,
-	icon: 'ti ti-home',
+	icon: 'ph-house ph-bold ph-lg',
 	iconOnly: true,
 }, ...(isLocalTimelineAvailable ? [{
 	key: 'local',
 	title: i18n.ts._timelines.local,
-	icon: 'ti ti-planet',
+	icon: 'ph-planet ph-bold ph-lg',
 	iconOnly: true,
 }, {
 	key: 'social',
 	title: i18n.ts._timelines.social,
-	icon: 'ti ti-universe',
+	icon: 'ph-rocket-launch ph-bold ph-lg',
 	iconOnly: true,
 }] : []), ...(isGlobalTimelineAvailable ? [{
 	key: 'global',
 	title: i18n.ts._timelines.global,
-	icon: 'ti ti-whirl',
+	icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 	iconOnly: true,
 }] : []), {
-	icon: 'ti ti-list',
+	icon: 'ph-list ph-bold ph-lg',
 	title: i18n.ts.lists,
 	iconOnly: true,
 	onClick: chooseList,
 }, {
-	icon: 'ti ti-antenna',
+	icon: 'ph-flying-saucer ph-bold ph-lg',
 	title: i18n.ts.antennas,
 	iconOnly: true,
 	onClick: chooseAntenna,
 }, {
-	icon: 'ti ti-device-tv',
+	icon: 'ph-television ph-bold ph-lg',
 	title: i18n.ts.channel,
 	iconOnly: true,
 	onClick: chooseChannel,
@@ -231,20 +233,20 @@ const headerTabsWhenNotLogin = $computed(() => [
 	...(isLocalTimelineAvailable ? [{
 		key: 'local',
 		title: i18n.ts._timelines.local,
-		icon: 'ti ti-planet',
+		icon: 'ph-planet ph-bold ph-lg',
 		iconOnly: true,
 	}] : []),
 	...(isGlobalTimelineAvailable ? [{
 		key: 'global',
 		title: i18n.ts._timelines.global,
-		icon: 'ti ti-whirl',
+		icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 		iconOnly: true,
 	}] : []),
 ] as Tab[]);
 
 definePageMetadata(computed(() => ({
 	title: i18n.ts.timeline,
-	icon: src === 'local' ? 'ti ti-planet' : src === 'social' ? 'ti ti-universe' : src === 'global' ? 'ti ti-whirl' : 'ti ti-home',
+	icon: src === 'local' ? 'ph-planet ph-bold ph-lg' : src === 'social' ? 'ph-rocket-launch ph-bold ph-lg' : src === 'global' ? 'ph-globe-hemisphere-west ph-bold ph-lg' : 'ph-house ph-bold ph-lg',
 })));
 </script>
 
@@ -265,7 +267,7 @@ definePageMetadata(computed(() => ({
 	display: block;
 	margin: var(--margin) auto 0 auto;
 	padding: 8px 16px;
-	border-radius: 32px;
+	border-radius: var(--radius-xl);
 }
 
 .postForm {

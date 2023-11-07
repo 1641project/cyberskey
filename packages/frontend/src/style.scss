@@ -1,5 +1,13 @@
 @charset "utf-8";
 
+@font-face {
+	font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+	font-family: 'Lexend';
+	font-style: normal;
+	font-weight: 400;
+	src: url('/static-assets/fonts/Lexend-VariableFont_wght.ttf') format('opentype');
+}
+
 /*
  * SPDX-FileCopyrightText: syuilo and other misskey contributors
  *
@@ -7,7 +15,15 @@
  */
 
 :root {
-	--radius: 12px;
+	--radius-xs: 5px;
+	--radius-sm: 5px;
+	--radius: 5px;
+	--radius-md: 5px;
+	--radius-lg: 5px;
+	--radius-xl: 5px;
+	--radius-ellipse: 5px;
+	--radius-full: 5px;
+
 	--marginFull: 16px;
 	--marginHalf: 10px;
 
@@ -24,6 +40,17 @@
 	//--ad: rgb(255 169 0 / 10%);
 }
 
+html.radius-misskey {
+	--radius-xs: 4px;
+	--radius-sm: 8px;
+	--radius: 12px;
+	--radius-md: 16px;
+	--radius-lg: 24px;
+	--radius-xl: 32px;
+	--radius-ellipse: 999px;
+	--radius-full: 100%;
+}
+
 ::selection {
 	color: var(--fgOnAccent);
 	background-color: var(--accent);
@@ -35,7 +62,7 @@ html {
 	accent-color: var(--accent);
 	overflow: auto;
 	overflow-wrap: break-word;
-	font-family: 'Hiragino Maru Gothic Pro', "BIZ UDGothic", Roboto, HelveticaNeue, Arial, sans-serif;
+	font-family: 'Lexend', 'Hiragino Maru Gothic Pro', "BIZ UDGothic", Roboto, HelveticaNeue, Arial, sans-serif;
 	font-size: 14px;
 	line-height: 1.35;
 	text-size-adjust: 100%;
@@ -132,7 +159,7 @@ hr {
 	background: var(--divider);
 }
 
-.ti {
+.ph-bold {
 	width: 1.28em;
 	vertical-align: -12%;
 	line-height: 1em;
@@ -151,7 +178,7 @@ hr {
 	display: inline-block;
 	width: 1em;
 	height: 1em;
-	border-radius: 100%;
+	border-radius: var(--radius-full);
 	background: currentColor;
 }
 
@@ -161,10 +188,10 @@ hr {
 	font-weight: 700;
 	background: var(--indicator);
 	height: 1.5em;
-	min-width: 1.5em;
+	min-width: 1em;
 	align-items: center;
 	justify-content: center;
-	border-radius: 99rem;
+	border-radius: var(--radius-ellipse);
 	padding: 0.3em 0.5em;
 }
 
@@ -272,7 +299,7 @@ hr {
 }
 
 ._panel {
-	background: var(--panel);
+	background: color-mix(in srgb, var(--panel) 65%, transparent);
 	border-radius: var(--radius);
 	overflow: clip;
 }
@@ -350,7 +377,7 @@ hr {
 	padding: 2px 3px;
 	color: var(--accent);
 	border: solid 1px var(--accent);
-	border-radius: 4px;
+	border-radius: var(--radius-xs);
 	vertical-align: top;
 }
 
@@ -390,7 +417,7 @@ hr {
 		vertical-align: bottom;
 		height: 128px;
 		margin-bottom: 16px;
-		border-radius: 16px;
+		border-radius: var(--radius-md);
 	}
 }
 

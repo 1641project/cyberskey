@@ -6,8 +6,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <div v-if="meta" :class="$style.root">
 	<div :class="[$style.main, $style.panel]">
-		<img :src="instance.iconUrl || instance.faviconUrl || '/favicon.ico'" alt="" :class="$style.mainIcon"/>
-		<button class="_button _acrylic" :class="$style.mainMenu" @click="showMenu"><i class="ti ti-dots"></i></button>
+		<img :src="instance.iconUrl || instance.faviconUrl || '/apple-touch-icon.png'" alt="" :class="$style.mainIcon"/>
+		<button class="_button _acrylic" :class="$style.mainMenu" @click="showMenu"><i class="ph-dots-three ph-bold ph-lg"></i></button>
 		<div :class="$style.mainFg">
 			<h1 :class="$style.mainTitle">
 				<!-- 背景色によってはロゴが見えなくなるのでとりあえず無効に -->
@@ -20,6 +20,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</div>
 			<div v-if="instance.disableRegistration" :class="$style.mainWarn">
 				<MkInfo warn>{{ i18n.ts.invitationRequiredToRegister }}</MkInfo>
+			</div>
+			<div v-if="instance.approvalRequiredForSignup" :class="$style.mainWarn">
+				<MkInfo warn>{{ i18n.ts.approvalRequiredToRegister }}</MkInfo>
 			</div>
 			<div class="_gaps_s" :class="$style.mainActions">
 				<MkButton :class="$style.mainAction" full rounded gradate data-cy-signup style="margin-right: 12px;" @click="signup()">{{ i18n.ts.joinThisServer }}</MkButton>
@@ -94,37 +97,37 @@ function signup() {
 function showMenu(ev) {
 	os.popupMenu([{
 		text: i18n.ts.instanceInfo,
-		icon: 'ti ti-info-circle',
+		icon: 'ph-info ph-bold ph-lg',
 		action: () => {
 			os.pageWindow('/about');
 		},
 	}, {
 		text: i18n.ts.aboutMisskey,
-		icon: 'ti ti-info-circle',
+		icon: 'ph-info ph-bold ph-lg',
 		action: () => {
-			os.pageWindow('/about-misskey');
+			os.pageWindow('/about-sharkey');
 		},
 	}, null, (instance.impressumUrl) ? {
 		text: i18n.ts.impressum,
-		icon: 'ti ti-file-invoice',
+		icon: 'ph-newspaper-clipping ph-bold ph-lg',
 		action: () => {
 			window.open(instance.impressumUrl, '_blank');
 		},
 	} : undefined, (instance.tosUrl) ? {
 		text: i18n.ts.termsOfService,
-		icon: 'ti ti-notebook',
+		icon: 'ph-notebook ph-bold ph-lg',
 		action: () => {
 			window.open(instance.tosUrl, '_blank');
 		},
 	} : undefined, (instance.privacyPolicyUrl) ? {
 		text: i18n.ts.privacyPolicy,
-		icon: 'ti ti-shield-lock',
+		icon: 'ph-shield ph-bold ph-lg',
 		action: () => {
 			window.open(instance.privacyPolicyUrl, '_blank');
 		},
 	} : undefined, (!instance.impressumUrl && !instance.tosUrl && !instance.privacyPolicyUrl) ? undefined : null, {
 		text: i18n.ts.help,
-		icon: 'ti ti-help-circle',
+		icon: 'ph-question ph-bold ph-lg',
 		action: () => {
 			window.open('https://misskey-hub.net/help.md', '_blank');
 		},
@@ -132,7 +135,7 @@ function showMenu(ev) {
 }
 
 function exploreOtherServers() {
-	window.open('https://join.misskey.page/instances', '_blank');
+	window.open('https://joinsharkey.org/#findaninstance', '_blank');
 }
 </script>
 
@@ -169,7 +172,7 @@ function exploreOtherServers() {
 	right: 16px;
 	width: 32px;
 	height: 32px;
-	border-radius: 8px;
+	border-radius: var(--radius-sm);
 	font-size: 18px;
 }
 

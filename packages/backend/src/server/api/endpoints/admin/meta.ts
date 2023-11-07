@@ -32,6 +32,10 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			approvalRequiredForSignup: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
 			enableHcaptcha: {
 				type: 'boolean',
 				optional: false, nullable: false,
@@ -182,6 +186,10 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			enableBotTrending: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
 			proxyAccountId: {
 				type: 'string',
 				optional: false, nullable: true,
@@ -283,6 +291,10 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			enableAchievements: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
 			enableIdenticonGeneration: {
 				type: 'boolean',
 				optional: false, nullable: false,
@@ -357,6 +369,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				privacyPolicyUrl: instance.privacyPolicyUrl,
 				disableRegistration: instance.disableRegistration,
 				emailRequiredForSignup: instance.emailRequiredForSignup,
+				approvalRequiredForSignup: instance.approvalRequiredForSignup,
 				enableHcaptcha: instance.enableHcaptcha,
 				hcaptchaSiteKey: instance.hcaptchaSiteKey,
 				enableRecaptcha: instance.enableRecaptcha,
@@ -397,6 +410,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				sensitiveMediaDetectionSensitivity: instance.sensitiveMediaDetectionSensitivity,
 				setSensitiveFlagAutomatically: instance.setSensitiveFlagAutomatically,
 				enableSensitiveMediaDetectionForVideos: instance.enableSensitiveMediaDetectionForVideos,
+				enableBotTrending: instance.enableBotTrending,
 				proxyAccountId: instance.proxyAccountId,
 				summalyProxy: instance.summalyProxy,
 				email: instance.email,
@@ -426,6 +440,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				enableChartsForRemoteUser: instance.enableChartsForRemoteUser,
 				enableChartsForFederatedInstances: instance.enableChartsForFederatedInstances,
 				enableServerMachineStats: instance.enableServerMachineStats,
+				enableAchievements: instance.enableAchievements,
 				enableIdenticonGeneration: instance.enableIdenticonGeneration,
 				policies: { ...DEFAULT_POLICIES, ...instance.policies },
 				manifestJsonOverride: instance.manifestJsonOverride,

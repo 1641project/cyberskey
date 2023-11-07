@@ -18,15 +18,19 @@ SPDX-License-Identifier: AGPL-3.0-only
 						<template #label>{{ i18n.ts.emailRequiredForSignup }}</template>
 					</MkSwitch>
 
+					<MkSwitch v-model="approvalRequiredForSignup">
+						<template #label>{{ i18n.ts.approvalRequiredForSignup }}</template>
+					</MkSwitch>
+
 					<FormLink to="/admin/server-rules">{{ i18n.ts.serverRules }}</FormLink>
 
 					<MkInput v-model="tosUrl" type="url">
-						<template #prefix><i class="ti ti-link"></i></template>
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.tosUrl }}</template>
 					</MkInput>
 
 					<MkInput v-model="privacyPolicyUrl" type="url">
-						<template #prefix><i class="ti ti-link"></i></template>
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.privacyPolicyUrl }}</template>
 					</MkInput>
 
@@ -45,7 +49,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #footer>
 			<div :class="$style.footer">
 				<MkSpacer :contentMax="700" :marginMin="16" :marginMax="16">
-					<MkButton primary rounded @click="save"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+					<MkButton primary rounded @click="save"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
 				</MkSpacer>
 			</div>
 		</template>
@@ -71,6 +75,7 @@ import FormLink from '@/components/form/link.vue';
 
 let enableRegistration: boolean = $ref(false);
 let emailRequiredForSignup: boolean = $ref(false);
+let approvalRequiredForSignup: boolean = $ref(false);
 let sensitiveWords: string = $ref('');
 let preservedUsernames: string = $ref('');
 let tosUrl: string | null = $ref(null);
@@ -80,6 +85,7 @@ async function init() {
 	const meta = await os.api('admin/meta');
 	enableRegistration = !meta.disableRegistration;
 	emailRequiredForSignup = meta.emailRequiredForSignup;
+	approvalRequiredForSignup = meta.approvalRequiredForSignup;
 	sensitiveWords = meta.sensitiveWords.join('\n');
 	preservedUsernames = meta.preservedUsernames.join('\n');
 	tosUrl = meta.tosUrl;
@@ -90,6 +96,7 @@ function save() {
 	os.apiWithDialog('admin/update-meta', {
 		disableRegistration: !enableRegistration,
 		emailRequiredForSignup,
+		approvalRequiredForSignup,
 		tosUrl,
 		privacyPolicyUrl,
 		sensitiveWords: sensitiveWords.split('\n'),
@@ -103,7 +110,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.moderation,
-	icon: 'ti ti-shield',
+	icon: 'ph-shield ph-bold ph-lg',
 });
 </script>
 

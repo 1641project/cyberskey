@@ -75,11 +75,19 @@ export const packedUserLiteSchema = {
 			nullable: false, optional: true,
 			default: false,
 		},
+		isSilenced: {
+			type: 'boolean',
+			nullable: false, optional: false,
+		},
 		isBot: {
 			type: 'boolean',
 			nullable: false, optional: true,
 		},
 		isCat: {
+			type: 'boolean',
+			nullable: false, optional: true,
+		},
+		speakAsCat: {
 			type: 'boolean',
 			nullable: false, optional: true,
 		},
@@ -146,11 +154,16 @@ export const packedUserDetailedNotMeOnlySchema = {
 			type: 'string',
 			nullable: true, optional: false,
 		},
-		isLocked: {
-			type: 'boolean',
-			nullable: false, optional: false,
+		backgroundUrl: {
+			type: 'string',
+			format: 'url',
+			nullable: true, optional: false,
 		},
-		isSilenced: {
+		backgroundBlurhash: {
+			type: 'string',
+			nullable: true, optional: false,
+		},
+		isLocked: {
 			type: 'boolean',
 			nullable: false, optional: false,
 		},
@@ -172,6 +185,12 @@ export const packedUserDetailedNotMeOnlySchema = {
 			type: 'string',
 			nullable: true, optional: false,
 			example: '2018-03-12',
+		},
+		ListenBrainz: {
+			type: "string",
+			nullable: true,
+			optional: false,
+			example: "Steve",
 		},
 		lang: {
 			type: 'string',
@@ -322,6 +341,11 @@ export const packedMeDetailedOnlySchema = {
 			format: 'id',
 		},
 		bannerId: {
+			type: 'string',
+			nullable: true, optional: false,
+			format: 'id',
+		},
+		backgroundId: {
 			type: 'string',
 			nullable: true, optional: false,
 			format: 'id',

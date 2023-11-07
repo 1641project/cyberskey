@@ -59,6 +59,7 @@ export const paramDef = {
 		withFiles: { type: 'boolean', default: false },
 		withRenotes: { type: 'boolean', default: true },
 		withReplies: { type: 'boolean', default: false },
+		withBots: { type: 'boolean', default: true },
 	},
 	required: [],
 } as const;
@@ -160,6 +161,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 								if (ps.withRenotes === false) return false;
 							}
 						}
+						if (!ps.withBots && note.user?.isBot) return false;
 
 						return true;
 					});
@@ -183,6 +185,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 						includeLocalRenotes: ps.includeLocalRenotes,
 						withFiles: ps.withFiles,
 						withReplies: ps.withReplies,
+						withBots: ps.withBots,
 					}, me);
 				}
 			} else {
@@ -195,6 +198,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					includeLocalRenotes: ps.includeLocalRenotes,
 					withFiles: ps.withFiles,
 					withReplies: ps.withReplies,
+					withBots: ps.withBots,
 				}, me);
 			}
 		});
@@ -209,6 +213,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		includeLocalRenotes: boolean,
 		withFiles: boolean,
 		withReplies: boolean,
+		withBots: boolean,
 	}, me: MiLocalUser) {
 		const followees = await this.userFollowingService.getFollowees(me.id);
 		const followingChannels = await this.channelFollowingsRepository.find({
@@ -295,6 +300,8 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		if (ps.withFiles) {
 			query.andWhere('note.fileIds != \'{}\'');
 		}
+
+		if (!ps.withBots) query.andWhere('user.isBot = FALSE');
 		//#endregion
 
 		const timeline = await query.limit(ps.limit).getMany();

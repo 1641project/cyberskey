@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	See https://github.com/misskey-dev/misskey/issues/10905
 -->
 <div v-if="showBottom" :class="$style.bottom">
-	<button v-tooltip="i18n.ts.goToMisskey" :class="['_button', '_shadow', $style.button]" @click="goToMisskey"><i class="ti ti-home"></i></button>
+	<button v-tooltip="i18n.ts.goToMisskey" :class="['_button', '_shadow', $style.button]" @click="goToMisskey"><i class="ph-house ph-bold ph-lg"></i></button>
 </div>
 </template>
 
@@ -72,7 +72,7 @@ document.documentElement.style.overflowY = 'scroll';
 	width: 100%;
 	max-width: 60px;
 	margin: auto;
-	border-radius: 100%;
+	border-radius: var(--radius-full);
 	background: var(--panel);
 	color: var(--fg);
 	right: var(--margin);

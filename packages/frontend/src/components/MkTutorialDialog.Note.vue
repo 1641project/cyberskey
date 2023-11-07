@@ -8,17 +8,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<div style="text-align: center; padding: 0 16px;">{{ i18n.ts._initialTutorial._note.description }}</div>
 	<MkNote :class="$style.exampleNoteRoot" style="pointer-events: none;" :note="exampleNote" :mock="true"/>
 	<div class="_gaps_s">
-		<div><i class="ti ti-arrow-back-up"></i> <b>{{ i18n.ts.reply }}</b> … {{ i18n.ts._initialTutorial._note.reply }}</div>
-		<div><i class="ti ti-repeat"></i> <b>{{ i18n.ts.renote }}</b> … {{ i18n.ts._initialTutorial._note.renote }}</div>
-		<div><i class="ti ti-plus"></i> <b>{{ i18n.ts.reaction }}</b> … {{ i18n.ts._initialTutorial._note.reaction }}</div>
-		<div><i class="ti ti-dots"></i> <b>{{ i18n.ts.menu }}</b> … {{ i18n.ts._initialTutorial._note.menu }}</div>
+		<div><i class="ph-arrow-u-up-left ph-bold ph-lg"></i> <b>{{ i18n.ts.reply }}</b> … {{ i18n.ts._initialTutorial._note.reply }}</div>
+		<div><i class="ph-rocket-launch ph-bold ph-lg"></i> <b>{{ i18n.ts.renote }}</b> … {{ i18n.ts._initialTutorial._note.renote }}</div>
+		<div><i class="ph-smiley ph-bold ph-lg"></i> <b>{{ i18n.ts.reaction }}</b> … {{ i18n.ts._initialTutorial._note.reaction }}</div>
+		<div><i class="ph-dots-three ph-bold ph-lg"></i> <b>{{ i18n.ts.menu }}</b> … {{ i18n.ts._initialTutorial._note.menu }}</div>
 	</div>
 </div>
 <div v-else-if="phase === 'howToReact'" class="_gaps">
 	<div style="text-align: center; padding: 0 16px;">{{ i18n.ts._initialTutorial._reaction.description }}</div>
 	<div>{{ i18n.ts._initialTutorial._reaction.letsTryReacting }}</div>
 	<MkNote :class="$style.exampleNoteRoot" :note="exampleNote" :mock="true" @reaction="addReaction" @removeReaction="removeReaction" @updateReaction="updateReaction"/>
-	<div v-if="onceReacted"><b style="color: var(--accent);"><i class="ti ti-check"></i> {{ i18n.ts._initialTutorial.wellDone }}</b> {{ i18n.ts._initialTutorial._reaction.reactNotification }}<br>{{ i18n.ts._initialTutorial._reaction.reactDone }}</div>
+	<div v-if="onceReacted"><b style="color: var(--accent);"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts._initialTutorial.wellDone }}</b> {{ i18n.ts._initialTutorial._reaction.reactNotification }}<br>{{ i18n.ts._initialTutorial._reaction.reactDone }}</div>
 </div>
 </template>
 
@@ -56,7 +56,7 @@ const exampleNote = reactive<Misskey.entities.Note>({
 		onlineStatus: null,
 		badgeRoles: [],
 	},
-	text: 'just setting up my msky',
+	text: 'just setting up my shonk',
 	cw: null,
 	visibility: 'public',
 	localOnly: false,

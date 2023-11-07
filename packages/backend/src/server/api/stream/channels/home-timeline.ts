@@ -70,6 +70,8 @@ class HomeTimelineChannel extends Channel {
 			}
 		}
 
+		if (note.user.isSilenced && !this.following[note.userId] && note.userId !== this.user!.id) return;
+
 		if (note.renote && note.text == null && (note.fileIds == null || note.fileIds.length === 0) && !this.withRenotes) return;
 
 		// 流れてきたNoteがミュートしているユーザーが関わるものだったら無視する
