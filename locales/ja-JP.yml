@@ -1188,6 +1188,15 @@ useGroupedNotifications: "通知をグルーピングして表示する"
 signupPendingError: "メールアドレスの確認中に問題が発生しました。リンクの有効期限が切れている可能性があります。"
 cwNotationRequired: "「内容を隠す」がオンの場合は注釈の記述が必要です。"
 doReaction: "リアクションする"
+requestApprovalAreYouSure: "「{x}」のリクエストを承認しますか？"
+list: "一覧"
+requestCustomEmojis: "カスタム絵文字のリクエスト"
+requestPending: "申請中"
+approval: "承認"
+requestingEmojis: "リクエストされている絵文字"
+emojiNameValidation: "名前には英数字と_が利用できます。"
+canRequestCustomEmojis: "カスタム絵文字のリクエスト"
+
 
 _announcement:
   forExistingUsers: "既存ユーザーのみ"

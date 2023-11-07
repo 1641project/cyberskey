@@ -1191,6 +1191,14 @@ export interface Locale {
 	"signupPendingError": string;
 	"cwNotationRequired": string;
 	"doReaction": string;
+	"requestApprovalAreYouSure": string;
+	"list": string;
+	"requestCustomEmojis": string;
+	"requestPending": string;
+	"approval": string;
+	"requestingEmojis": string;
+	"emojiNameValidation": string;
+	"canRequestCustomEmojis": string;
 	"_announcement": {
 			"forExistingUsers": string;
 			"forExistingUsersDescription": string;
