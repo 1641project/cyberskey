@@ -48,6 +48,7 @@ export const paramDef = {
 		withFiles: { type: 'boolean', default: false },
 		withRenotes: { type: 'boolean', default: true },
 		withReplies: { type: 'boolean', default: false },
+		withBots: { type: 'boolean', default: true },
 		excludeNsfw: { type: 'boolean', default: false },
 		limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
 		sinceId: { type: 'string', format: 'misskey:id' },
@@ -129,6 +130,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 							return true;
 						}
 						if (!ps.withReplies && note.replyId && note.replyUserId !== note.userId && (me == null || note.replyUserId !== me.id)) return false;
+						if (!ps.withBots && note.user?.isBot) return false;
 						if (me && isUserRelated(note, userIdsWhoBlockingMe)) return false;
 						if (me && isUserRelated(note, userIdsWhoMeMuting)) return false;
 						if (note.renoteId) {
@@ -159,6 +161,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 						limit: ps.limit,
 						withFiles: ps.withFiles,
 						withReplies: ps.withReplies,
+						withBots: ps.withBots,
 					}, me);
 				}
 			} else {
@@ -168,6 +171,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					limit: ps.limit,
 					withFiles: ps.withFiles,
 					withReplies: ps.withReplies,
+					withBots: ps.withBots,
 				}, me);
 			}
 		});
@@ -179,6 +183,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		limit: number,
 		withFiles: boolean,
 		withReplies: boolean,
+		withBots: boolean,
 	}, me: MiLocalUser | null) {
 		const query = this.queryService.makePaginationQuery(this.notesRepository.createQueryBuilder('note'),
 			ps.sinceId, ps.untilId)
@@ -209,6 +214,8 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 					}));
 			}));
 		}
+
+		if (!ps.withBots) query.andWhere('user.isBot = FALSE');
 
 		const timeline = await query.limit(ps.limit).getMany();
 

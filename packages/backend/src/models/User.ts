@@ -118,6 +118,19 @@ export class MiUser {
 	@JoinColumn()
 	public banner: MiDriveFile | null;
 
+	@Column({
+		...id(),
+		nullable: true,
+		comment: 'The ID of background DriveFile.',
+	})
+	public backgroundId: MiDriveFile['id'] | null;
+
+	@OneToOne(type => MiDriveFile, {
+		onDelete: 'SET NULL',
+	})
+	@JoinColumn()
+	public background: MiDriveFile | null;
+
 	@Column('varchar', {
 		length: 512, nullable: true,
 	})
@@ -129,6 +142,11 @@ export class MiUser {
 	public bannerUrl: string | null;
 
 	@Column('varchar', {
+		length: 512, nullable: true,
+	})
+	public backgroundUrl: string | null;
+
+	@Column('varchar', {
 		length: 128, nullable: true,
 	})
 	public avatarBlurhash: string | null;
@@ -138,6 +156,11 @@ export class MiUser {
 	})
 	public bannerBlurhash: string | null;
 
+	@Column('varchar', {
+		length: 128, nullable: true,
+	})
+	public backgroundBlurhash: string | null;
+	
 	@Column('jsonb', {
 		default: [],
 	})
@@ -161,6 +184,12 @@ export class MiUser {
 
 	@Column('boolean', {
 		default: false,
+		comment: 'Whether the User is silenced.',
+	})
+	public isSilenced: boolean;
+
+	@Column('boolean', {
+		default: false,
 		comment: 'Whether the User is locked.',
 	})
 	public isLocked: boolean;
@@ -176,6 +205,12 @@ export class MiUser {
 		comment: 'Whether the User is a cat.',
 	})
 	public isCat: boolean;
+
+	@Column('boolean', {
+		default: true,
+		comment: 'Whether the User speaks in nya.',
+	})
+	public speakAsCat: boolean;
 
 	@Column('boolean', {
 		default: false,
@@ -252,6 +287,16 @@ export class MiUser {
 	})
 	public token: string | null;
 
+	@Column('boolean', {
+		default: false,
+	})
+	public approved: boolean;
+
+	@Column('varchar', {
+		length: 1000, nullable: true,
+	})
+	public signupReason: string | null;
+
 	constructor(data: Partial<MiUser>) {
 		if (data == null) return;
 
@@ -288,4 +333,5 @@ export const passwordSchema = { type: 'string', minLength: 1 } as const;
 export const nameSchema = { type: 'string', minLength: 1, maxLength: 50 } as const;
 export const descriptionSchema = { type: 'string', minLength: 1, maxLength: 1500 } as const;
 export const locationSchema = { type: 'string', minLength: 1, maxLength: 50 } as const;
+export const listenbrainzSchema = { type: "string", minLength: 1, maxLength: 128 } as const;
 export const birthdaySchema = { type: 'string', pattern: /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.toString().slice(1, -1) } as const;

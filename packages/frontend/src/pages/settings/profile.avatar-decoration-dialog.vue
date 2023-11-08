@@ -30,9 +30,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</MkSpacer>
 
 		<div :class="$style.footer" class="_buttonsCenter">
-			<MkButton v-if="using" primary rounded @click="attach"><i class="ti ti-check"></i> {{ i18n.ts.update }}</MkButton>
-			<MkButton v-if="using" rounded @click="detach"><i class="ti ti-x"></i> {{ i18n.ts.detach }}</MkButton>
-			<MkButton v-else primary rounded @click="attach"><i class="ti ti-check"></i> {{ i18n.ts.attach }}</MkButton>
+			<MkButton v-if="using" primary rounded @click="attach"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.update }}</MkButton>
+			<MkButton v-if="using" rounded @click="detach"><i class="ph-x ph-bold ph-lg"></i> {{ i18n.ts.detach }}</MkButton>
+			<MkButton v-else primary rounded @click="attach"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.attach }}</MkButton>
 		</div>
 	</div>
 </MkModalWindow>

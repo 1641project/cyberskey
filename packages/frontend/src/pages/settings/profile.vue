@@ -10,6 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkAvatar :class="$style.avatar" :user="$i" forceShowDecoration @click="changeAvatar"/>
 			<MkButton primary rounded @click="changeAvatar">{{ i18n.ts._profile.changeAvatar }}</MkButton>
 		</div>
+		<MkButton primary rounded :class="$style.backgroundEdit" @click="changeBackground">{{ i18n.ts._profile.changeBackground }}</MkButton>
 		<MkButton primary rounded :class="$style.bannerEdit" @click="changeBanner">{{ i18n.ts._profile.changeBanner }}</MkButton>
 	</div>
 
@@ -24,12 +25,17 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	<MkInput v-model="profile.location" manualSave>
 		<template #label>{{ i18n.ts.location }}</template>
-		<template #prefix><i class="ti ti-map-pin"></i></template>
+		<template #prefix><i class="ph-map-pin ph-bold ph-lg"></i></template>
 	</MkInput>
 
-	<MkInput v-model="profile.birthday" type="date" manualSave>
+	<MkInput v-model="profile.birthday" :max="setMaxBirthDate()" type="date" manualSave>
 		<template #label>{{ i18n.ts.birthday }}</template>
-		<template #prefix><i class="ti ti-cake"></i></template>
+		<template #prefix><i class="ph-cake ph-bold ph-lg"></i></template>
+	</MkInput>
+
+	<MkInput v-model="profile.listenbrainz" manualSave>
+		<template #label>ListenBrainz</template>
+		<template #prefix><i class="ph-headphones ph-bold ph-lg"></i></template>
 	</MkInput>
 
 	<MkSelect v-model="profile.lang">
@@ -39,15 +45,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	<FormSlot>
 		<MkFolder>
-			<template #icon><i class="ti ti-list"></i></template>
+			<template #icon><i class="ph-list ph-bold ph-lg"></i></template>
 			<template #label>{{ i18n.ts._profile.metadataEdit }}</template>
 
 			<div :class="$style.metadataRoot">
 				<div :class="$style.metadataMargin">
-					<MkButton :disabled="fields.length >= 16" inline style="margin-right: 8px;" @click="addField"><i class="ti ti-plus"></i> {{ i18n.ts.add }}</MkButton>
-					<MkButton v-if="!fieldEditMode" :disabled="fields.length <= 1" inline danger style="margin-right: 8px;" @click="fieldEditMode = !fieldEditMode"><i class="ti ti-trash"></i> {{ i18n.ts.delete }}</MkButton>
-					<MkButton v-else inline style="margin-right: 8px;" @click="fieldEditMode = !fieldEditMode"><i class="ti ti-arrows-sort"></i> {{ i18n.ts.rearrange }}</MkButton>
-					<MkButton inline primary @click="saveFields"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+					<MkButton :disabled="fields.length >= 16" inline style="margin-right: 8px;" @click="addField"><i class="ph-plus ph-bold ph-lg"></i> {{ i18n.ts.add }}</MkButton>
+					<MkButton v-if="!fieldEditMode" :disabled="fields.length <= 1" inline danger style="margin-right: 8px;" @click="fieldEditMode = !fieldEditMode"><i class="ph-trash ph-bold ph-lg"></i> {{ i18n.ts.delete }}</MkButton>
+					<MkButton v-else inline style="margin-right: 8px;" @click="fieldEditMode = !fieldEditMode"><i class="ph-arrows-down-up ph-bold ph-lg"></i> {{ i18n.ts.rearrange }}</MkButton>
+					<MkButton inline primary @click="saveFields"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
 				</div>
 
 				<Sortable
@@ -61,8 +67,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 				>
 					<template #item="{element, index}">
 						<div :class="$style.fieldDragItem">
-							<button v-if="!fieldEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1"><i class="ti ti-menu"></i></button>
-							<button v-if="fieldEditMode" :disabled="fields.length <= 1" class="_button" :class="$style.dragItemRemove" @click="deleteField(index)"><i class="ti ti-x"></i></button>
+							<button v-if="!fieldEditMode" class="_button" :class="$style.dragItemHandle" tabindex="-1"><i class="ph-list ph-bold ph-lg"></i></button>
+							<button v-if="fieldEditMode" :disabled="fields.length <= 1" class="_button" :class="$style.dragItemRemove" @click="deleteField(index)"><i class="ph-x ph-bold ph-lg"></i></button>
 							<div :class="$style.dragItemForm">
 								<FormSplit :minWidth="200">
 									<MkInput v-model="element.name" small>
@@ -84,7 +90,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	</FormSlot>
 
 	<MkFolder>
-		<template #icon><i class="ti ti-sparkles"></i></template>
+		<template #icon><i class="ph-sparkle ph-bold ph-lg"></i></template>
 		<template #label>{{ i18n.ts.avatarDecorations }}</template>
 
 		<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); grid-gap: 12px;">
@@ -94,9 +100,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 				:class="[$style.avatarDecoration, { [$style.avatarDecorationActive]: $i.avatarDecorations.some(x => x.id === avatarDecoration.id) }]"
 				@click="openDecoration(avatarDecoration)"
 			>
-				<div :class="$style.avatarDecorationName"><MkCondensedLine :minScale="2 / 3">{{ avatarDecoration.name }}</MkCondensedLine></div>
+				<div :class="$style.avatarDecorationName"><MkCondensedLine :minScale="0.5">{{ avatarDecoration.name }}</MkCondensedLine></div>
 				<MkAvatar style="width: 60px; height: 60px;" :user="$i" :decoration="{ url: avatarDecoration.url }" forceShowDecoration/>
-				<i v-if="avatarDecoration.roleIdsThatCanBeUsedThisDecoration.length > 0 && !$i.roles.some(r => avatarDecoration.roleIdsThatCanBeUsedThisDecoration.includes(r.id))" :class="$style.avatarDecorationLock" class="ti ti-lock"></i>
+				<i v-if="avatarDecoration.roleIdsThatCanBeUsedThisDecoration.length > 0 && !$i.roles.some(r => avatarDecoration.roleIdsThatCanBeUsedThisDecoration.includes(r.id))" :class="$style.avatarDecorationLock" class="ph-lock ph-bold ph-lg"></i>
 			</div>
 		</div>
 	</MkFolder>
@@ -106,6 +112,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 		<div class="_gaps_m">
 			<MkSwitch v-model="profile.isCat">{{ i18n.ts.flagAsCat }}<template #caption>{{ i18n.ts.flagAsCatDescription }}</template></MkSwitch>
+			<MkSwitch v-if="profile.isCat" v-model="profile.speakAsCat">{{ i18n.ts.flagSpeakAsCat }}<template #caption>{{ i18n.ts.flagSpeakAsCatDescription }}</template></MkSwitch>
 			<MkSwitch v-model="profile.isBot">{{ i18n.ts.flagAsBot }}<template #caption>{{ i18n.ts.flagAsBotDescription }}</template></MkSwitch>
 		</div>
 	</MkFolder>
@@ -146,14 +153,24 @@ const Sortable = defineAsyncComponent(() => import('vuedraggable').then(x => x.d
 const reactionAcceptance = computed(defaultStore.makeGetterSetter('reactionAcceptance'));
 let avatarDecorations: any[] = $ref([]);
 
+const now = new Date();
+
+const setMaxBirthDate = () => {
+	const y = now.getFullYear();
+
+	return `${y}-12-31`;
+};
+
 const profile = reactive({
 	name: $i.name,
 	description: $i.description,
 	location: $i.location,
 	birthday: $i.birthday,
+	listenbrainz: $i?.listenbrainz,
 	lang: $i.lang,
 	isBot: $i.isBot,
 	isCat: $i.isCat,
+	speakAsCat: $i.speakAsCat,
 });
 
 watch(() => profile, () => {
@@ -192,6 +209,13 @@ function saveFields() {
 }
 
 function save() {
+	if (profile.birthday && profile.birthday > setMaxBirthDate()) {
+		os.alert({
+			type: 'warning',
+			text: 'You can\'t set your birthday to the future',
+		});
+		return undefined;
+	}
 	os.apiWithDialog('i/update', {
 		// 空文字列をnullにしたいので??は使うな
 		// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
@@ -202,10 +226,12 @@ function save() {
 		location: profile.location || null,
 		// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 		birthday: profile.birthday || null,
+		listenbrainz: profile.listenbrainz || null,
 		// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 		lang: profile.lang || null,
 		isBot: !!profile.isBot,
 		isCat: !!profile.isCat,
+		speakAsCat: !!profile.speakAsCat,
 	});
 	claimAchievement('profileFilled');
 	if (profile.name === 'syuilo' || profile.name === 'しゅいろ') {
@@ -267,6 +293,31 @@ function changeBanner(ev) {
 	});
 }
 
+function changeBackground(ev) {
+	selectFile(ev.currentTarget ?? ev.target, i18n.ts.background).then(async (file) => {
+		let originalOrCropped = file;
+
+		const { canceled } = await os.confirm({
+			type: 'question',
+			text: i18n.t('cropImageAsk'),
+			okText: i18n.ts.cropYes,
+			cancelText: i18n.ts.cropNo,
+		});
+
+		if (!canceled) {
+			originalOrCropped = await os.cropImage(file, {
+				aspectRatio: 1,
+			});
+		}
+
+		const i = await os.apiWithDialog('i/update', {
+			backgroundId: originalOrCropped.id,
+		});
+		$i.backgroundId = i.backgroundId;
+		$i.backgroundUrl = i.backgroundUrl;
+	});
+}
+
 function openDecoration(avatarDecoration) {
 	os.popup(defineAsyncComponent(() => import('./profile.avatar-decoration-dialog.vue')), {
 		decoration: avatarDecoration,
@@ -279,7 +330,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.profile,
-	icon: 'ti ti-user',
+	icon: 'ph-user ph-bold ph-lg',
 });
 </script>
 
@@ -289,7 +340,7 @@ definePageMetadata({
 	background-size: cover;
 	background-position: center;
 	border: solid 1px var(--divider);
-	border-radius: 10px;
+	border-radius: var(--radius);
 	overflow: clip;
 }
 
@@ -309,6 +360,11 @@ definePageMetadata({
 .bannerEdit {
 	position: absolute;
 	top: 16px;
+	right: 16px;
+}
+.backgroundEdit {
+	position: absolute;
+	top: 103px;
 	right: 16px;
 }
 
@@ -372,7 +428,7 @@ definePageMetadata({
 	cursor: pointer;
 	padding: 16px 16px 28px 16px;
 	border: solid 2px var(--divider);
-	border-radius: 8px;
+	border-radius: var(--radius-sm);
 	text-align: center;
 	font-size: 90%;
 	overflow: clip;

@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <MkContainer :showHeader="widgetProps.showHeader" data-cy-mkw-memo class="mkw-memo">
-	<template #icon><i class="ti ti-note"></i></template>
+	<template #icon><i class="ph-note ph-bold ph-lg"></i></template>
 	<template #header>{{ i18n.ts._widgets.memo }}</template>
 
 	<div :class="$style.root">
@@ -107,7 +107,7 @@ defineExpose<WidgetComponentExpose>({
 	padding: 0 10px;
 	height: 28px;
 	outline: none;
-	border-radius: 4px;
+	border-radius: var(--radius-xs);
 
 	&:disabled {
 		opacity: 0.7;

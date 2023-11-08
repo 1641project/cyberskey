@@ -23,7 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</template>
 			</I18n>
 			<div style="margin-top: 0.2em;">
-				<MkLink target="_blank" url="https://misskey-hub.net/docs/donate.html">{{ i18n.ts.learnMore }}</MkLink>
+				<MkLink target="_blank" url="https://ko-fi.com/transfem">{{ i18n.ts.learnMore }}</MkLink>
 			</div>
 		</div>
 		<div class="_buttons">
@@ -31,7 +31,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<MkButton @click="neverShow">{{ i18n.ts.neverShow }}</MkButton>
 		</div>
 	</div>
-	<button class="_button" :class="$style.close" @click="close"><i class="ti ti-x"></i></button>
+	<button class="_button" :class="$style.close" @click="close"><i class="ph-x ph-bold ph-lg"></i></button>
 </div>
 </template>
 
@@ -73,6 +73,7 @@ function neverShow() {
 	width: calc(100% - (var(--margin) * 2));
 	max-width: 500px;
 	display: flex;
+	backdrop-filter: var(--blur, blur(15px));
 }
 
 .icon {

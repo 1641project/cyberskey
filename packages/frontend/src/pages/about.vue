@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<FormSection>
 				<div class="_gaps_m">
 					<MkKeyValue :copy="version">
-						<template #key>Misskey</template>
+						<template #key>Cyberskey</template>
 						<template #value>{{ version }}</template>
 					</MkKeyValue>
 					<div v-html="i18n.t('poweredByMisskeyDescription', { name: instance.name ?? host })">
@@ -89,9 +89,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</FormSection>
 		</div>
 	</MkSpacer>
-	<MkSpacer v-else-if="tab === 'emojis'" :contentMax="1000" :marginMin="20">
-		<XEmojis/>
-	</MkSpacer>
+	<XEmojis v-else-if="tab === 'emojis'"/>
 	<MkSpacer v-else-if="tab === 'federation'" :contentMax="1000" :marginMin="20">
 		<XFederation/>
 	</MkSpacer>

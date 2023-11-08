@@ -31,6 +31,9 @@ export type Endpoints = {
 	'admin/show-users': { req: TODO; res: TODO; };
 	'admin/silence-user': { req: TODO; res: TODO; };
 	'admin/suspend-user': { req: TODO; res: TODO; };
+	'admin/nsfw-user': { req: TODO; res: TODO; };
+	'admin/unnsfw-user': { req: TODO; res: TODO; };
+	'admin/approve-user': { req: TODO; res: TODO; };
 	'admin/unsilence-user': { req: TODO; res: TODO; };
 	'admin/unsuspend-user': { req: TODO; res: TODO; };
 	'admin/update-meta': { req: TODO; res: TODO; };
@@ -415,6 +418,7 @@ export type Endpoints = {
 		birthday?: string | null;
 		avatarId?: DriveFile['id'] | null;
 		bannerId?: DriveFile['id'] | null;
+		backgroundId?: DriveFile['id'] | null;
 		fields?: {
 			name: string;
 			value: string;
@@ -427,6 +431,7 @@ export type Endpoints = {
 		noCrawle?: boolean;
 		isBot?: boolean;
 		isCat?: boolean;
+		speakAsCat?: boolean;
 		injectFeaturedNote?: boolean;
 		receiveAnnouncementEmail?: boolean;
 		alwaysMarkNsfw?: boolean;
@@ -509,6 +514,24 @@ export type Endpoints = {
 		};
 	}; res: { createdNote: Note }; };
 	'notes/delete': { req: { noteId: Note['id']; }; res: null; };
+	'notes/edit': { req: {
+		visibility?: 'public' | 'home' | 'followers' | 'specified',
+		visibleUserIds?: User['id'][];
+		text?: null | string;
+		cw?: null | string;
+		viaMobile?: boolean;
+		localOnly?: boolean;
+		fileIds?: DriveFile['id'][];
+		replyId?: null | Note['id'];
+		renoteId?: null | Note['id'];
+		channelId?: null | Channel['id'];
+		poll?: null | {
+			choices: string[];
+			multiple?: boolean;
+			expiresAt?: null | number;
+			expiredAfter?: null | number;
+		};
+	}; res: { createdNote: Note }; };
 	'notes/favorites/create': { req: { noteId: Note['id']; }; res: null; };
 	'notes/favorites/delete': { req: { noteId: Note['id']; }; res: null; };
 	'notes/featured': { req: TODO; res: Note[]; };
@@ -564,6 +587,9 @@ export type Endpoints = {
 
 	// reset-password
 	'reset-password': { req: { token: string; password: string; }; res: null; };
+
+	// sponsors
+	'sponsors': { req: { forceUpdate: boolean; }; res: null; };
 
 	// room
 	'room/show': { req: TODO; res: TODO; };

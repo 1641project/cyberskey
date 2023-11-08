@@ -21,6 +21,7 @@ import { MiClipFavorite } from '@/models/ClipFavorite.js';
 import { MiDriveFile } from '@/models/DriveFile.js';
 import { MiDriveFolder } from '@/models/DriveFolder.js';
 import { MiEmoji } from '@/models/Emoji.js';
+import { MiEmojiRequest } from '@/models/EmojiRequest.js';
 import { MiFollowing } from '@/models/Following.js';
 import { MiFollowRequest } from '@/models/FollowRequest.js';
 import { MiGalleryLike } from '@/models/GalleryLike.js';
@@ -68,6 +69,7 @@ import { MiRoleAssignment } from '@/models/RoleAssignment.js';
 import { MiFlash } from '@/models/Flash.js';
 import { MiFlashLike } from '@/models/FlashLike.js';
 import { MiUserListFavorite } from '@/models/UserListFavorite.js';
+import { NoteEdit } from '@/models/NoteEdit.js';
 import type { Repository } from 'typeorm';
 
 export {
@@ -89,6 +91,7 @@ export {
 	MiDriveFile,
 	MiDriveFolder,
 	MiEmoji,
+	MiEmojiRequest,
 	MiFollowing,
 	MiFollowRequest,
 	MiGalleryLike,
@@ -136,6 +139,7 @@ export {
 	MiFlash,
 	MiFlashLike,
 	MiUserMemo,
+	NoteEdit,
 };
 
 export type AbuseUserReportsRepository = Repository<MiAbuseUserReport>;
@@ -156,6 +160,7 @@ export type ClipFavoritesRepository = Repository<MiClipFavorite>;
 export type DriveFilesRepository = Repository<MiDriveFile>;
 export type DriveFoldersRepository = Repository<MiDriveFolder>;
 export type EmojisRepository = Repository<MiEmoji>;
+export type EmojiRequestsRepository = Repository<MiEmojiRequest>;
 export type FollowingsRepository = Repository<MiFollowing>;
 export type FollowRequestsRepository = Repository<MiFollowRequest>;
 export type GalleryLikesRepository = Repository<MiGalleryLike>;
@@ -203,3 +208,4 @@ export type RoleAssignmentsRepository = Repository<MiRoleAssignment>;
 export type FlashsRepository = Repository<MiFlash>;
 export type FlashLikesRepository = Repository<MiFlashLike>;
 export type UserMemoRepository = Repository<MiUserMemo>;
+export type NoteEditRepository = Repository<NoteEdit>;

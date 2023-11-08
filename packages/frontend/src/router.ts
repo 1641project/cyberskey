@@ -314,10 +314,6 @@ export const routes = [{
 	path: '/custom-emojis-manager',
 	component: page(() => import('./pages/custom-emojis-manager.vue')),
 }, {
-	path: '/avatar-decorations',
-	name: 'avatarDecorations',
-	component: page(() => import('./pages/avatar-decorations.vue')),
-}, {
 	path: '/registry/keys/:domain/:path(*)?',
 	component: page(() => import('./pages/registry.keys.vue')),
 }, {
@@ -455,6 +451,10 @@ export const routes = [{
 		path: '/invites',
 		name: 'invites',
 		component: page(() => import('./pages/admin/invites.vue')),
+	}, {
+		path: '/approvals',
+		name: 'approvals',
+		component: page(() => import('./pages/admin/approvals.vue')),
 	}, {
 		path: '/',
 		component: page(() => import('./pages/_empty_.vue')),

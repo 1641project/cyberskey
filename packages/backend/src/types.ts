@@ -30,9 +30,11 @@ export const ffVisibility = ['public', 'followers', 'private'] as const;
 export const moderationLogTypes = [
 	'updateServerSettings',
 	'suspend',
+	'approve',
 	'unsuspend',
 	'updateUserNote',
 	'addCustomEmoji',
+	'requestCustomEmoji',
 	'updateCustomEmoji',
 	'deleteCustomEmoji',
 	'assignRole',
@@ -75,6 +77,11 @@ export type ModerationLogPayloads = {
 		userUsername: string;
 		userHost: string | null;
 	};
+	approve: {
+		userId: string;
+		userUsername: string;
+		userHost: string | null;
+	};
 	unsuspend: {
 		userId: string;
 		userUsername: string;
@@ -88,6 +95,10 @@ export type ModerationLogPayloads = {
 		after: string | null;
 	};
 	addCustomEmoji: {
+		emojiId: string;
+		emoji: any;
+	};
+	requestCustomEmoji: {
 		emojiId: string;
 		emoji: any;
 	};

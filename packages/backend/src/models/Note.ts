@@ -18,6 +18,12 @@ export class MiNote {
 	@PrimaryColumn(id())
 	public id: string;
 
+	@Column('timestamp with time zone', {
+		comment: 'The update time of the Note.',
+		default: null,
+	})
+	public updatedAt: Date | null;
+
 	@Index()
 	@Column({
 		...id(),

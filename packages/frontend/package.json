@@ -23,7 +23,7 @@
 		"@rollup/plugin-replace": "5.0.5",
 		"@rollup/pluginutils": "5.0.5",
 		"@syuilo/aiscript": "0.16.0",
-		"@tabler/icons-webfont": "2.37.0",
+		"@phosphor-icons/web": "^2.0.3",
 		"@vitejs/plugin-vue": "4.4.0",
 		"@vue-macros/reactivity-transform": "0.3.23",
 		"@vue/compiler-sfc": "3.3.7",

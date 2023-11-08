@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	>
 		<a :href="chosen.url" target="_blank" :class="$style.link">
 			<img :src="chosen.imageUrl" :class="$style.img">
-			<button class="_button" :class="$style.i" @click.prevent.stop="toggleMenu"><i :class="$style.iIcon" class="ti ti-info-circle"></i></button>
+			<button class="_button" :class="$style.i" @click.prevent.stop="toggleMenu"><i :class="$style.iIcon" class="ph-info ph-bold ph-lg"></i></button>
 		</a>
 	</div>
 	<div v-else :class="$style.menu">
@@ -169,7 +169,7 @@ function reduceFrequency(): void {
 	display: block;
 	object-fit: contain;
 	margin: auto;
-	border-radius: 5px;
+	border-radius: var(--radius-xs);
 }
 
 .i {
@@ -179,7 +179,7 @@ function reduceFrequency(): void {
 	display: grid;
 	place-content: center;
 	background: var(--panel);
-	border-radius: 100%;
+	border-radius: var(--radius-full);
 	padding: 2px;
 }
 

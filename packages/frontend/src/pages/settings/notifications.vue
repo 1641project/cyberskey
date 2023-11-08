@@ -114,6 +114,6 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.notifications,
-	icon: 'ti ti-bell',
+	icon: 'ph-bell ph-bold ph-lg',
 });
 </script>

@@ -225,8 +225,8 @@ export class ApPersonService implements OnModuleInit {
 		return null;
 	}
 
-	private async resolveAvatarAndBanner(user: MiRemoteUser, icon: any, image: any): Promise<Pick<MiRemoteUser, 'avatarId' | 'bannerId' | 'avatarUrl' | 'bannerUrl' | 'avatarBlurhash' | 'bannerBlurhash'>> {
-		const [avatar, banner] = await Promise.all([icon, image].map(img => {
+	private async resolveAvatarAndBanner(user: MiRemoteUser, icon: any, image: any, bgimg: any): Promise<Pick<MiRemoteUser, 'avatarId' | 'bannerId' | 'backgroundId' | 'avatarUrl' | 'bannerUrl' | 'backgroundUrl' | 'avatarBlurhash' | 'bannerBlurhash' | 'backgroundBlurhash'>> {
+		const [avatar, banner, background] = await Promise.all([icon, image, bgimg].map(img => {
 			if (img == null) return null;
 			if (user == null) throw new Error('failed to create user: user is null');
 			return this.apImageService.resolveImage(user, img).catch(() => null);
@@ -235,10 +235,13 @@ export class ApPersonService implements OnModuleInit {
 		return {
 			avatarId: avatar?.id ?? null,
 			bannerId: banner?.id ?? null,
+			backgroundId: background?.id ?? null,
 			avatarUrl: avatar ? this.driveFileEntityService.getPublicUrl(avatar, 'avatar') : null,
 			bannerUrl: banner ? this.driveFileEntityService.getPublicUrl(banner) : null,
+			backgroundUrl: background ? this.driveFileEntityService.getPublicUrl(background) : null,
 			avatarBlurhash: avatar?.blurhash ?? null,
 			bannerBlurhash: banner?.blurhash ?? null,
+			backgroundBlurhash: background?.blurhash ?? null
 		};
 	}
 
@@ -269,7 +272,7 @@ export class ApPersonService implements OnModuleInit {
 
 		const tags = extractApHashtags(person.tag).map(normalizeForSearch).splice(0, 32);
 
-		const isBot = getApType(object) === 'Service';
+		const isBot = getApType(object) === 'Service' || getApType(object) === 'Application';
 
 		const bday = person['vcard:bday']?.match(/^\d{4}-\d{2}-\d{2}/);
 
@@ -277,6 +280,51 @@ export class ApPersonService implements OnModuleInit {
 
 		if (url && !checkHttps(url)) {
 			throw new Error('unexpected schema of person url: ' + url);
+		}
+
+		let followersCount: number | undefined;
+
+		if (typeof person.followers === 'string') {
+			try {
+				const data = await fetch(person.followers, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				followersCount = jsonData.totalItems;
+			} catch {
+				followersCount = undefined;
+			}
+		}
+
+		let followingCount: number | undefined;
+
+		if (typeof person.following === 'string') {
+			try {
+				const data = await fetch(person.following, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				followingCount = jsonData.totalItems;
+			} catch (e) {
+				followingCount = undefined;
+			}
+		}
+
+		let notesCount: number | undefined;
+
+		if (typeof person.outbox === 'string') {
+			try {
+				const data = await fetch(person.outbox, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				notesCount = jsonData.totalItems;
+			} catch (e) {
+				notesCount = undefined;
+			}
 		}
 
 		// Create user
@@ -291,6 +339,12 @@ export class ApPersonService implements OnModuleInit {
 			});
 		//#endregion
 
+		//#region resolve counts
+		const _resolver = resolver ?? this.apResolverService.createResolver();
+		const outboxcollection = await _resolver.resolveCollection(person.outbox).catch(() => { return null; });
+		const followerscollection = await _resolver.resolveCollection(person.followers!).catch(() => { return null; });
+		const followingcollection = await _resolver.resolveCollection(person.following!).catch(() => { return null; });
+
 		try {
 			// Start transaction
 			await this.db.transaction(async transactionalEntityManager => {
@@ -298,6 +352,7 @@ export class ApPersonService implements OnModuleInit {
 					id: this.idService.gen(),
 					avatarId: null,
 					bannerId: null,
+					backgroundId: null,
 					lastFetchedAt: new Date(),
 					name: truncate(person.name, nameLength),
 					isLocked: person.manuallyApprovesFollowers,
@@ -306,16 +361,45 @@ export class ApPersonService implements OnModuleInit {
 					alsoKnownAs: person.alsoKnownAs,
 					isExplorable: person.discoverable,
 					username: person.preferredUsername,
+					approved: true,
 					usernameLower: person.preferredUsername?.toLowerCase(),
 					host,
 					inbox: person.inbox,
 					sharedInbox: person.sharedInbox ?? person.endpoints?.sharedInbox,
+					notesCount: outboxcollection?.totalItems ?? 0,
+					followersCount: followerscollection?.totalItems ?? 0,
+					followingCount: followingcollection?.totalItems ?? 0,
 					followersUri: person.followers ? getApId(person.followers) : undefined,
+					followersCount:
+						followersCount !== undefined
+							? followersCount
+							: person.followers &&
+							typeof person.followers !== 'string' &&
+							isCollectionOrOrderedCollection(person.followers)
+								? person.followers.totalItems
+								: undefined,
+					followingCount:
+						followingCount !== undefined
+							? followingCount
+							: person.following &&
+							typeof person.following !== 'string' &&
+							isCollectionOrOrderedCollection(person.following)
+								? person.following.totalItems
+								: undefined,
+					notesCount:
+						notesCount !== undefined
+							? notesCount
+							: person.outbox &&
+							typeof person.outbox !== 'string' &&
+							isCollectionOrOrderedCollection(person.outbox)
+								? person.outbox.totalItems
+								: undefined,
 					featured: person.featured ? getApId(person.featured) : undefined,
 					uri: person.id,
 					tags,
 					isBot,
 					isCat: (person as any).isCat === true,
+					speakAsCat: (person as any).speakAsCat != null ? (person as any).speakAsCat === true : (person as any).isCat === true,
 					emojis,
 				})) as MiRemoteUser;
 
@@ -335,6 +419,7 @@ export class ApPersonService implements OnModuleInit {
 					birthday: bday?.[0] ?? null,
 					location: person['vcard:Address'] ?? null,
 					userHost: host,
+					listenbrainz: person.listenbrainz ?? null,
 				}));
 
 				if (person.publicKey) {
@@ -380,7 +465,7 @@ export class ApPersonService implements OnModuleInit {
 
 		//#region アバターとヘッダー画像をフェッチ
 		try {
-			const updates = await this.resolveAvatarAndBanner(user, person.icon, person.image);
+			const updates = await this.resolveAvatarAndBanner(user, person.icon, person.image, person.backgroundUrl);
 			await this.usersRepository.update(user.id, updates);
 			user = { ...user, ...updates };
 
@@ -447,23 +532,94 @@ export class ApPersonService implements OnModuleInit {
 			throw new Error('unexpected schema of person url: ' + url);
 		}
 
+		let followersCount: number | undefined;
+
+		if (typeof person.followers === 'string') {
+			try {
+				const data = await fetch(person.followers, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				followersCount = jsonData.totalItems;
+			} catch {
+				followersCount = undefined;
+			}
+		}
+
+		let followingCount: number | undefined;
+
+		if (typeof person.following === 'string') {
+			try {
+				const data = await fetch(person.following, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				followingCount = jsonData.totalItems;
+			} catch {
+				followingCount = undefined;
+			}
+		}
+
+		let notesCount: number | undefined;
+
+		if (typeof person.outbox === 'string') {
+			try {
+				const data = await fetch(person.outbox, {
+					headers: { Accept: 'application/json' },
+				});
+				const jsonData = JSON.parse(await data.text());
+
+				notesCount = jsonData.totalItems;
+			} catch (e) {
+				notesCount = undefined;
+			}
+		}
+
 		const updates = {
 			lastFetchedAt: new Date(),
 			inbox: person.inbox,
 			sharedInbox: person.sharedInbox ?? person.endpoints?.sharedInbox,
 			followersUri: person.followers ? getApId(person.followers) : undefined,
+			followersCount:
+				followersCount !== undefined
+					? followersCount
+					: person.followers &&
+					typeof person.followers !== 'string' &&
+					isCollectionOrOrderedCollection(person.followers)
+						? person.followers.totalItems
+						: undefined,
+			followingCount:
+				followingCount !== undefined
+					? followingCount
+					: person.following &&
+					typeof person.following !== 'string' &&
+					isCollectionOrOrderedCollection(person.following)
+						? person.following.totalItems
+						: undefined,
+			notesCount:
+				notesCount !== undefined
+					? notesCount
+					: person.outbox &&
+					typeof person.outbox !== 'string' &&
+					isCollectionOrOrderedCollection(person.outbox)
+						? person.outbox.totalItems
+						: undefined,
 			featured: person.featured,
 			emojis: emojiNames,
 			name: truncate(person.name, nameLength),
 			tags,
-			isBot: getApType(object) === 'Service',
+			approved: true,
+			isBot: getApType(object) === 'Service' || getApType(object) === 'Application',
 			isCat: (person as any).isCat === true,
+			speakAsCat: (person as any).speakAsCat != null ? (person as any).speakAsCat === true : (person as any).isCat === true,
 			isLocked: person.manuallyApprovesFollowers,
 			movedToUri: person.movedTo ?? null,
 			alsoKnownAs: person.alsoKnownAs ?? null,
 			isExplorable: person.discoverable,
-			...(await this.resolveAvatarAndBanner(exist, person.icon, person.image).catch(() => ({}))),
-		} as Partial<MiRemoteUser> & Pick<MiRemoteUser, 'isBot' | 'isCat' | 'isLocked' | 'movedToUri' | 'alsoKnownAs' | 'isExplorable'>;
+			...(await this.resolveAvatarAndBanner(exist, person.icon, person.image, person.backgroundUrl).catch(() => ({}))),
+		} as Partial<MiRemoteUser> & Pick<MiRemoteUser, 'isBot' | 'isCat' | 'speakAsCat' | 'isLocked' | 'movedToUri' | 'alsoKnownAs' | 'isExplorable'>;
 
 		const moving = ((): boolean => {
 			// 移行先がない→ある
@@ -509,6 +665,7 @@ export class ApPersonService implements OnModuleInit {
 			description: _description,
 			birthday: bday?.[0] ?? null,
 			location: person['vcard:Address'] ?? null,
+			listenbrainz: person.listenbrainz ?? null,
 		});
 
 		this.globalEventService.publishInternalEvent('remoteUserUpdated', { id: exist.id });
@@ -602,7 +759,7 @@ export class ApPersonService implements OnModuleInit {
 
 		// Resolve to Object(may be Note) arrays
 		const unresolvedItems = isCollection(collection) ? collection.items : collection.orderedItems;
-		const items = await Promise.all(toArray(unresolvedItems).map(x => _resolver.resolve(x)));
+		const items = await Promise.all(toArray(unresolvedItems).map(x => _resolver?.resolve(x)));
 
 		// Resolve and regist Notes
 		const limit = promiseLimit<MiNote | null>(2);

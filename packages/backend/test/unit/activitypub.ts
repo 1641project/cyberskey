@@ -94,9 +94,9 @@ describe('ActivityPub', () => {
 		cacheRemoteFiles: true,
 		cacheRemoteSensitiveFiles: true,
 		enableFanoutTimeline: true,
-		perUserHomeTimelineCacheMax: 100,
-		perLocalUserUserTimelineCacheMax: 100,
-		perRemoteUserUserTimelineCacheMax: 100,
+		perUserHomeTimelineCacheMax: 800,
+		perLocalUserUserTimelineCacheMax: 800,
+		perRemoteUserUserTimelineCacheMax: 800,
 		blockedHosts: [] as string[],
 		sensitiveWords: [] as string[],
 	} as MiMeta;

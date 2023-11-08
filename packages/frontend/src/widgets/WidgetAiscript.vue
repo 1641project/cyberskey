@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <MkContainer :showHeader="widgetProps.showHeader" data-cy-mkw-aiscript class="mkw-aiscript">
-	<template #icon><i class="ti ti-terminal-2"></i></template>
+	<template #icon><i class="ph-terminal-window ph-bold ph-lg-2"></i></template>
 	<template #header>{{ i18n.ts._widgets.aiscript }}</template>
 
 	<div class="uylguesu _monospace">
@@ -157,7 +157,7 @@ defineExpose<WidgetComponentExpose>({
 		padding: 0 10px;
 		height: 28px;
 		outline: none;
-		border-radius: 4px;
+		border-radius: var(--radius-xs);
 
 		&:disabled {
 			opacity: 0.7;
