@@ -11,14 +11,14 @@ export async function getInstance(
 ) {
 	return {
 		uri: config.url,
-		title: meta.name || 'Sharkey',
+		title: meta.name || 'Cyberskey',
 		short_description:
-			meta.description || 'This is a vanilla Sharkey Instance. It doesn\'t seem to have a description.',
+			meta.description || 'This is a Cyberskey instance; you can use the Mastodon API.',
 		description:
 			meta.description ||
-			'This is a vanilla Sharkey Instance. It doesn\'t seem to have a description.',
+			'This is a Cyberskey instance; you can use the Mastodon API.',
 		email: response.email || '',
-		version: `3.0.0 (compatible; Sharkey ${config.version})`,
+		version: `3.0.0 (compatible; Cyberskey Ver.${config.version})`,
 		urls: response.urls,
 		stats: {
 			user_count: response.stats.user_count,
