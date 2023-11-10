@@ -51,7 +51,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	const menu = (ev: MouseEvent) => {
 		os.popupMenu([{
-			icon: 'ti ti-download',
+			icon: 'ph-download ph-bold ph-lg',
 			text: i18n.ts.export,
 			action: async () => {
 				os.api('export-custom-emojis', {
@@ -69,7 +69,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					});
 			},
 		}, {
-			icon: 'ti ti-upload',
+			icon: 'ph-upload ph-bold ph-lg',
 			text: i18n.ts.import,
 			action: async () => {
 				const file = await selectFile(ev.currentTarget ?? ev.target);
@@ -93,11 +93,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	const headerActions = $computed(() => [{
 		asFullButton: true,
-		icon: 'ti ti-plus',
+		icon: 'ph-plus ph-bold ph-lg',
 		text: i18n.ts.addEmoji,
 		handler: add,
 	}, {
-		icon: 'ti ti-dots',
+		icon: 'ph-dots-three ph-bold ph-lg',
 		handler: menu,
 	}]);
 
@@ -114,7 +114,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 	definePageMetadata(computed(() => ({
 		title: i18n.ts.customEmojis,
-		icon: 'ti ti-icons',
+		icon: 'ph-smiley ph-bold ph-lg',
 	})));
 	</script>
 
