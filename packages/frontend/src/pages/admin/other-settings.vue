@@ -17,6 +17,20 @@ SPDX-License-Identifier: AGPL-3.0-only
 				</div>
 
 				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableAchievements">
+						<template #label>{{ i18n.ts.enableAchievements }}</template>
+						<template #caption>{{ i18n.ts.turnOffAchievements}}</template>
+					</MkSwitch>
+				</div>
+
+				<div class="_panel" style="padding: 16px;">
+					<MkSwitch v-model="enableBotTrending">
+						<template #label>{{ i18n.ts.enableBotTrending }}</template>
+						<template #caption>{{ i18n.ts.turnOffBotTrending }}</template>
+					</MkSwitch>
+				</div>
+
+				<div class="_panel" style="padding: 16px;">
 					<MkSwitch v-model="enableIdenticonGeneration">
 						<template #label>{{ i18n.ts.enableIdenticonGeneration }}</template>
 						<template #caption>{{ i18n.ts.turnOffToImprovePerformance }}</template>
@@ -53,6 +67,8 @@ import { definePageMetadata } from '@/scripts/page-metadata.js';
 import MkSwitch from '@/components/MkSwitch.vue';
 
 let enableServerMachineStats: boolean = $ref(false);
+let enableAchievements: boolean = $ref(false);
+let enableBotTrending: boolean = $ref(false);
 let enableIdenticonGeneration: boolean = $ref(false);
 let enableChartsForRemoteUser: boolean = $ref(false);
 let enableChartsForFederatedInstances: boolean = $ref(false);
@@ -60,6 +76,8 @@ let enableChartsForFederatedInstances: boolean = $ref(false);
 async function init() {
 	const meta = await os.api('admin/meta');
 	enableServerMachineStats = meta.enableServerMachineStats;
+	enableAchievements = meta.enableAchievements;
+	enableBotTrending = meta.enableBotTrending;
 	enableIdenticonGeneration = meta.enableIdenticonGeneration;
 	enableChartsForRemoteUser = meta.enableChartsForRemoteUser;
 	enableChartsForFederatedInstances = meta.enableChartsForFederatedInstances;
@@ -68,6 +86,8 @@ async function init() {
 function save() {
 	os.apiWithDialog('admin/update-meta', {
 		enableServerMachineStats,
+		enableAchievements,
+		enableBotTrending,
 		enableIdenticonGeneration,
 		enableChartsForRemoteUser,
 		enableChartsForFederatedInstances,
@@ -78,7 +98,7 @@ function save() {
 
 const headerActions = $computed(() => [{
 	asFullButton: true,
-	icon: 'ti ti-check',
+	icon: 'ph-check ph-bold ph-lg',
 	text: i18n.ts.save,
 	handler: save,
 }]);
@@ -87,6 +107,6 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.other,
-	icon: 'ti ti-adjustments',
+	icon: 'ph-faders ph-bold ph-lg',
 });
 </script>

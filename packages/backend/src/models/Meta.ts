@@ -177,6 +177,11 @@ export class MiMeta {
 	@Column('boolean', {
 		default: false,
 	})
+	public approvalRequiredForSignup: boolean;
+
+	@Column('boolean', {
+		default: false,
+	})
 	public enableHcaptcha: boolean;
 
 	@Column('varchar', {
@@ -247,6 +252,11 @@ export class MiMeta {
 	})
 	public enableSensitiveMediaDetectionForVideos: boolean;
 
+	@Column('boolean', {
+		default: true,
+	})
+	public enableBotTrending: boolean;
+
 	@Column('varchar', {
 		length: 1024,
 		nullable: true,
@@ -310,6 +320,12 @@ export class MiMeta {
 	public swPrivateKey: string | null;
 
 	@Column('varchar', {
+		length: 32,
+		nullable: true,
+	})
+	public translatorType: string | null;
+
+	@Column('varchar', {
 		length: 1024,
 		nullable: true,
 	})
@@ -328,14 +344,14 @@ export class MiMeta {
 
 	@Column('varchar', {
 		length: 1024,
-		default: 'https://github.com/misskey-dev/misskey',
+		default: 'https://github.com/1641project/cyberskey',
 		nullable: false,
 	})
 	public repositoryUrl: string;
 
 	@Column('varchar', {
 		length: 1024,
-		default: 'https://github.com/misskey-dev/misskey/issues/new',
+		default: 'https://github.com/1641project/cyberskey/issues/new',
 		nullable: true,
 	})
 	public feedbackUrl: string | null;
@@ -466,6 +482,11 @@ export class MiMeta {
 	})
 	public enableIdenticonGeneration: boolean;
 
+	@Column('boolean', {
+		default: true,
+	})
+	public enableAchievements: boolean;
+
 	@Column('jsonb', {
 		default: { },
 	})
@@ -488,6 +509,11 @@ export class MiMeta {
 		length: 1024, array: true, default: '{ "admin", "administrator", "root", "system", "maintainer", "host", "mod", "moderator", "owner", "superuser", "staff", "auth", "i", "me", "everyone", "all", "mention", "mentions", "example", "user", "users", "account", "accounts", "official", "help", "helps", "support", "supports", "info", "information", "informations", "announce", "announces", "announcement", "announcements", "notice", "notification", "notifications", "dev", "developer", "developers", "tech", "misskey" }',
 	})
 	public preservedUsernames: string[];
+
+	@Column('boolean', {
+		default: true,
+	})
+	public enableFanoutTimeline: boolean;
 
 	@Column('integer', {
 		default: 300,

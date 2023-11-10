@@ -29,14 +29,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</MkInput>
 
 						<MkInput v-model="maintainerEmail" type="email">
-							<template #prefix><i class="ti ti-mail"></i></template>
+							<template #prefix><i class="ph-envelope ph-bold ph-lg"></i></template>
 							<template #label>{{ i18n.ts.maintainerEmail }}</template>
 						</MkInput>
 					</FormSplit>
 
-					<MkInput v-model="impressumUrl">
+					<MkInput v-model="impressumUrl" type="url">
 						<template #label>{{ i18n.ts.impressumUrl }}</template>
-						<template #prefix><i class="ti ti-link"></i></template>
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #caption>{{ i18n.ts.impressumDescription }}</template>
 					</MkInput>
 
@@ -74,12 +74,12 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 							<template v-if="enableServiceWorker">
 								<MkInput v-model="swPublicKey">
-									<template #prefix><i class="ti ti-key"></i></template>
+									<template #prefix><i class="ph-key ph-bold ph-lg"></i></template>
 									<template #label>Public key</template>
 								</MkInput>
 
 								<MkInput v-model="swPrivateKey">
-									<template #prefix><i class="ti ti-key"></i></template>
+									<template #prefix><i class="ph-key ph-bold ph-lg"></i></template>
 									<template #label>Private key</template>
 								</MkInput>
 							</template>
@@ -87,9 +87,14 @@ SPDX-License-Identifier: AGPL-3.0-only
 					</FormSection>
 
 					<FormSection>
-						<template #label>Timeline caching</template>
+						<template #label>Misskey® Fan-out Timeline Technology™ (FTT)</template>
 
 						<div class="_gaps_m">
+							<MkSwitch v-model="enableFanoutTimeline">
+								<template #label>{{ i18n.ts.enable }}</template>
+								<template #caption>{{ i18n.ts._serverSettings.fanoutTimelineDescription }}</template>
+							</MkSwitch>
+
 							<MkInput v-model="perLocalUserUserTimelineCacheMax" type="number">
 								<template #label>perLocalUserUserTimelineCacheMax</template>
 							</MkInput>
@@ -129,7 +134,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #footer>
 			<div :class="$style.footer">
 				<MkSpacer :contentMax="700" :marginMin="16" :marginMax="16">
-					<MkButton primary rounded @click="save"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+					<MkButton primary rounded @click="save"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
 				</MkSpacer>
 			</div>
 		</template>
@@ -165,6 +170,7 @@ let cacheRemoteSensitiveFiles: boolean = $ref(false);
 let enableServiceWorker: boolean = $ref(false);
 let swPublicKey: any = $ref(null);
 let swPrivateKey: any = $ref(null);
+let enableFanoutTimeline: boolean = $ref(false);
 let perLocalUserUserTimelineCacheMax: number = $ref(0);
 let perRemoteUserUserTimelineCacheMax: number = $ref(0);
 let perUserHomeTimelineCacheMax: number = $ref(0);
@@ -185,6 +191,7 @@ async function init(): Promise<void> {
 	enableServiceWorker = meta.enableServiceWorker;
 	swPublicKey = meta.swPublickey;
 	swPrivateKey = meta.swPrivateKey;
+	enableFanoutTimeline = meta.enableFanoutTimeline;
 	perLocalUserUserTimelineCacheMax = meta.perLocalUserUserTimelineCacheMax;
 	perRemoteUserUserTimelineCacheMax = meta.perRemoteUserUserTimelineCacheMax;
 	perUserHomeTimelineCacheMax = meta.perUserHomeTimelineCacheMax;
@@ -206,6 +213,7 @@ async function save(): void {
 		enableServiceWorker,
 		swPublicKey,
 		swPrivateKey,
+		enableFanoutTimeline,
 		perLocalUserUserTimelineCacheMax,
 		perRemoteUserUserTimelineCacheMax,
 		perUserHomeTimelineCacheMax,
@@ -220,7 +228,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.general,
-	icon: 'ti ti-settings',
+	icon: 'ph-gear ph-bold ph-lg',
 });
 </script>
 

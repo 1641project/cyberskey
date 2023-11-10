@@ -48,6 +48,7 @@ export const permissions = [
 export const moderationLogTypes = [
 	'updateServerSettings',
 	'suspend',
+	'approve',
 	'unsuspend',
 	'updateUserNote',
 	'addCustomEmoji',
@@ -78,6 +79,9 @@ export const moderationLogTypes = [
 	'createAd',
 	'updateAd',
 	'deleteAd',
+	'createAvatarDecoration',
+	'updateAvatarDecoration',
+	'deleteAvatarDecoration',
 ] as const;
 
 export type ModerationLogPayloads = {
@@ -86,6 +90,11 @@ export type ModerationLogPayloads = {
 		after: any | null;
 	};
 	suspend: {
+		userId: string;
+		userUsername: string;
+		userHost: string | null;
+	};
+	approve: {
 		userId: string;
 		userUsername: string;
 		userHost: string | null;
@@ -238,5 +247,18 @@ export type ModerationLogPayloads = {
 	deleteAd: {
 		adId: string;
 		ad: any;
+	};
+	createAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
+	};
+	updateAvatarDecoration: {
+		avatarDecorationId: string;
+		before: any;
+		after: any;
+	};
+	deleteAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
 	};
 };

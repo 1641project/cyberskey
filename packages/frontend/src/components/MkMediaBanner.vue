@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <div :class="$style.root">
 	<div v-if="media.isSensitive && hide" :class="$style.sensitive" @click="hide = false">
-		<span style="font-size: 1.6em;"><i class="ti ti-alert-triangle"></i></span>
+		<span style="font-size: 1.6em;"><i class="ph-warning ph-bold ph-lg"></i></span>
 		<b>{{ i18n.ts.sensitive }}</b>
 		<span>{{ i18n.ts.clickToShow }}</span>
 	</div>
@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		:title="media.name"
 		:download="media.name"
 	>
-		<span style="font-size: 1.6em;"><i class="ti ti-download"></i></span>
+		<span style="font-size: 1.6em;"><i class="ph-download ph-bold ph-lg"></i></span>
 		<b>{{ media.name }}</b>
 	</a>
 </div>
@@ -34,7 +34,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 <script lang="ts" setup>
 import { onMounted, shallowRef, watch } from 'vue';
 import * as Misskey from 'misskey-js';
-import { soundConfigStore } from '@/scripts/sound.js';
 import { i18n } from '@/i18n.js';
 
 const props = withDefaults(defineProps<{
@@ -55,7 +54,7 @@ watch(audioEl, () => {
 <style lang="scss" module>
 .root {
 	width: 100%;
-	border-radius: 4px;
+	border-radius: var(--radius-xs);
 	margin-top: 4px;
 	overflow: clip;
 }
@@ -79,7 +78,7 @@ watch(audioEl, () => {
 }
 
 .audio {
-	border-radius: 8px;
+	border-radius: var(--radius-sm);
 	overflow: clip;
 }
 </style>

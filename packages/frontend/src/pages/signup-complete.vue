@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<div :class="$style.formContainer">
 		<form :class="$style.form" class="_panel" @submit.prevent="submit()">
 			<div :class="$style.banner">
-				<i class="ti ti-user-check"></i>
+				<i class="ph-check ph-bold ph-lg"></i>
 			</div>
 			<div class="_gaps_m" style="padding: 32px;">
 				<div>{{ i18n.t('clickToFinishEmailVerification', { ok: i18n.ts.gotIt }) }}</div>
@@ -45,13 +45,21 @@ function submit() {
 	os.api('signup-pending', {
 		code: props.code,
 	}).then(res => {
+		if (res.pendingApproval) {
+			return os.alert({
+				type: 'success',
+				title: i18n.ts._signup.almostThere,
+				text: i18n.ts._signup.approvalPending,
+			});
+		}
 		return login(res.i, '/');
 	}).catch(() => {
 		submitting = false;
 
 		os.alert({
 			type: 'error',
-			text: i18n.ts.somethingHappened,
+			title: i18n.ts.somethingHappened,
+			text: i18n.ts.signupPendingError,
 		});
 	});
 }

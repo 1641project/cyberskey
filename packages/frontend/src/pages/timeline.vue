@@ -8,7 +8,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<template #header><MkPageHeader v-model:tab="src" :actions="headerActions" :tabs="$i ? headerTabs : headerTabsWhenNotLogin" :displayMyAvatar="true"/></template>
 	<MkSpacer :contentMax="800">
 		<div ref="rootEl" v-hotkey.global="keymap">
-			<XTutorial v-if="$i && defaultStore.reactiveState.timelineTutorial.value != -1" class="_panel" style="margin-bottom: var(--margin);"/>
+			<MkInfo v-if="['home', 'local', 'social', 'global'].includes(src) && !defaultStore.reactiveState.timelineTutorials.value[src]" style="margin-bottom: var(--margin);" closable @close="closeTutorial()">
+				{{ i18n.ts._timelineDescription[src] }}
+			</MkInfo>
 			<MkPostForm v-if="defaultStore.reactiveState.showFixedPostForm.value" :class="$style.postForm" class="post-form _panel" fixed style="margin-bottom: var(--margin);"/>
 
 			<div v-if="queue > 0" :class="$style.new"><button class="_buttonPrimary" :class="$style.newButton" @click="top()">{{ i18n.ts.newNoteRecived }}</button></div>
@@ -21,6 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 					:withRenotes="withRenotes"
 					:withReplies="withReplies"
 					:onlyFiles="onlyFiles"
+					:withBots="withBots"
 					:sound="true"
 					@queue="queueUpdated"
 				/>
@@ -31,9 +34,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, computed, watch, provide } from 'vue';
+import { computed, watch, provide } from 'vue';
 import type { Tab } from '@/components/global/MkPageHeader.tabs.vue';
 import MkTimeline from '@/components/MkTimeline.vue';
+import MkInfo from '@/components/MkInfo.vue';
 import MkPostForm from '@/components/MkPostForm.vue';
 import { scroll } from '@/scripts/scroll.js';
 import * as os from '@/os.js';
@@ -44,10 +48,9 @@ import { $i } from '@/account.js';
 import { definePageMetadata } from '@/scripts/page-metadata.js';
 import { miLocalStorage } from '@/local-storage.js';
 import { antennasCache, userListsCache } from '@/cache.js';
+import { deviceKind } from '@/scripts/device-kind.js';
 
 provide('shouldOmitHeaderTitle', true);
-
-const XTutorial = defineAsyncComponent(() => import('./timeline.tutorial.vue'));
 
 const isLocalTimelineAvailable = ($i == null && instance.policies.ltlAvailable) || ($i != null && $i.policies.ltlAvailable);
 const isGlobalTimelineAvailable = ($i == null && instance.policies.gtlAvailable) || ($i != null && $i.policies.gtlAvailable);
@@ -63,6 +66,7 @@ let srcWhenNotSignin = $ref(isLocalTimelineAvailable ? 'local' : 'global');
 const src = $computed({ get: () => ($i ? defaultStore.reactiveState.tl.value.src : srcWhenNotSignin), set: (x) => saveSrc(x) });
 const withRenotes = $ref(true);
 const withReplies = $ref($i ? defaultStore.state.tlWithReplies : false);
+const withBots = $ref($i ? defaultStore.state.tlWithBots : true);
 const onlyFiles = $ref(false);
 
 watch($$(src), () => queue = 0);
@@ -139,65 +143,87 @@ function focus(): void {
 	tlComponent.focus();
 }
 
-const headerActions = $computed(() => [{
-	icon: 'ti ti-dots',
-	text: i18n.ts.options,
-	handler: (ev) => {
-		os.popupMenu([{
-			type: 'switch',
-			text: i18n.ts.showRenotes,
-			icon: 'ti ti-repeat',
-			ref: $$(withRenotes),
-		}, src === 'local' || src === 'social' ? {
-			type: 'switch',
-			text: i18n.ts.showRepliesToOthersInTimeline,
-			ref: $$(withReplies),
-		} : undefined, {
-			type: 'switch',
-			text: i18n.ts.fileAttachedOnly,
-			icon: 'ti ti-photo',
-			ref: $$(onlyFiles),
-		}], ev.currentTarget ?? ev.target);
-	},
-}]);
+function closeTutorial(): void {
+	if (!['home', 'local', 'social', 'global'].includes(src)) return;
+	const before = defaultStore.state.timelineTutorials;
+	before[src] = true;
+	defaultStore.set('timelineTutorials', before);
+}
+
+const headerActions = $computed(() => {
+	const tmp = [
+		{
+			icon: 'ph-dots-three ph-bold ph-lg',
+			text: i18n.ts.options,
+			handler: (ev) => {
+				os.popupMenu([{
+					type: 'switch',
+					text: i18n.ts.showRenotes,
+					icon: 'ph-rocket-launch ph-bold ph-lg',
+					ref: $$(withRenotes),
+				}, src === 'local' || src === 'social' ? {
+					type: 'switch',
+					text: i18n.ts.showRepliesToOthersInTimeline,
+					ref: $$(withReplies),
+				} : undefined, {
+					type: 'switch',
+					text: i18n.ts.fileAttachedOnly,
+					icon: 'ph-image ph-bold ph-lg',
+					ref: $$(onlyFiles),
+				}], ev.currentTarget ?? ev.target);
+			},
+		},
+	];
+	if (deviceKind === 'desktop') {
+		tmp.unshift({
+			icon: 'ph-arrows-counter-clockwise ph-bold ph-lg',
+			text: i18n.ts.reload,
+			handler: (ev: Event) => {
+				console.log('called');
+				tlComponent.reloadTimeline();
+			},
+		});
+	}
+	return tmp;
+});
 
 const headerTabs = $computed(() => [...(defaultStore.reactiveState.pinnedUserLists.value.map(l => ({
 	key: 'list:' + l.id,
 	title: l.name,
-	icon: 'ti ti-star',
+	icon: 'ph-star ph-bold ph-lg',
 	iconOnly: true,
 }))), {
 	key: 'home',
 	title: i18n.ts._timelines.home,
-	icon: 'ti ti-home',
+	icon: 'ph-house ph-bold ph-lg',
 	iconOnly: true,
 }, ...(isLocalTimelineAvailable ? [{
 	key: 'local',
 	title: i18n.ts._timelines.local,
-	icon: 'ti ti-planet',
+	icon: 'ph-planet ph-bold ph-lg',
 	iconOnly: true,
 }, {
 	key: 'social',
 	title: i18n.ts._timelines.social,
-	icon: 'ti ti-universe',
+	icon: 'ph-rocket-launch ph-bold ph-lg',
 	iconOnly: true,
 }] : []), ...(isGlobalTimelineAvailable ? [{
 	key: 'global',
 	title: i18n.ts._timelines.global,
-	icon: 'ti ti-whirl',
+	icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 	iconOnly: true,
 }] : []), {
-	icon: 'ti ti-list',
+	icon: 'ph-list ph-bold ph-lg',
 	title: i18n.ts.lists,
 	iconOnly: true,
 	onClick: chooseList,
 }, {
-	icon: 'ti ti-antenna',
+	icon: 'ph-flying-saucer ph-bold ph-lg',
 	title: i18n.ts.antennas,
 	iconOnly: true,
 	onClick: chooseAntenna,
 }, {
-	icon: 'ti ti-device-tv',
+	icon: 'ph-television ph-bold ph-lg',
 	title: i18n.ts.channel,
 	iconOnly: true,
 	onClick: chooseChannel,
@@ -207,20 +233,20 @@ const headerTabsWhenNotLogin = $computed(() => [
 	...(isLocalTimelineAvailable ? [{
 		key: 'local',
 		title: i18n.ts._timelines.local,
-		icon: 'ti ti-planet',
+		icon: 'ph-planet ph-bold ph-lg',
 		iconOnly: true,
 	}] : []),
 	...(isGlobalTimelineAvailable ? [{
 		key: 'global',
 		title: i18n.ts._timelines.global,
-		icon: 'ti ti-whirl',
+		icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 		iconOnly: true,
 	}] : []),
 ] as Tab[]);
 
 definePageMetadata(computed(() => ({
 	title: i18n.ts.timeline,
-	icon: src === 'local' ? 'ti ti-planet' : src === 'social' ? 'ti ti-universe' : src === 'global' ? 'ti ti-whirl' : 'ti ti-home',
+	icon: src === 'local' ? 'ph-planet ph-bold ph-lg' : src === 'social' ? 'ph-rocket-launch ph-bold ph-lg' : src === 'global' ? 'ph-globe-hemisphere-west ph-bold ph-lg' : 'ph-house ph-bold ph-lg',
 })));
 </script>
 
@@ -241,7 +267,7 @@ definePageMetadata(computed(() => ({
 	display: block;
 	margin: var(--margin) auto 0 auto;
 	padding: 8px 16px;
-	border-radius: 32px;
+	border-radius: var(--radius-xl);
 }
 
 .postForm {

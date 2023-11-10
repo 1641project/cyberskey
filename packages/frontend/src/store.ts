@@ -49,9 +49,14 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'account',
 		default: 0,
 	},
-	timelineTutorial: {
+	timelineTutorials: {
 		where: 'account',
-		default: 0,
+		default: {
+			home: false,
+			local: false,
+			social: false,
+			global: false,
+		},
 	},
 	keepCw: {
 		where: 'account',
@@ -63,7 +68,11 @@ export const defaultStore = markRaw(new Storage('base', {
 	},
 	collapseRenotes: {
 		where: 'account',
-		default: true,
+		default: false,
+	},
+	collapseFiles: {
+		where: 'account',
+		default: false,
 	},
 	rememberNoteVisibility: {
 		where: 'account',
@@ -105,20 +114,24 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'account',
 		default: [] as string[],
 	},
+	autoloadConversation: {
+		where: 'account',
+		default: true,
+	},
 
 	menu: {
 		where: 'deviceAccount',
 		default: [
 			'notifications',
-			'clips',
-			'drive',
+			'explore',
 			'followRequests',
 			'-',
-			'explore',
 			'announcements',
 			'search',
 			'-',
-			'ui',
+			'favorites',
+			'drive',
+			'achievements',
 		],
 	},
 	visibility: {
@@ -291,7 +304,11 @@ export const defaultStore = markRaw(new Storage('base', {
 	},
 	squareAvatars: {
 		where: 'device',
-		default: false,
+		default: true,
+	},
+	showAvatarDecorations: {
+		where: 'device',
+		default: true,
 	},
 	postFormWithHashtags: {
 		where: 'device',
@@ -324,6 +341,10 @@ export const defaultStore = markRaw(new Storage('base', {
 	forceShowAds: {
 		where: 'device',
 		default: false,
+	},
+	clickToOpen: {
+		where: 'device',
+		default: true,
 	},
 	aiChanMode: {
 		where: 'device',
@@ -361,9 +382,46 @@ export const defaultStore = markRaw(new Storage('base', {
 		where: 'device',
 		default: false,
 	},
+	tlWithBots: {
+		where: 'device',
+		default: true,
+	},
 	defaultWithReplies: {
 		where: 'account',
 		default: false,
+	},
+	disableStreamingTimeline: {
+		where: 'device',
+		default: false,
+	},
+	useGroupedNotifications: {
+		where: 'device',
+		default: true,
+	},
+
+	sound_masterVolume: {
+		where: 'device',
+		default: 0.3,
+	},
+	sound_note: {
+		where: 'device',
+		default: { type: 'syuilo/n-aec', volume: 0 },
+	},
+	sound_noteMy: {
+		where: 'device',
+		default: { type: 'syuilo/n-cea-4va', volume: 1 },
+	},
+	sound_notification: {
+		where: 'device',
+		default: { type: 'syuilo/n-ea', volume: 1 },
+	},
+	sound_antenna: {
+		where: 'device',
+		default: { type: 'syuilo/triple', volume: 1 },
+	},
+	sound_channel: {
+		where: 'device',
+		default: { type: 'syuilo/square-pico', volume: 1 },
 	},
 }));
 
@@ -394,7 +452,7 @@ interface Watcher {
 /**
  * 常にメモリにロードしておく必要がないような設定情報を保管するストレージ(非リアクティブ)
  */
-import lightTheme from '@/themes/l-light.json5';
+import lightTheme from '@/themes/l-rainy.json5';
 import darkTheme from '@/themes/d-green-lime.json5';
 
 export class ColdDeviceStorage {

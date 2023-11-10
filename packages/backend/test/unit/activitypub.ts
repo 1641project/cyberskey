@@ -93,9 +93,10 @@ describe('ActivityPub', () => {
 	const metaInitial = {
 		cacheRemoteFiles: true,
 		cacheRemoteSensitiveFiles: true,
-		perUserHomeTimelineCacheMax: 100,
-		perLocalUserUserTimelineCacheMax: 100,
-		perRemoteUserUserTimelineCacheMax: 100,
+		enableFanoutTimeline: true,
+		perUserHomeTimelineCacheMax: 800,
+		perLocalUserUserTimelineCacheMax: 800,
+		perRemoteUserUserTimelineCacheMax: 800,
 		blockedHosts: [] as string[],
 		sensitiveWords: [] as string[],
 	} as MiMeta;

@@ -18,7 +18,7 @@ async function copyFrontendFonts() {
 }
 
 async function copyFrontendTablerIcons() {
-  await fs.cp('./packages/frontend/node_modules/@tabler/icons-webfont', './built/_frontend_dist_/tabler-icons', { dereference: true, recursive: true });
+  await fs.cp('./packages/frontend/node_modules/@phosphor-icons/web/src', './built/_frontend_dist_/phosphor-icons', { dereference: true, recursive: true });
 }
 
 async function copyFrontendLocales() {
@@ -31,6 +31,13 @@ async function copyFrontendLocales() {
   for (const [lang, locale] of Object.entries(locales)) {
     await fs.writeFile(`./built/_frontend_dist_/locales/${lang}.${meta.version}.json`, JSON.stringify({ ...locale, ...v }), 'utf-8');
   }
+}
+
+async function copyFrontendShikiAssets() {
+  await fs.cp('./packages/frontend/node_modules/shiki/dist', './built/_frontend_dist_/shiki/dist', { dereference: true, recursive: true });
+  await fs.cp('./packages/frontend/node_modules/shiki/languages', './built/_frontend_dist_/shiki/languages', { dereference: true, recursive: true });
+  await fs.cp('./packages/frontend/node_modules/aiscript-vscode/aiscript/syntaxes', './built/_frontend_dist_/shiki/languages', { dereference: true, recursive: true });
+  await fs.cp('./packages/frontend/node_modules/shiki/themes', './built/_frontend_dist_/shiki/themes', { dereference: true, recursive: true });
 }
 
 async function copyBackendViews() {
@@ -72,6 +79,7 @@ async function build() {
     copyFrontendFonts(),
     copyFrontendTablerIcons(),
     copyFrontendLocales(),
+    copyFrontendShikiAssets(),
     copyBackendViews(),
     buildBackendScript(),
     buildBackendStyle(),

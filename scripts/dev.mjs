@@ -11,6 +11,8 @@ import { execa } from 'execa';
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = dirname(_filename);
 
+const vitePort = process.env.VITE_PORT ? ["--strictPort", "--port", process.env.VITE_PORT] : ["--strictPort"];
+
 await execa('pnpm', ['clean'], {
 	cwd: _dirname + '/../',
 	stdout: process.stdout,
@@ -29,6 +31,18 @@ await execa('pnpm', ['build-assets'], {
 	stderr: process.stderr,
 });
 
+await execa('pnpm', ['--filter', 'misskey-js', 'build'], {
+	cwd: _dirname + '/../',
+	stdout: process.stdout,
+	stderr: process.stderr,
+});
+
+await execa("pnpm", ['--filter', 'megalodon', 'build'], {
+	cwd: _dirname + '/../',
+	stdout: process.stdout,
+	stderr: process.stderr,
+});
+
 execa('pnpm', ['build-assets', '--watch'], {
 	cwd: _dirname + '/../',
 	stdout: process.stdout,
@@ -41,7 +55,7 @@ execa('pnpm', ['--filter', 'backend', 'watch'], {
 	stderr: process.stderr,
 });
 
-execa('pnpm', ['--filter', 'frontend', 'watch'], {
+execa('pnpm', ['--filter', 'frontend', 'watch', ...vitePort], {
 	cwd: _dirname + '/../',
 	stdout: process.stdout,
 	stderr: process.stderr,

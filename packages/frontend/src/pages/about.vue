@@ -25,7 +25,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<FormSection>
 				<div class="_gaps_m">
 					<MkKeyValue :copy="version">
-						<template #key>Misskey</template>
+						<template #key>Cyberskey</template>
 						<template #value>{{ version }}</template>
 					</MkKeyValue>
 					<div v-html="i18n.t('poweredByMisskeyDescription', { name: instance.name ?? host })">
@@ -47,7 +47,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</MkKeyValue>
 					</FormSplit>
 					<FormLink v-if="instance.impressumUrl" :to="instance.impressumUrl" external>{{ i18n.ts.impressum }}</FormLink>
-					<div class="_formLinks">
+					<div class="_gaps_s">
 						<MkFolder v-if="instance.serverRules.length > 0">
 							<template #label>{{ i18n.ts.serverRules }}</template>
 
@@ -79,7 +79,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 			<FormSection>
 				<template #label>Well-known resources</template>
-				<div class="_formLinks">
+				<div class="_gaps_s">
 					<FormLink :to="`/.well-known/host-meta`" external>host-meta</FormLink>
 					<FormLink :to="`/.well-known/host-meta.json`" external>host-meta.json</FormLink>
 					<FormLink :to="`/.well-known/nodeinfo`" external>nodeinfo</FormLink>
@@ -89,9 +89,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</FormSection>
 		</div>
 	</MkSpacer>
-	<MkSpacer v-else-if="tab === 'emojis'" :contentMax="1000" :marginMin="20">
-		<XEmojis/>
-	</MkSpacer>
+	<XEmojis v-else-if="tab === 'emojis'"/>
 	<MkSpacer v-else-if="tab === 'federation'" :contentMax="1000" :marginMin="20">
 		<XFederation/>
 	</MkSpacer>
@@ -148,15 +146,15 @@ const headerTabs = $computed(() => [{
 }, {
 	key: 'emojis',
 	title: i18n.ts.customEmojis,
-	icon: 'ti ti-icons',
+	icon: 'ph-smiley ph-bold ph-lg',
 }, {
 	key: 'federation',
 	title: i18n.ts.federation,
-	icon: 'ti ti-whirl',
+	icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 }, {
 	key: 'charts',
 	title: i18n.ts.charts,
-	icon: 'ti ti-chart-line',
+	icon: 'ph-chart-line ph-bold ph-lg',
 }]);
 
 definePageMetadata(computed(() => ({

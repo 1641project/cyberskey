@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 	<span v-if="pathname != ''" :class="$style.pathname">{{ self ? pathname.substring(1) : pathname }}</span>
 	<span :class="$style.query">{{ query }}</span>
 	<span :class="$style.hash">{{ hash }}</span>
-	<i v-if="target === '_blank'" :class="$style.icon" class="ti ti-external-link"></i>
+	<i v-if="target === '_blank'" :class="$style.icon" class="ph-arrow-square-out ph-bold ph-lg"></i>
 </component>
 </template>
 
@@ -31,23 +31,28 @@ import * as os from '@/os.js';
 import { useTooltip } from '@/scripts/use-tooltip.js';
 import { safeURIDecode } from '@/scripts/safe-uri-decode.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	url: string;
 	rel?: string;
-}>();
+	showUrlPreview?: boolean;
+}>(), {
+	showUrlPreview: true,
+});
 
 const self = props.url.startsWith(local);
 const url = new URL(props.url);
 if (!['http:', 'https:'].includes(url.protocol)) throw new Error('invalid url');
 const el = ref();
 
-useTooltip(el, (showing) => {
-	os.popup(defineAsyncComponent(() => import('@/components/MkUrlPreviewPopup.vue')), {
-		showing,
-		url: props.url,
-		source: el.value,
-	}, {}, 'closed');
-});
+if (props.showUrlPreview) {
+	useTooltip(el, (showing) => {
+		os.popup(defineAsyncComponent(() => import('@/components/MkUrlPreviewPopup.vue')), {
+			showing,
+			url: props.url,
+			source: el.value,
+		}, {}, 'closed');
+	});
+}
 
 const schema = url.protocol;
 const hostname = decodePunycode(url.hostname);

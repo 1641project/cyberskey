@@ -32,6 +32,10 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			approvalRequiredForSignup: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
 			enableHcaptcha: {
 				type: 'boolean',
 				optional: false, nullable: false,
@@ -105,12 +109,16 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			translatorType: {
+				type: 'string',
+				optional: false, nullable: true,
+			},
 			silencedHosts: {
-				type: "array",
+				type: 'array',
 				optional: true,
 				nullable: false,
 				items: {
-					type: "string",
+					type: 'string',
 					optional: false,
 					nullable: false,
 				},
@@ -175,6 +183,10 @@ export const meta = {
 				optional: false, nullable: false,
 			},
 			enableSensitiveMediaDetectionForVideos: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
+			enableBotTrending: {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
@@ -279,6 +291,10 @@ export const meta = {
 				type: 'boolean',
 				optional: false, nullable: false,
 			},
+			enableAchievements: {
+				type: 'boolean',
+				optional: false, nullable: false,
+			},
 			enableIdenticonGeneration: {
 				type: 'boolean',
 				optional: false, nullable: false,
@@ -289,6 +305,10 @@ export const meta = {
 			},
 			policies: {
 				type: 'object',
+				optional: false, nullable: false,
+			},
+			enableFanoutTimeline: {
+				type: 'boolean',
 				optional: false, nullable: false,
 			},
 			perLocalUserUserTimelineCacheMax: {
@@ -349,6 +369,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				privacyPolicyUrl: instance.privacyPolicyUrl,
 				disableRegistration: instance.disableRegistration,
 				emailRequiredForSignup: instance.emailRequiredForSignup,
+				approvalRequiredForSignup: instance.approvalRequiredForSignup,
 				enableHcaptcha: instance.enableHcaptcha,
 				hcaptchaSiteKey: instance.hcaptchaSiteKey,
 				enableRecaptcha: instance.enableRecaptcha,
@@ -371,7 +392,9 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				defaultDarkTheme: instance.defaultDarkTheme,
 				enableEmail: instance.enableEmail,
 				enableServiceWorker: instance.enableServiceWorker,
-				translatorAvailable: instance.deeplAuthKey != null,
+				// translatorAvailable: instance.deeplAuthKey != null,
+		        translatorAvailable: instance.translatorType != null,
+		        translatorType: instance.translatorType,
 				cacheRemoteFiles: instance.cacheRemoteFiles,
 				cacheRemoteSensitiveFiles: instance.cacheRemoteSensitiveFiles,
 				pinnedUsers: instance.pinnedUsers,
@@ -387,6 +410,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				sensitiveMediaDetectionSensitivity: instance.sensitiveMediaDetectionSensitivity,
 				setSensitiveFlagAutomatically: instance.setSensitiveFlagAutomatically,
 				enableSensitiveMediaDetectionForVideos: instance.enableSensitiveMediaDetectionForVideos,
+				enableBotTrending: instance.enableBotTrending,
 				proxyAccountId: instance.proxyAccountId,
 				summalyProxy: instance.summalyProxy,
 				email: instance.email,
@@ -416,9 +440,11 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				enableChartsForRemoteUser: instance.enableChartsForRemoteUser,
 				enableChartsForFederatedInstances: instance.enableChartsForFederatedInstances,
 				enableServerMachineStats: instance.enableServerMachineStats,
+				enableAchievements: instance.enableAchievements,
 				enableIdenticonGeneration: instance.enableIdenticonGeneration,
 				policies: { ...DEFAULT_POLICIES, ...instance.policies },
 				manifestJsonOverride: instance.manifestJsonOverride,
+				enableFanoutTimeline: instance.enableFanoutTimeline,
 				perLocalUserUserTimelineCacheMax: instance.perLocalUserUserTimelineCacheMax,
 				perRemoteUserUserTimelineCacheMax: instance.perRemoteUserUserTimelineCacheMax,
 				perUserHomeTimelineCacheMax: instance.perUserHomeTimelineCacheMax,

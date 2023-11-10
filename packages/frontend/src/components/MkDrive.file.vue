@@ -22,6 +22,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<img :class="$style.labelImg" src="/client-assets/label.svg"/>
 			<p :class="$style.labelText">{{ i18n.ts.banner }}</p>
 		</div>
+		<div v-if="$i?.backgroundId == file.id" :class="[$style.label]">
+			<img :class="$style.labelImg" src="/client-assets/label.svg"/>
+			<p :class="$style.labelText">{{ i18n.ts.background }}</p>
+		</div>
 		<div v-if="file.isSensitive" :class="[$style.label, $style.red]">
 			<img :class="$style.labelImg" src="/client-assets/label-red.svg"/>
 			<p :class="$style.labelText">{{ i18n.ts.sensitive }}</p>
@@ -47,6 +51,7 @@ import { i18n } from '@/i18n.js';
 import { $i } from '@/account.js';
 import { useRouter } from '@/router.js';
 import { getDriveFileMenu } from '@/scripts/get-drive-file-menu.js';
+import { deviceKind } from '@/scripts/device-kind.js';
 
 const router = useRouter();
 
@@ -74,7 +79,11 @@ function onClick(ev: MouseEvent) {
 	if (props.selectMode) {
 		emit('chosen', props.file);
 	} else {
-		router.push(`/my/drive/file/${props.file.id}`);
+		if (deviceKind === 'desktop') {
+			router.push(`/my/drive/file/${props.file.id}`);
+		} else {
+			os.popupMenu(getDriveFileMenu(props.file, props.folder), (ev.currentTarget ?? ev.target ?? undefined) as HTMLElement | undefined);
+		}
 	}
 }
 
@@ -103,7 +112,7 @@ function onDragend() {
 	position: relative;
 	padding: 8px 0 0 0;
 	min-height: 180px;
-	border-radius: 8px;
+	border-radius: var(--radius-sm);
 	cursor: pointer;
 
 	&:hover {

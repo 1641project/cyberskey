@@ -13,8 +13,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<div :class="$style.headerSub">
 			<slot name="func" :buttonStyleClass="$style.headerButton"></slot>
 			<button v-if="foldable" :class="$style.headerButton" class="_button" @click="() => showBody = !showBody">
-				<template v-if="showBody"><i class="ti ti-chevron-up"></i></template>
-				<template v-else><i class="ti ti-chevron-down"></i></template>
+				<template v-if="showBody"><i class="ph-caret-up ph-bold ph-lg"></i></template>
+				<template v-else><i class="ph-caret-down ph-bold ph-lg"></i></template>
 			</button>
 		</div>
 	</header>
@@ -138,7 +138,7 @@ onUnmounted(() => {
 	position: relative;
 	overflow: clip;
 	contain: content;
-
+	background: color-mix(in srgb, var(--panel) 65%, transparent);
 	&.naked {
 		background: transparent !important;
 		box-shadow: none !important;
@@ -168,10 +168,10 @@ onUnmounted(() => {
 	top: var(--stickyTop, 0px);
 	left: 0;
 	color: var(--panelHeaderFg);
-	background: var(--panelHeaderBg);
 	border-bottom: solid 0.5px var(--panelHeaderDivider);
 	z-index: 2;
 	line-height: 1.4em;
+	background: color-mix(in srgb, var(--panelHeaderBg) 35%, transparent);
 }
 
 .title {
@@ -223,7 +223,7 @@ onUnmounted(() => {
 				background: var(--panel);
 				padding: 6px 10px;
 				font-size: 0.8em;
-				border-radius: 999px;
+				border-radius: var(--radius-ellipse);
 				box-shadow: 0 2px 6px rgb(0 0 0 / 20%);
 			}
 

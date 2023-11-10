@@ -16,6 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<MkInfo v-if="noMaintainerInformation" warn class="info">{{ i18n.ts.noMaintainerInformationWarning }} <MkA to="/admin/settings" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
 				<MkInfo v-if="noBotProtection" warn class="info">{{ i18n.ts.noBotProtectionWarning }} <MkA to="/admin/security" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
 				<MkInfo v-if="noEmailServer" warn class="info">{{ i18n.ts.noEmailServerWarning }} <MkA to="/admin/email-settings" class="_link">{{ i18n.ts.configure }}</MkA></MkInfo>
+				<MkInfo v-if="pendingUserApprovals" warn class="info">{{ i18n.ts.pendingUserApprovals }} <MkA to="/admin/approvals" class="_link">{{ i18n.ts.check }}</MkA></MkInfo>
 
 				<MkSuperMenu :def="menuDef" :grid="narrow"></MkSuperMenu>
 			</div>
@@ -44,7 +45,7 @@ const router = useRouter();
 
 const indexInfo = {
 	title: i18n.ts.controlPanel,
-	icon: 'ti ti-settings',
+	icon: 'ph-gear ph-bold ph-lg',
 	hideHeader: true,
 };
 
@@ -60,6 +61,7 @@ let noMaintainerInformation = isEmpty(instance.maintainerName) || isEmpty(instan
 let noBotProtection = !instance.disableRegistration && !instance.enableHcaptcha && !instance.enableRecaptcha && !instance.enableTurnstile;
 let noEmailServer = !instance.enableEmail;
 let thereIsUnresolvedAbuseReport = $ref(false);
+let pendingUserApprovals = $ref(false);
 let currentPage = $computed(() => router.currentRef.value.child);
 
 os.api('admin/abuse-user-reports', {
@@ -67,6 +69,14 @@ os.api('admin/abuse-user-reports', {
 	limit: 1,
 }).then(reports => {
 	if (reports.length > 0) thereIsUnresolvedAbuseReport = true;
+});
+
+os.api('admin/show-users', {
+	state: 'approved',
+	origin: 'local',
+	limit: 1,
+}).then(approvals => {
+	if (approvals.length > 0) pendingUserApprovals = true;
 });
 
 const NARROW_THRESHOLD = 600;
@@ -79,74 +89,84 @@ const menuDef = $computed(() => [{
 	title: i18n.ts.quickAction,
 	items: [{
 		type: 'button',
-		icon: 'ti ti-search',
+		icon: 'ph-magnifying-glass ph-bold ph-lg',
 		text: i18n.ts.lookup,
 		action: lookup,
 	}, ...(instance.disableRegistration ? [{
 		type: 'button',
-		icon: 'ti ti-user-plus',
+		icon: 'ph-user-plus ph-bold ph-lg',
 		text: i18n.ts.createInviteCode,
 		action: invite,
 	}] : [])],
 }, {
 	title: i18n.ts.administration,
 	items: [{
-		icon: 'ti ti-dashboard',
+		icon: 'ph-gauge ph-bold ph-lg',
 		text: i18n.ts.dashboard,
 		to: '/admin/overview',
 		active: currentPage?.route.name === 'overview',
 	}, {
-		icon: 'ti ti-users',
+		icon: 'ph-users ph-bold ph-lg',
 		text: i18n.ts.users,
 		to: '/admin/users',
 		active: currentPage?.route.name === 'users',
 	}, {
-		icon: 'ti ti-user-plus',
+		icon: 'ph-user-plus ph-bold ph-lg',
 		text: i18n.ts.invite,
 		to: '/admin/invites',
 		active: currentPage?.route.name === 'invites',
 	}, {
-		icon: 'ti ti-badges',
+		icon: 'ph-chalkboard-teacher ph-bold ph-lg',
+		text: i18n.ts.approvals,
+		to: '/admin/approvals',
+		active: currentPage?.route.name === 'approvals',
+	}, {
+		icon: 'ph-seal-check ph-bold ph-lg',
 		text: i18n.ts.roles,
 		to: '/admin/roles',
 		active: currentPage?.route.name === 'roles',
 	}, {
-		icon: 'ti ti-icons',
+		icon: 'ph-smiley ph-bold ph-lg',
 		text: i18n.ts.customEmojis,
 		to: '/admin/emojis',
 		active: currentPage?.route.name === 'emojis',
 	}, {
-		icon: 'ti ti-whirl',
+		icon: 'ph-sparkle ph-bold ph-lg',
+		text: i18n.ts.avatarDecorations,
+		to: '/admin/avatar-decorations',
+		active: currentPage?.route.name === 'avatarDecorations',
+	}, {
+		icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 		text: i18n.ts.federation,
 		to: '/admin/federation',
 		active: currentPage?.route.name === 'federation',
 	}, {
-		icon: 'ti ti-clock-play',
+		icon: 'ph-clock ph-bold ph-lg-play',
 		text: i18n.ts.jobQueue,
 		to: '/admin/queue',
 		active: currentPage?.route.name === 'queue',
 	}, {
-		icon: 'ti ti-cloud',
+		icon: 'ph-cloud ph-bold ph-lg',
 		text: i18n.ts.files,
 		to: '/admin/files',
 		active: currentPage?.route.name === 'files',
 	}, {
-		icon: 'ti ti-speakerphone',
+		icon: 'ph-megaphone ph-bold ph-lg',
 		text: i18n.ts.announcements,
 		to: '/admin/announcements',
 		active: currentPage?.route.name === 'announcements',
 	}, {
-		icon: 'ti ti-ad',
+		icon: 'ph-flag ph-bold ph-lg',
 		text: i18n.ts.ads,
 		to: '/admin/ads',
 		active: currentPage?.route.name === 'ads',
 	}, {
-		icon: 'ti ti-exclamation-circle',
+		icon: 'ph-warning-circle ph-bold ph-lg',
 		text: i18n.ts.abuseReports,
 		to: '/admin/abuses',
 		active: currentPage?.route.name === 'abuses',
 	}, {
-		icon: 'ti ti-list-search',
+		icon: 'ph-list ph-bold ph-lg-search',
 		text: i18n.ts.moderationLogs,
 		to: '/admin/modlog',
 		active: currentPage?.route.name === 'modlog',
@@ -154,57 +174,57 @@ const menuDef = $computed(() => [{
 }, {
 	title: i18n.ts.settings,
 	items: [{
-		icon: 'ti ti-settings',
+		icon: 'ph-gear ph-bold ph-lg',
 		text: i18n.ts.general,
 		to: '/admin/settings',
 		active: currentPage?.route.name === 'settings',
 	}, {
-		icon: 'ti ti-paint',
+		icon: 'ph-paint-roller ph-bold ph-lg',
 		text: i18n.ts.branding,
 		to: '/admin/branding',
 		active: currentPage?.route.name === 'branding',
 	}, {
-		icon: 'ti ti-shield',
+		icon: 'ph-shield ph-bold ph-lg',
 		text: i18n.ts.moderation,
 		to: '/admin/moderation',
 		active: currentPage?.route.name === 'moderation',
 	}, {
-		icon: 'ti ti-mail',
+		icon: 'ph-envelope ph-bold ph-lg',
 		text: i18n.ts.emailServer,
 		to: '/admin/email-settings',
 		active: currentPage?.route.name === 'email-settings',
 	}, {
-		icon: 'ti ti-cloud',
+		icon: 'ph-cloud ph-bold ph-lg',
 		text: i18n.ts.objectStorage,
 		to: '/admin/object-storage',
 		active: currentPage?.route.name === 'object-storage',
 	}, {
-		icon: 'ti ti-lock',
+		icon: 'ph-lock ph-bold ph-lg',
 		text: i18n.ts.security,
 		to: '/admin/security',
 		active: currentPage?.route.name === 'security',
 	}, {
-		icon: 'ti ti-planet',
+		icon: 'ph-planet ph-bold ph-lg',
 		text: i18n.ts.relays,
 		to: '/admin/relays',
 		active: currentPage?.route.name === 'relays',
 	}, {
-		icon: 'ti ti-ban',
+		icon: 'ph-prohibit ph-bold ph-lg',
 		text: i18n.ts.instanceBlocking,
 		to: '/admin/instance-block',
 		active: currentPage?.route.name === 'instance-block',
 	}, {
-		icon: 'ti ti-ghost',
+		icon: 'ph-ghost ph-bold ph-lg',
 		text: i18n.ts.proxyAccount,
 		to: '/admin/proxy-account',
 		active: currentPage?.route.name === 'proxy-account',
 	}, {
-		icon: 'ti ti-link',
+		icon: 'ph-arrow-square-out ph-bold ph-lg',
 		text: i18n.ts.externalServices,
 		to: '/admin/external-services',
 		active: currentPage?.route.name === 'external-services',
 	}, {
-		icon: 'ti ti-adjustments',
+		icon: 'ph-faders ph-bold ph-lg',
 		text: i18n.ts.other,
 		to: '/admin/other-settings',
 		active: currentPage?.route.name === 'other-settings',
@@ -212,7 +232,7 @@ const menuDef = $computed(() => [{
 }, {
 	title: i18n.ts.info,
 	items: [{
-		icon: 'ti ti-database',
+		icon: 'ph-database ph-bold ph-lg',
 		text: i18n.ts.database,
 		to: '/admin/database',
 		active: currentPage?.route.name === 'database',
@@ -276,25 +296,25 @@ const invite = () => {
 const lookup = (ev) => {
 	os.popupMenu([{
 		text: i18n.ts.user,
-		icon: 'ti ti-user',
+		icon: 'ph-user ph-bold ph-lg',
 		action: () => {
 			lookupUser();
 		},
 	}, {
 		text: i18n.ts.note,
-		icon: 'ti ti-pencil',
+		icon: 'ph-pencil ph-bold ph-lg',
 		action: () => {
 			alert('TODO');
 		},
 	}, {
 		text: i18n.ts.file,
-		icon: 'ti ti-cloud',
+		icon: 'ph-cloud ph-bold ph-lg',
 		action: () => {
 			alert('TODO');
 		},
 	}, {
 		text: i18n.ts.instance,
-		icon: 'ti ti-planet',
+		icon: 'ph-planet ph-bold ph-lg',
 		action: () => {
 			alert('TODO');
 		},
@@ -349,7 +369,7 @@ defineExpose({
 					display: block;
 					margin: auto;
 					height: 42px;
-					border-radius: 8px;
+					border-radius: var(--radius-sm);
 				}
 			}
 		}

@@ -37,6 +37,34 @@ export const packedUserLiteSchema = {
 			type: 'string',
 			nullable: true, optional: false,
 		},
+		avatarDecorations: {
+			type: 'array',
+			nullable: false, optional: false,
+			items: {
+				type: 'object',
+				nullable: false, optional: false,
+				properties: {
+					id: {
+						type: 'string',
+						nullable: false, optional: false,
+						format: 'id',
+					},
+					url: {
+						type: 'string',
+						format: 'url',
+						nullable: false, optional: false,
+					},
+					angle: {
+						type: 'number',
+						nullable: false, optional: true,
+					},
+					flipH: {
+						type: 'boolean',
+						nullable: false, optional: true,
+					},
+				},
+			},
+		},
 		isAdmin: {
 			type: 'boolean',
 			nullable: false, optional: true,
@@ -47,11 +75,19 @@ export const packedUserLiteSchema = {
 			nullable: false, optional: true,
 			default: false,
 		},
+		isSilenced: {
+			type: 'boolean',
+			nullable: false, optional: false,
+		},
 		isBot: {
 			type: 'boolean',
 			nullable: false, optional: true,
 		},
 		isCat: {
+			type: 'boolean',
+			nullable: false, optional: true,
+		},
+		speakAsCat: {
 			type: 'boolean',
 			nullable: false, optional: true,
 		},
@@ -118,11 +154,16 @@ export const packedUserDetailedNotMeOnlySchema = {
 			type: 'string',
 			nullable: true, optional: false,
 		},
-		isLocked: {
-			type: 'boolean',
-			nullable: false, optional: false,
+		backgroundUrl: {
+			type: 'string',
+			format: 'url',
+			nullable: true, optional: false,
 		},
-		isSilenced: {
+		backgroundBlurhash: {
+			type: 'string',
+			nullable: true, optional: false,
+		},
+		isLocked: {
 			type: 'boolean',
 			nullable: false, optional: false,
 		},
@@ -144,6 +185,12 @@ export const packedUserDetailedNotMeOnlySchema = {
 			type: 'string',
 			nullable: true, optional: false,
 			example: '2018-03-12',
+		},
+		ListenBrainz: {
+			type: "string",
+			nullable: true,
+			optional: false,
+			example: "Steve",
 		},
 		lang: {
 			type: 'string',
@@ -298,6 +345,11 @@ export const packedMeDetailedOnlySchema = {
 			nullable: true, optional: false,
 			format: 'id',
 		},
+		backgroundId: {
+			type: 'string',
+			nullable: true, optional: false,
+			format: 'id',
+		},
 		injectFeaturedNote: {
 			type: 'boolean',
 			nullable: true, optional: false,
@@ -369,6 +421,10 @@ export const packedMeDetailedOnlySchema = {
 		},
 		hasPendingReceivedFollowRequest: {
 			type: 'boolean',
+			nullable: false, optional: false,
+		},
+		unreadNotificationsCount: {
+			type: 'number',
 			nullable: false, optional: false,
 		},
 		mutedWords: {

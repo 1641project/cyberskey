@@ -919,8 +919,9 @@ color: "Farba"
 horizontal: "Strana"
 youFollowing: "Sledované"
 icon: "Avatar"
-replies: "Odpovedať"
+replies: "Odpovede"
 renotes: "Preposlať"
+flip: "Preklopiť"
 _role:
   priority: "Priorita"
   _priority:

@@ -10,13 +10,13 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<MkSpacer :contentMax="700" :marginMin="16" :marginMax="32">
 			<FormSuspense :p="init">
 				<div class="_gaps_m">
-					<MkInput v-model="iconUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="iconUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts._serverSettings.iconUrl }}</template>
 					</MkInput>
 
-					<MkInput v-model="app192IconUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="app192IconUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts._serverSettings.iconUrl }} (App/192px)</template>
 						<template #caption>
 							<div>{{ i18n.t('_serverSettings.appIconDescription', { host: instance.name ?? host }) }}</div>
@@ -26,8 +26,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</template>
 					</MkInput>
 
-					<MkInput v-model="app512IconUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="app512IconUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts._serverSettings.iconUrl }} (App/512px)</template>
 						<template #caption>
 							<div>{{ i18n.t('_serverSettings.appIconDescription', { host: instance.name ?? host }) }}</div>
@@ -37,28 +37,28 @@ SPDX-License-Identifier: AGPL-3.0-only
 						</template>
 					</MkInput>
 
-					<MkInput v-model="bannerUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="bannerUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.bannerUrl }}</template>
 					</MkInput>
 
-					<MkInput v-model="backgroundImageUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="backgroundImageUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.backgroundImageUrl }}</template>
 					</MkInput>
 
-					<MkInput v-model="notFoundImageUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="notFoundImageUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.notFoundDescription }}</template>
 					</MkInput>
 
-					<MkInput v-model="infoImageUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="infoImageUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.nothing }}</template>
 					</MkInput>
 
-					<MkInput v-model="serverErrorImageUrl">
-						<template #prefix><i class="ti ti-link"></i></template>
+					<MkInput v-model="serverErrorImageUrl" type="url">
+						<template #prefix><i class="ph-link ph-bold ph-lg"></i></template>
 						<template #label>{{ i18n.ts.somethingHappened }}</template>
 					</MkInput>
 
@@ -85,7 +85,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 		<template #footer>
 			<div :class="$style.footer">
 				<MkSpacer :contentMax="700" :marginMin="16" :marginMax="16">
-					<MkButton primary rounded @click="save"><i class="ti ti-check"></i> {{ i18n.ts.save }}</MkButton>
+					<MkButton primary rounded @click="save"><i class="ph-check ph-bold ph-lg"></i> {{ i18n.ts.save }}</MkButton>
 				</MkSpacer>
 			</div>
 		</template>
@@ -163,7 +163,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.branding,
-	icon: 'ti ti-paint',
+	icon: 'ph-paint-roller ph-bold ph-lg',
 });
 </script>
 

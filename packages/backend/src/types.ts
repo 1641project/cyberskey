@@ -30,9 +30,11 @@ export const ffVisibility = ['public', 'followers', 'private'] as const;
 export const moderationLogTypes = [
 	'updateServerSettings',
 	'suspend',
+	'approve',
 	'unsuspend',
 	'updateUserNote',
 	'addCustomEmoji',
+	'requestCustomEmoji',
 	'updateCustomEmoji',
 	'deleteCustomEmoji',
 	'assignRole',
@@ -60,6 +62,9 @@ export const moderationLogTypes = [
 	'createAd',
 	'updateAd',
 	'deleteAd',
+	'createAvatarDecoration',
+	'updateAvatarDecoration',
+	'deleteAvatarDecoration',
 ] as const;
 
 export type ModerationLogPayloads = {
@@ -68,6 +73,11 @@ export type ModerationLogPayloads = {
 		after: any | null;
 	};
 	suspend: {
+		userId: string;
+		userUsername: string;
+		userHost: string | null;
+	};
+	approve: {
 		userId: string;
 		userUsername: string;
 		userHost: string | null;
@@ -85,6 +95,10 @@ export type ModerationLogPayloads = {
 		after: string | null;
 	};
 	addCustomEmoji: {
+		emojiId: string;
+		emoji: any;
+	};
+	requestCustomEmoji: {
 		emojiId: string;
 		emoji: any;
 	};
@@ -221,6 +235,19 @@ export type ModerationLogPayloads = {
 		adId: string;
 		ad: any;
 	};
+	createAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
+	};
+	updateAvatarDecoration: {
+		avatarDecorationId: string;
+		before: any;
+		after: any;
+	};
+	deleteAvatarDecoration: {
+		avatarDecorationId: string;
+		avatarDecoration: any;
+	};
 };
 
 export type Serialized<T> = {
@@ -233,3 +260,9 @@ export type Serialized<T> = {
 					? Serialized<T[K]>
 					: T[K];
 };
+
+export type FilterUnionByProperty<
+  Union,
+  Property extends string | number | symbol,
+  Condition
+> = Union extends Record<Property, Condition> ? Union : never;

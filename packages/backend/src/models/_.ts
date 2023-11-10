@@ -10,6 +10,7 @@ import { MiAnnouncement } from '@/models/Announcement.js';
 import { MiAnnouncementRead } from '@/models/AnnouncementRead.js';
 import { MiAntenna } from '@/models/Antenna.js';
 import { MiApp } from '@/models/App.js';
+import { MiAvatarDecoration } from '@/models/AvatarDecoration.js';
 import { MiAuthSession } from '@/models/AuthSession.js';
 import { MiBlocking } from '@/models/Blocking.js';
 import { MiChannelFollowing } from '@/models/ChannelFollowing.js';
@@ -20,6 +21,7 @@ import { MiClipFavorite } from '@/models/ClipFavorite.js';
 import { MiDriveFile } from '@/models/DriveFile.js';
 import { MiDriveFolder } from '@/models/DriveFolder.js';
 import { MiEmoji } from '@/models/Emoji.js';
+import { MiEmojiRequest } from '@/models/EmojiRequest.js';
 import { MiFollowing } from '@/models/Following.js';
 import { MiFollowRequest } from '@/models/FollowRequest.js';
 import { MiGalleryLike } from '@/models/GalleryLike.js';
@@ -67,6 +69,7 @@ import { MiRoleAssignment } from '@/models/RoleAssignment.js';
 import { MiFlash } from '@/models/Flash.js';
 import { MiFlashLike } from '@/models/FlashLike.js';
 import { MiUserListFavorite } from '@/models/UserListFavorite.js';
+import { NoteEdit } from '@/models/NoteEdit.js';
 import type { Repository } from 'typeorm';
 
 export {
@@ -77,6 +80,7 @@ export {
 	MiAnnouncementRead,
 	MiAntenna,
 	MiApp,
+	MiAvatarDecoration,
 	MiAuthSession,
 	MiBlocking,
 	MiChannelFollowing,
@@ -87,6 +91,7 @@ export {
 	MiDriveFile,
 	MiDriveFolder,
 	MiEmoji,
+	MiEmojiRequest,
 	MiFollowing,
 	MiFollowRequest,
 	MiGalleryLike,
@@ -134,6 +139,7 @@ export {
 	MiFlash,
 	MiFlashLike,
 	MiUserMemo,
+	NoteEdit,
 };
 
 export type AbuseUserReportsRepository = Repository<MiAbuseUserReport>;
@@ -143,6 +149,7 @@ export type AnnouncementsRepository = Repository<MiAnnouncement>;
 export type AnnouncementReadsRepository = Repository<MiAnnouncementRead>;
 export type AntennasRepository = Repository<MiAntenna>;
 export type AppsRepository = Repository<MiApp>;
+export type AvatarDecorationsRepository = Repository<MiAvatarDecoration>;
 export type AuthSessionsRepository = Repository<MiAuthSession>;
 export type BlockingsRepository = Repository<MiBlocking>;
 export type ChannelFollowingsRepository = Repository<MiChannelFollowing>;
@@ -153,6 +160,7 @@ export type ClipFavoritesRepository = Repository<MiClipFavorite>;
 export type DriveFilesRepository = Repository<MiDriveFile>;
 export type DriveFoldersRepository = Repository<MiDriveFolder>;
 export type EmojisRepository = Repository<MiEmoji>;
+export type EmojiRequestsRepository = Repository<MiEmojiRequest>;
 export type FollowingsRepository = Repository<MiFollowing>;
 export type FollowRequestsRepository = Repository<MiFollowRequest>;
 export type GalleryLikesRepository = Repository<MiGalleryLike>;
@@ -200,3 +208,4 @@ export type RoleAssignmentsRepository = Repository<MiRoleAssignment>;
 export type FlashsRepository = Repository<MiFlash>;
 export type FlashLikesRepository = Repository<MiFlashLike>;
 export type UserMemoRepository = Repository<MiUserMemo>;
+export type NoteEditRepository = Repository<NoteEdit>;

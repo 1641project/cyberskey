@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 <template>
 <MkContainer :max-height="300" :foldable="true">
-	<template #icon><i class="ti ti-photo"></i></template>
+	<template #icon><i class="ph-image-square ph-bold ph-lg"></i></template>
 	<template #header>{{ i18n.ts.files }}</template>
 	<div :class="$style.root">
 		<MkLoading v-if="fetching"/>
@@ -13,7 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<template v-for="file in files" :key="file.note.id + file.file.id">
 				<div v-if="file.file.isSensitive && !showingFiles.includes(file.file.id)" :class="$style.sensitive" @click="showingFiles.push(file.file.id)">
 					<div>
-						<div><i class="ti ti-eye-exclamation"></i> {{ i18n.ts.sensitive }}</div>
+						<div><i class="ph-eye-slash ph-bold ph-lg"></i> {{ i18n.ts.sensitive }}</div>
 						<div>{{ i18n.ts.clickToShow }}</div>
 					</div>
 				</div>
@@ -89,7 +89,7 @@ onMounted(() => {
 
 .img {
 	height: 128px;
-	border-radius: 6px;
+	border-radius: var(--radius-sm);
 	overflow: clip;
 }
 

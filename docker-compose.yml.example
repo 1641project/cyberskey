@@ -2,6 +2,7 @@ version: "3"
 
 services:
   web:
+#   image: ghcr.io/transfem-org/sharkey:stable
     build: .
     restart: always
     links:
@@ -16,21 +17,20 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - internal_network
-      - external_network
+      - shonk
     volumes:
-      - ./files:/misskey/files
-      - ./.config:/misskey/.config:ro
+      - ./files:/sharkey/files
+      - ./.config:/sharkey/.config:ro
 
   redis:
     restart: always
-    image: redis:7-alpine
+    image: eqalpha/keydb:latest
     networks:
-      - internal_network
+      - shonk
     volumes:
       - ./redis:/data
     healthcheck:
-      test: "redis-cli ping"
+      test: "keydb-cli ping"
       interval: 5s
       retries: 20
 
@@ -38,7 +38,7 @@ services:
     restart: always
     image: postgres:15-alpine
     networks:
-      - internal_network
+      - shonk
     env_file:
       - .config/docker.env
     volumes:
@@ -57,11 +57,10 @@ services:
 #    env_file:
 #      - .config/meilisearch.env
 #    networks:
-#      - internal_network
+#      - shonk
 #    volumes:
 #      - ./meili_data:/meili_data
 
+
 networks:
-  internal_network:
-    internal: true
-  external_network:
+  shonk:

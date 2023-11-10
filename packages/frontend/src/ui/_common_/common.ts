@@ -3,11 +3,42 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { defineAsyncComponent } from 'vue';
+import type { MenuItem } from '@/types/menu.js';
 import * as os from '@/os.js';
 import { instance } from '@/instance.js';
 import { host } from '@/config.js';
 import { i18n } from '@/i18n.js';
 import { $i } from '@/account.js';
+
+function toolsMenuItems(): MenuItem[] {
+	return [{
+		type: 'link',
+		to: '/scratchpad',
+		text: i18n.ts.scratchpad,
+		icon: 'ph-terminal-window ph-bold ph-lg-2',
+	}, {
+		type: 'link',
+		to: '/api-console',
+		text: 'API Console',
+		icon: 'ph-terminal-window ph-bold ph-lg-2',
+	}, {
+		type: 'link',
+		to: '/clicker',
+		text: '🍪👈',
+		icon: 'ph-cookie ph-bold ph-lg',
+	}, ($i && ($i.isAdmin || $i.policies.canManageCustomEmojis)) ? {
+		type: 'link',
+		to: '/custom-emojis-manager',
+		text: i18n.ts.manageCustomEmojis,
+		icon: 'ph-smiley ph-bold ph-lg',
+	} : undefined, ($i && ($i.isAdmin || $i.policies.canManageAvatarDecorations)) ? {
+		type: 'link',
+		to: '/admin/avatar-decorations',
+		text: i18n.ts.manageAvatarDecorations,
+		icon: 'ph-sparkle ph-bold ph-lg',
+	} : undefined];
+}
 
 export function openInstanceMenu(ev: MouseEvent) {
 	os.popupMenu([{
@@ -16,87 +47,79 @@ export function openInstanceMenu(ev: MouseEvent) {
 	}, {
 		type: 'link',
 		text: i18n.ts.instanceInfo,
-		icon: 'ti ti-info-circle',
+		icon: 'ph-info ph-bold ph-lg',
 		to: '/about',
 	}, {
 		type: 'link',
 		text: i18n.ts.customEmojis,
-		icon: 'ti ti-icons',
+		icon: 'ph-smiley ph-bold ph-lg',
 		to: '/about#emojis',
 	}, {
 		type: 'link',
 		text: i18n.ts.federation,
-		icon: 'ti ti-whirl',
+		icon: 'ph-globe-hemisphere-west ph-bold ph-lg',
 		to: '/about#federation',
 	}, {
 		type: 'link',
 		text: i18n.ts.charts,
-		icon: 'ti ti-chart-line',
+		icon: 'ph-chart-line ph-bold ph-lg',
 		to: '/about#charts',
 	}, null, {
 		type: 'link',
 		text: i18n.ts.ads,
-		icon: 'ti ti-ad',
+		icon: 'ph-flag ph-bold ph-lg',
 		to: '/ads',
 	}, ($i && ($i.isAdmin || $i.policies.canInvite) && instance.disableRegistration) ? {
 		type: 'link',
 		to: '/invite',
 		text: i18n.ts.invite,
-		icon: 'ti ti-user-plus',
+		icon: 'ph-user-plus ph-bold ph-lg',
 	} : undefined, {
 		type: 'parent',
 		text: i18n.ts.tools,
-		icon: 'ti ti-tool',
-		children: [{
-			type: 'link',
-			to: '/scratchpad',
-			text: i18n.ts.scratchpad,
-			icon: 'ti ti-terminal-2',
-		}, {
-			type: 'link',
-			to: '/api-console',
-			text: 'API Console',
-			icon: 'ti ti-terminal-2',
-		}, {
-			type: 'link',
-			to: '/clicker',
-			text: '🍪👈',
-			icon: 'ti ti-cookie',
-		}, ($i && ($i.isAdmin || $i.policies.canManageCustomEmojis)) ? {
-			type: 'link',
-			to: '/custom-emojis-manager',
-			text: i18n.ts.manageCustomEmojis,
-			icon: 'ti ti-icons',
-		} : undefined],
+		icon: 'ph-toolbox ph-bold ph-lg',
+		children: toolsMenuItems(),
 	}, null, (instance.impressumUrl) ? {
 		text: i18n.ts.impressum,
-		icon: 'ti ti-file-invoice',
+		icon: 'ph-newspaper-clipping ph-bold ph-lg',
 		action: () => {
 			window.open(instance.impressumUrl, '_blank');
 		},
 	} : undefined, (instance.tosUrl) ? {
 		text: i18n.ts.termsOfService,
-		icon: 'ti ti-notebook',
+		icon: 'ph-notebook ph-bold ph-lg',
 		action: () => {
 			window.open(instance.tosUrl, '_blank');
 		},
 	} : undefined, (instance.privacyPolicyUrl) ? {
 		text: i18n.ts.privacyPolicy,
-		icon: 'ti ti-shield-lock',
+		icon: 'ph-shield ph-bold ph-lg',
 		action: () => {
 			window.open(instance.privacyPolicyUrl, '_blank');
 		},
 	} : undefined, (!instance.impressumUrl && !instance.tosUrl && !instance.privacyPolicyUrl) ? undefined : null, {
 		text: i18n.ts.help,
-		icon: 'ti ti-help-circle',
+		icon: 'ph-question ph-bold ph-lg',
 		action: () => {
 			window.open('https://misskey-hub.net/help.html', '_blank');
 		},
-	}, {
+	}, ($i) ? {
+		text: i18n.ts._initialTutorial.launchTutorial,
+		icon: 'ph-presentation ph-bold ph-lg',
+		action: () => {
+			os.popup(defineAsyncComponent(() => import('@/components/MkTutorialDialog.vue')), {}, {}, 'closed');
+		},
+	} : undefined, {
 		type: 'link',
 		text: i18n.ts.aboutMisskey,
 		to: '/about-misskey',
 	}], ev.currentTarget ?? ev.target, {
+		align: 'left',
+	});
+}
+
+export function openToolsMenu(ev: MouseEvent) {
+	os.popupMenu(toolsMenuItems(), ev.currentTarget ?? ev.target, {
 		align: 'left',
 	});
 }

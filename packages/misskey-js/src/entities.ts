@@ -16,6 +16,13 @@ export type UserLite = {
 	onlineStatus: 'online' | 'active' | 'offline' | 'unknown';
 	avatarUrl: string;
 	avatarBlurhash: string;
+	approved: boolean;
+	avatarDecorations: {
+		id: ID;
+		url: string;
+		angle?: number;
+		flipH?: boolean;
+	}[];
 	emojis: {
 		name: string;
 		url: string;
@@ -37,7 +44,10 @@ export type UserDetailed = UserLite & {
 	bannerBlurhash: string | null;
 	bannerColor: string | null;
 	bannerUrl: string | null;
+	backgroundUrl: string | null;
+	backgroundBlurhash: string | null;
 	birthday: string | null;
+	listenbrainz: string | null;
 	createdAt: DateString;
 	description: string | null;
 	ffVisibility: 'public' | 'followers' | 'private';
@@ -52,6 +62,7 @@ export type UserDetailed = UserLite & {
 	isBlocking: boolean;
 	isBot: boolean;
 	isCat: boolean;
+	speakAsCat: boolean;
 	isFollowed: boolean;
 	isFollowing: boolean;
 	isLocked: boolean;
@@ -89,6 +100,7 @@ export type UserList = {
 export type MeDetailed = UserDetailed & {
 	avatarId: DriveFile['id'];
 	bannerId: DriveFile['id'];
+	backgroundId: DriveFile['id'];
 	autoAcceptFollowed: boolean;
 	alwaysMarkNsfw: boolean;
 	carefulBot: boolean;
@@ -100,6 +112,7 @@ export type MeDetailed = UserDetailed & {
 	hasUnreadMessagingMessage: boolean;
 	hasUnreadNotification: boolean;
 	hasUnreadSpecifiedNotes: boolean;
+	unreadNotificationsCount: number;
 	hideOnlineStatus: boolean;
 	injectFeaturedNote: boolean;
 	integrations: Record<string, any>;
@@ -179,6 +192,7 @@ export type GalleryPost = {
 export type Note = {
 	id: ID;
 	createdAt: DateString;
+	updatedAt?: DateString | null;
 	text: string | null;
 	cw: string | null;
 	user: User;
@@ -191,6 +205,8 @@ export type Note = {
 	fileIds: DriveFile['id'][];
 	visibility: 'public' | 'home' | 'followers' | 'specified';
 	visibleUserIds?: User['id'][];
+	channel?: Channel;
+	channelId?: Channel['id'];
 	localOnly?: boolean;
 	myReaction?: string;
 	reactions: Record<string, number>;
@@ -221,6 +237,17 @@ export type NoteReaction = {
 	user: UserLite;
 	type: string;
 };
+
+export type NoteEdit = {
+	noteId: Note['id'];
+	note: Note;
+	newText: string;
+	oldText: string;
+	cw: string;
+	fileIds: DriveFile['id'][];
+	updatedAt?: DateString;
+	oldDate: DateString;
+}
 
 export type Notification = {
 	id: ID;
@@ -335,6 +362,7 @@ export type LiteInstanceMetadata = {
 	driveCapacityPerLocalUserMb: number;
 	driveCapacityPerRemoteUserMb: number;
 	emailRequiredForSignup: boolean;
+	approvalRequiredForSignup: boolean;
 	enableHcaptcha: boolean;
 	hcaptchaSiteKey: string | null;
 	enableRecaptcha: boolean;
@@ -356,6 +384,7 @@ export type LiteInstanceMetadata = {
 	enableTwitterIntegration: boolean;
 	enableGithubIntegration: boolean;
 	enableDiscordIntegration: boolean;
+	enableAchievements: boolean;
 	enableServiceWorker: boolean;
 	emojis: CustomEmoji[];
 	defaultDarkTheme: string | null;
@@ -391,6 +420,7 @@ export type AdminInstanceMetadata = DetailedInstanceMetadata & {
 	app192IconUrl: string | null;
 	app512IconUrl: string | null;
 	manifestJsonOverride: string;
+	enableBotTrending: boolean;
 };
 
 export type ServerInfo = {
@@ -507,7 +537,20 @@ export type FollowRequest = {
 
 export type Channel = {
 	id: ID;
-	// TODO
+	lastNotedAt: Date | null;
+	userId: User['id'] | null;
+	user: User | null;
+	name: string;
+	description: string | null;
+	bannerId: DriveFile['id'] | null;
+	banner: DriveFile | null;
+	pinnedNoteIds: string[];
+	color: string;
+	isArchived: boolean;
+	notesCount: number;
+	usersCount: number;
+	isSensitive: boolean;
+	allowRenoteToExternal: boolean;
 };
 
 export type Following = {
@@ -604,6 +647,9 @@ export type ModerationLog = {
 	type: 'updateServerSettings';
 	info: ModerationLogPayloads['updateServerSettings'];
 } | {
+	type: 'approve';
+	info: ModerationLogPayloads['approve'];
+} | {
 	type: 'suspend';
 	info: ModerationLogPayloads['suspend'];
 } | {
@@ -693,4 +739,16 @@ export type ModerationLog = {
 } | {
 	type: 'deleteAd';
 	info: ModerationLogPayloads['deleteAd'];
+} | {
+	type: 'createAvatarDecoration';
+	info: ModerationLogPayloads['createAvatarDecoration'];
+} | {
+	type: 'updateAvatarDecoration';
+	info: ModerationLogPayloads['updateAvatarDecoration'];
+} | {
+	type: 'deleteAvatarDecoration';
+	info: ModerationLogPayloads['deleteAvatarDecoration'];
+} | {
+	type: 'resolveAbuseReport';
+	info: ModerationLogPayloads['resolveAbuseReport'];
 });

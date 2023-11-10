@@ -24,11 +24,15 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<template #label>{{ i18n.ts.sensitive }}</template>
 			</MkSwitch>
 
+			<MkSwitch v-model="allowRenoteToExternal">
+				<template #label>{{ i18n.ts._channel.allowRenoteToExternal }}</template>
+			</MkSwitch>
+
 			<div>
-				<MkButton v-if="bannerId == null" @click="setBannerImage"><i class="ti ti-plus"></i> {{ i18n.ts._channel.setBanner }}</MkButton>
+				<MkButton v-if="bannerId == null" @click="setBannerImage"><i class="ph-plus ph-bold ph-lg"></i> {{ i18n.ts._channel.setBanner }}</MkButton>
 				<div v-else-if="bannerUrl">
 					<img :src="bannerUrl" style="width: 100%;"/>
-					<MkButton @click="removeBannerImage()"><i class="ti ti-trash"></i> {{ i18n.ts._channel.removeBanner }}</MkButton>
+					<MkButton @click="removeBannerImage()"><i class="ph-trash ph-bold ph-lg"></i> {{ i18n.ts._channel.removeBanner }}</MkButton>
 				</div>
 			</div>
 
@@ -36,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<template #label>{{ i18n.ts.pinnedNotes }}</template>
 
 				<div class="_gaps">
-					<MkButton primary rounded @click="addPinnedNote()"><i class="ti ti-plus"></i></MkButton>
+					<MkButton primary rounded @click="addPinnedNote()"><i class="ph-plus ph-bold ph-lg"></i></MkButton>
 
 					<Sortable
 						v-model="pinnedNotes"
@@ -46,9 +50,9 @@ SPDX-License-Identifier: AGPL-3.0-only
 					>
 						<template #item="{element,index}">
 							<div :class="$style.pinnedNote">
-								<button class="_button" :class="$style.pinnedNoteHandle"><i class="ti ti-menu"></i></button>
+								<button class="_button" :class="$style.pinnedNoteHandle"><i class="ph-list ph-bold ph-lg"></i></button>
 								{{ element.id }}
-								<button class="_button" :class="$style.pinnedNoteRemove" @click="removePinnedNote(index)"><i class="ti ti-x"></i></button>
+								<button class="_button" :class="$style.pinnedNoteRemove" @click="removePinnedNote(index)"><i class="ph-x ph-bold ph-lg"></i></button>
 							</div>
 						</template>
 					</Sortable>
@@ -56,8 +60,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</MkFolder>
 
 			<div class="_buttons">
-				<MkButton primary @click="save()"><i class="ti ti-device-floppy"></i> {{ channelId ? i18n.ts.save : i18n.ts.create }}</MkButton>
-				<MkButton v-if="channelId" danger @click="archive()"><i class="ti ti-trash"></i> {{ i18n.ts.archive }}</MkButton>
+				<MkButton primary @click="save()"><i class="ph-floppy-disk ph-bold ph-lg"></i> {{ channelId ? i18n.ts.save : i18n.ts.create }}</MkButton>
+				<MkButton v-if="channelId" danger @click="archive()"><i class="ph-trash ph-bold ph-lg"></i> {{ i18n.ts.archive }}</MkButton>
 			</div>
 		</div>
 	</MkSpacer>
@@ -76,7 +80,7 @@ import { useRouter } from '@/router.js';
 import { definePageMetadata } from '@/scripts/page-metadata.js';
 import { i18n } from '@/i18n.js';
 import MkFolder from '@/components/MkFolder.vue';
-import MkSwitch from "@/components/MkSwitch.vue";
+import MkSwitch from '@/components/MkSwitch.vue';
 
 const Sortable = defineAsyncComponent(() => import('vuedraggable').then(x => x.default));
 
@@ -93,6 +97,7 @@ let bannerUrl = $ref<string | null>(null);
 let bannerId = $ref<string | null>(null);
 let color = $ref('#000');
 let isSensitive = $ref(false);
+let allowRenoteToExternal = $ref(true);
 const pinnedNotes = ref([]);
 
 watch(() => bannerId, async () => {
@@ -121,6 +126,7 @@ async function fetchChannel() {
 		id,
 	}));
 	color = channel.color;
+	allowRenoteToExternal = channel.allowRenoteToExternal;
 }
 
 fetchChannel();
@@ -150,16 +156,14 @@ function save() {
 		pinnedNoteIds: pinnedNotes.value.map(x => x.id),
 		color: color,
 		isSensitive: isSensitive,
+		allowRenoteToExternal: allowRenoteToExternal,
 	};
 
 	if (props.channelId) {
 		params.channelId = props.channelId;
-		os.api('channels/update', params).then(() => {
-			os.success();
-		});
+		os.apiWithDialog('channels/update', params);
 	} else {
-		os.api('channels/create', params).then(created => {
-			os.success();
+		os.apiWithDialog('channels/create', params).then(created => {
 			router.push(`/channels/${created.id}`);
 		});
 	}
@@ -198,10 +202,10 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata(computed(() => props.channelId ? {
 	title: i18n.ts._channel.edit,
-	icon: 'ti ti-device-tv',
+	icon: 'ph-television ph-bold ph-lg',
 } : {
 	title: i18n.ts._channel.create,
-	icon: 'ti ti-device-tv',
+	icon: 'ph-television ph-bold ph-lg',
 }));
 </script>
 

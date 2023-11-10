@@ -42,7 +42,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 			<button v-else-if="item.type === 'parent'" class="_button" role="menuitem" :tabindex="i" :class="[$style.item, $style.parent, { [$style.childShowing]: childShowingItem === item }]" @mouseenter="preferClick ? null : showChildren(item, $event)" @click="!preferClick ? null : showChildren(item, $event)">
 				<i v-if="item.icon" class="ti-fw" :class="[$style.icon, item.icon]" style="pointer-events: none;"></i>
 				<span style="pointer-events: none;">{{ item.text }}</span>
-				<span :class="$style.caret" style="pointer-events: none;"><i class="ti ti-chevron-right ti-fw"></i></span>
+				<span :class="$style.caret" style="pointer-events: none;"><i class="ph-caret-right ph-bold ph-lg ti-fw"></i></span>
 			</button>
 			<button v-else :tabindex="i" class="_button" role="menuitem" :class="[$style.item, { [$style.danger]: item.danger, [$style.active]: item.active }]" :disabled="item.active" @click="clicked(item.action, $event)" @mouseenter.passive="onItemMouseEnter(item)" @mouseleave.passive="onItemMouseLeave(item)">
 				<i v-if="item.icon" class="ti-fw" :class="[$style.icon, item.icon]"></i>
@@ -145,11 +145,13 @@ const onGlobalMousedown = (event: MouseEvent) => {
 };
 
 let childCloseTimer: null | number = null;
+
 function onItemMouseEnter(item) {
 	childCloseTimer = window.setTimeout(() => {
 		closeChild();
 	}, 300);
 }
+
 function onItemMouseLeave(item) {
 	if (childCloseTimer) window.clearTimeout(childCloseTimer);
 }
@@ -239,7 +241,7 @@ onBeforeUnmount(() => {
 	&.asDrawer {
 		padding: 12px 0 max(env(safe-area-inset-bottom, 0px), 12px) 0;
 		width: 100%;
-		border-radius: 24px;
+		border-radius: var(--radius-lg);
 		border-bottom-right-radius: 0;
 		border-bottom-left-radius: 0;
 
@@ -249,7 +251,7 @@ onBeforeUnmount(() => {
 
 			&:before {
 				width: calc(100% - 24px);
-				border-radius: 12px;
+				border-radius: var(--radius);
 			}
 
 			> .icon {
@@ -288,7 +290,7 @@ onBeforeUnmount(() => {
 		margin: auto;
 		width: calc(100% - 16px);
 		height: 100%;
-		border-radius: 6px;
+		border-radius: var(--radius-sm);
 	}
 
 	&:not(:disabled):hover {

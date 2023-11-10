@@ -225,6 +225,13 @@ async function composeNotification(data: PushNotificationDataMap[keyof PushNotif
 						data,
 					}];
 
+				case 'test':
+					return [t('_notification.testNotification'), {
+						body: t('_notification.notificationWillBeDisplayedLikeThis'),
+						badge: iconUrl('bell'),
+						data,
+					}];
+		
 				default:
 					return null;
 			}
@@ -250,7 +257,7 @@ export async function createEmptyNotification(): Promise<void> {
 		await globalThis.registration.showNotification(
 			(new URL(origin)).host,
 			{
-				body: `Misskey v${_VERSION_}`,
+				body: `Sharkey v${_VERSION_}`,
 				silent: true,
 				badge: iconUrl('null'),
 				tag: 'read_notification',

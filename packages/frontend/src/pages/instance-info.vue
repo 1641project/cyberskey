@@ -36,8 +36,8 @@ SPDX-License-Identifier: AGPL-3.0-only
 				<div class="_gaps_s">
 					<MkSwitch v-model="suspended" :disabled="!instance" @update:modelValue="toggleSuspend">{{ i18n.ts.stopActivityDelivery }}</MkSwitch>
 					<MkSwitch v-model="isBlocked" :disabled="!meta || !instance" @update:modelValue="toggleBlock">{{ i18n.ts.blockThisInstance }}</MkSwitch>
-                    <MkSwitch v-model="isSilenced" :disabled="!meta || !instance" @update:modelValue="toggleSilenced">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
-                    <MkButton @click="refreshMetadata"><i class="ti ti-refresh"></i> Refresh metadata</MkButton>
+					<MkSwitch v-model="isSilenced" :disabled="!meta || !instance" @update:modelValue="toggleSilenced">{{ i18n.ts.silenceThisInstance }}</MkSwitch>
+					<MkButton @click="refreshMetadata"><i class="ph-arrows-counter-clockwise ph-bold ph-lg"></i> Refresh metadata</MkButton>
 				</div>
 			</FormSection>
 
@@ -171,8 +171,8 @@ async function fetch(): Promise<void> {
 	});
 	suspended = instance.isSuspended;
 	isBlocked = instance.isBlocked;
-    isSilenced = instance.isSilenced;
-    faviconUrl = getProxiedImageUrlNullable(instance.faviconUrl, 'preview') ?? getProxiedImageUrlNullable(instance.iconUrl, 'preview');
+	isSilenced = instance.isSilenced;
+	faviconUrl = getProxiedImageUrlNullable(instance.faviconUrl, 'preview') ?? getProxiedImageUrlNullable(instance.iconUrl, 'preview');
 }
 
 async function toggleBlock(): Promise<void> {
@@ -183,14 +183,16 @@ async function toggleBlock(): Promise<void> {
 		blockedHosts: isBlocked ? meta.blockedHosts.concat([host]) : meta.blockedHosts.filter(x => x !== host),
 	});
 }
+
 async function toggleSilenced(): Promise<void> {
-    if (!meta) throw new Error('No meta?');
-    if (!instance) throw new Error('No instance?');
-    const { host } = instance;
-    await os.api('admin/update-meta', {
-        silencedHosts: isSilenced ? meta.silencedHosts.concat([host]) : meta.silencedHosts.filter(x => x !== host),
-    });
+	if (!meta) throw new Error('No meta?');
+	if (!instance) throw new Error('No instance?');
+	const { host } = instance;
+	await os.api('admin/update-meta', {
+		silencedHosts: isSilenced ? meta.silencedHosts.concat([host]) : meta.silencedHosts.filter(x => x !== host),
+	});
 }
+
 async function toggleSuspend(): Promise<void> {
 	if (!instance) throw new Error('No instance?');
 	await os.api('admin/federation/update-instance', {
@@ -213,7 +215,7 @@ fetch();
 
 const headerActions = $computed(() => [{
 	text: `https://${props.host}`,
-	icon: 'ti ti-external-link',
+	icon: 'ph-arrow-square-out ph-bold ph-lg',
 	handler: () => {
 		window.open(`https://${props.host}`, '_blank');
 	},
@@ -222,24 +224,24 @@ const headerActions = $computed(() => [{
 const headerTabs = $computed(() => [{
 	key: 'overview',
 	title: i18n.ts.overview,
-	icon: 'ti ti-info-circle',
+	icon: 'ph-info ph-bold ph-lg',
 }, {
 	key: 'chart',
 	title: i18n.ts.charts,
-	icon: 'ti ti-chart-line',
+	icon: 'ph-chart-line ph-bold ph-lg',
 }, {
 	key: 'users',
 	title: i18n.ts.users,
-	icon: 'ti ti-users',
+	icon: 'ph-users ph-bold ph-lg',
 }, {
 	key: 'raw',
 	title: 'Raw',
-	icon: 'ti ti-code',
+	icon: 'ph-code ph-bold ph-lg',
 }]);
 
 definePageMetadata({
 	title: props.host,
-	icon: 'ti ti-server',
+	icon: 'ph-hard-drives ph-bold ph-lg',
 });
 </script>
 
@@ -252,7 +254,7 @@ definePageMetadata({
 		display: block;
 		margin: 0 16px 0 0;
 		height: 64px;
-		border-radius: 8px;
+		border-radius: var(--radius-sm);
 	}
 
 	> .name {

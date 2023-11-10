@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 <template>
 <MkStickyContainer>
 	<template #header>
-		<XHeader :actions="headerActions" :tabs="headerTabs" />
+		<XHeader :actions="headerActions" :tabs="headerTabs"/>
 	</template>
 	<MkSpacer :contentMax="900">
 		<MkSwitch :modelValue="publishing" @update:modelValue="onChangePublishing">
@@ -14,11 +14,11 @@ SPDX-License-Identifier: AGPL-3.0-only
 		</MkSwitch>
 		<div>
 			<div v-for="ad in ads" class="_panel _gaps_m" :class="$style.ad">
-				<MkAd v-if="ad.url" :specify="ad" />
+				<MkAd v-if="ad.url" :specify="ad"/>
 				<MkInput v-model="ad.url" type="url">
 					<template #label>URL</template>
 				</MkInput>
-				<MkInput v-model="ad.imageUrl">
+				<MkInput v-model="ad.imageUrl" type="url">
 					<template #label>{{ i18n.ts.imageUrl }}</template>
 				</MkInput>
 				<MkRadios v-model="ad.place">
@@ -51,8 +51,10 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<span>
 						{{ i18n.ts._ad.timezoneinfo }}
 						<div v-for="(day, index) in daysOfWeek" :key="index">
-							<input :id="`ad${ad.id}-${index}`" type="checkbox" :checked="(ad.dayOfWeek & (1 << index)) !== 0"
-								@change="toggleDayOfWeek(ad, index)">
+							<input
+								:id="`ad${ad.id}-${index}`" type="checkbox" :checked="(ad.dayOfWeek & (1 << index)) !== 0"
+								@change="toggleDayOfWeek(ad, index)"
+							>
 							<label :for="`ad${ad.id}-${index}`">{{ day }}</label>
 						</div>
 					</span>
@@ -61,14 +63,18 @@ SPDX-License-Identifier: AGPL-3.0-only
 					<template #label>{{ i18n.ts.memo }}</template>
 				</MkTextarea>
 				<div class="buttons">
-					<MkButton class="button" inline primary style="margin-right: 12px;" @click="save(ad)"><i
-							class="ti ti-device-floppy"></i> {{ i18n.ts.save }}</MkButton>
-					<MkButton class="button" inline danger @click="remove(ad)"><i class="ti ti-trash"></i> {{ i18n.ts.remove }}
+					<MkButton class="button" inline primary style="margin-right: 12px;" @click="save(ad)">
+						<i
+							class="ph-floppy-disk ph-bold ph-lg"
+						></i> {{ i18n.ts.save }}
+					</MkButton>
+					<MkButton class="button" inline danger @click="remove(ad)">
+						<i class="ph-trash ph-bold ph-lg"></i> {{ i18n.ts.remove }}
 					</MkButton>
 				</div>
 			</div>
 			<MkButton class="button" @click="more()">
-				<i class="ti ti-reload"></i>{{ i18n.ts.more }}
+				<i class="ph-arrow-clockwise ph-bold ph-lg"></i>{{ i18n.ts.more }}
 			</MkButton>
 		</div>
 	</MkSpacer>
@@ -115,6 +121,7 @@ const onChangePublishing = (v) => {
 	publishing = v;
 	refresh();
 };
+
 // 選択された曜日(index)のビットフラグを操作する
 function toggleDayOfWeek(ad, index) {
 	ad.dayOfWeek ^= 1 << index;
@@ -187,6 +194,7 @@ function save(ad) {
 		});
 	}
 }
+
 function more() {
 	os.api('admin/ad/list', { untilId: ads.reduce((acc, ad) => ad.id != null ? ad : acc).id, publishing: publishing }).then(adsResponse => {
 		ads = ads.concat(adsResponse.map(r => {
@@ -223,7 +231,7 @@ refresh();
 
 const headerActions = $computed(() => [{
 	asFullButton: true,
-	icon: 'ti ti-plus',
+	icon: 'ph-plus ph-bold ph-lg',
 	text: i18n.ts.add,
 	handler: add,
 }]);
@@ -232,7 +240,7 @@ const headerTabs = $computed(() => []);
 
 definePageMetadata({
 	title: i18n.ts.ads,
-	icon: 'ti ti-ad',
+	icon: 'ph-flag ph-bold ph-lg',
 });
 </script>
 

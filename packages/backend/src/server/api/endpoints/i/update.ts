@@ -13,7 +13,7 @@ import { extractHashtags } from '@/misc/extract-hashtags.js';
 import * as Acct from '@/misc/acct.js';
 import type { UsersRepository, DriveFilesRepository, UserProfilesRepository, PagesRepository } from '@/models/_.js';
 import type { MiLocalUser, MiUser } from '@/models/User.js';
-import { birthdaySchema, descriptionSchema, locationSchema, nameSchema } from '@/models/User.js';
+import { birthdaySchema, listenbrainzSchema, descriptionSchema, locationSchema, nameSchema } from '@/models/User.js';
 import type { MiUserProfile } from '@/models/UserProfile.js';
 import { notificationTypes } from '@/types.js';
 import { normalizeForSearch } from '@/misc/normalize-for-search.js';
@@ -32,6 +32,7 @@ import { DriveFileEntityService } from '@/core/entities/DriveFileEntityService.j
 import { HttpRequestService } from '@/core/HttpRequestService.js';
 import type { Config } from '@/config.js';
 import { safeForSql } from '@/misc/safe-for-sql.js';
+import { AvatarDecorationService } from '@/core/AvatarDecorationService.js';
 import { ApiLoggerService } from '../../ApiLoggerService.js';
 import { ApiError } from '../../error.js';
 
@@ -44,7 +45,7 @@ export const meta = {
 
 	limit: {
 		duration: ms('1hour'),
-		max: 10,
+		max: 20,
 	},
 
 	errors: {
@@ -60,6 +61,12 @@ export const meta = {
 			id: '0d8f5629-f210-41c2-9433-735831a58595',
 		},
 
+		noSuchBackground: {
+			message: 'No such background file.',
+			code: 'NO_SUCH_BACKGROUND',
+			id: '0d8f5629-f210-41c2-9433-735831a58582',
+		},
+
 		avatarNotAnImage: {
 			message: 'The file specified as an avatar is not an image.',
 			code: 'AVATAR_NOT_AN_IMAGE',
@@ -70,6 +77,12 @@ export const meta = {
 			message: 'The file specified as a banner is not an image.',
 			code: 'BANNER_NOT_AN_IMAGE',
 			id: '75aedb19-2afd-4e6d-87fc-67941256fa60',
+		},
+
+		backgroundNotAnImage: {
+			message: 'The file specified as a background is not an image.',
+			code: 'BACKGROUND_NOT_AN_IMAGE',
+			id: '75aedb19-2afd-4e6d-87fc-67941256fa40',
 		},
 
 		noSuchPage: {
@@ -129,9 +142,20 @@ export const paramDef = {
 		description: { ...descriptionSchema, nullable: true },
 		location: { ...locationSchema, nullable: true },
 		birthday: { ...birthdaySchema, nullable: true },
+		listenbrainz: { ...listenbrainzSchema, nullable: true },
 		lang: { type: 'string', enum: [null, ...Object.keys(langmap)] as string[], nullable: true },
 		avatarId: { type: 'string', format: 'misskey:id', nullable: true },
+		avatarDecorations: { type: 'array', maxItems: 1, items: {
+			type: 'object',
+			properties: {
+				id: { type: 'string', format: 'misskey:id' },
+				angle: { type: 'number', nullable: true, maximum: 0.5, minimum: -0.5 },
+				flipH: { type: 'boolean', nullable: true },
+			},
+			required: ['id'],
+		} },
 		bannerId: { type: 'string', format: 'misskey:id', nullable: true },
+		backgroundId: { type: 'string', format: 'misskey:id', nullable: true },
 		fields: {
 			type: 'array',
 			minItems: 0,
@@ -155,6 +179,7 @@ export const paramDef = {
 		preventAiLearning: { type: 'boolean' },
 		isBot: { type: 'boolean' },
 		isCat: { type: 'boolean' },
+		speakAsCat: { type: 'boolean' },
 		injectFeaturedNote: { type: 'boolean' },
 		receiveAnnouncementEmail: { type: 'boolean' },
 		alwaysMarkNsfw: { type: 'boolean' },
@@ -207,6 +232,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 		private roleService: RoleService,
 		private cacheService: CacheService,
 		private httpRequestService: HttpRequestService,
+		private avatarDecorationService: AvatarDecorationService,
 	) {
 		super(meta, paramDef, async (ps, _user, token) => {
 			const user = await this.usersRepository.findOneByOrFail({ id: _user.id }) as MiLocalUser;
@@ -222,6 +248,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if (ps.lang !== undefined) profileUpdates.lang = ps.lang;
 			if (ps.location !== undefined) profileUpdates.location = ps.location;
 			if (ps.birthday !== undefined) profileUpdates.birthday = ps.birthday;
+			if (ps.listenbrainz !== undefined) profileUpdates.listenbrainz = ps.listenbrainz;
 			if (ps.ffVisibility !== undefined) profileUpdates.ffVisibility = ps.ffVisibility;
 			if (ps.mutedWords !== undefined) {
 				// TODO: ちゃんと数える
@@ -257,6 +284,7 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 			if (typeof ps.noCrawle === 'boolean') profileUpdates.noCrawle = ps.noCrawle;
 			if (typeof ps.preventAiLearning === 'boolean') profileUpdates.preventAiLearning = ps.preventAiLearning;
 			if (typeof ps.isCat === 'boolean') updates.isCat = ps.isCat;
+			if (typeof ps.speakAsCat === 'boolean') updates.speakAsCat = ps.speakAsCat;
 			if (typeof ps.injectFeaturedNote === 'boolean') profileUpdates.injectFeaturedNote = ps.injectFeaturedNote;
 			if (typeof ps.receiveAnnouncementEmail === 'boolean') profileUpdates.receiveAnnouncementEmail = ps.receiveAnnouncementEmail;
 			if (typeof ps.alwaysMarkNsfw === 'boolean') {
@@ -294,6 +322,36 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 				updates.bannerId = null;
 				updates.bannerUrl = null;
 				updates.bannerBlurhash = null;
+			}
+
+			if (ps.backgroundId) {
+				const background = await this.driveFilesRepository.findOneBy({ id: ps.backgroundId });
+
+				if (background == null || background.userId !== user.id) throw new ApiError(meta.errors.noSuchBackground);
+				if (!background.type.startsWith('image/')) throw new ApiError(meta.errors.backgroundNotAnImage);
+
+				updates.backgroundId = background.id;
+				updates.backgroundUrl = this.driveFileEntityService.getPublicUrl(background);
+				updates.backgroundBlurhash = background.blurhash;
+			} else if (ps.backgroundId === null) {
+				updates.backgroundId = null;
+				updates.backgroundUrl = null;
+				updates.backgroundBlurhash = null;
+			}
+			
+			if (ps.avatarDecorations) {
+				const decorations = await this.avatarDecorationService.getAll(true);
+				const myRoles = await this.roleService.getUserRoles(user.id);
+				const allRoles = await this.roleService.getRoles();
+				const decorationIds = decorations
+					.filter(d => d.roleIdsThatCanBeUsedThisDecoration.filter(roleId => allRoles.some(r => r.id === roleId)).length === 0 || myRoles.some(r => d.roleIdsThatCanBeUsedThisDecoration.includes(r.id)))
+					.map(d => d.id);
+
+				updates.avatarDecorations = ps.avatarDecorations.filter(d => decorationIds.includes(d.id)).map(d => ({
+					id: d.id,
+					angle: d.angle ?? 0,
+					flipH: d.flipH ?? false,
+				}));
 			}
 
 			if (ps.pinnedPageId) {
@@ -421,9 +479,13 @@ export default class extends Endpoint<typeof meta, typeof paramDef> { // eslint-
 
 		const myLink = `${this.config.url}/@${user.username}`;
 
-		const includesMyLink = Array.from(doc.getElementsByTagName('a')).some(a => a.href === myLink);
+		const aEls = Array.from(doc.getElementsByTagName('a'));
+		const linkEls = Array.from(doc.getElementsByTagName('link'));
 
-		if (includesMyLink) {
+		const includesMyLink = aEls.some(a => a.href === myLink);
+		const includesRelMeLinks = [...aEls, ...linkEls].some(link => link.rel === 'me' && link.href === myLink);
+
+		if (includesMyLink || includesRelMeLinks) {
 			await this.userProfilesRepository.createQueryBuilder('profile').update()
 				.where('userId = :userId', { userId: user.id })
 				.set({

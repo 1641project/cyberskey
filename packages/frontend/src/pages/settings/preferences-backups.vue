@@ -114,6 +114,7 @@ type Profile = {
 		hot: Record<keyof typeof defaultStoreSaveKeys, unknown>;
 		cold: Record<keyof typeof coldDeviceStorageSaveKeys, unknown>;
 		fontSize: string | null;
+		cornerRadius: string | null;
 		useSystemFont: 't' | null;
 		wallpaper: string | null;
 	};
@@ -171,6 +172,7 @@ function getSettings(): Profile['settings'] {
 		hot,
 		cold,
 		fontSize: miLocalStorage.getItem('fontSize'),
+		cornerRadius: miLocalStorage.getItem('cornerRadius'),
 		useSystemFont: miLocalStorage.getItem('useSystemFont') as 't' | null,
 		wallpaper: miLocalStorage.getItem('wallpaper'),
 	};
@@ -284,6 +286,13 @@ async function applyProfile(id: string): Promise<void> {
 		miLocalStorage.removeItem('fontSize');
 	}
 
+	// cornerRadius
+	if (settings.cornerRadius) {
+		miLocalStorage.setItem('cornerRadius', settings.cornerRadius);
+	} else {
+		miLocalStorage.removeItem('cornerRadius');
+	}
+
 	// useSystemFont
 	if (settings.useSystemFont) {
 		miLocalStorage.setItem('useSystemFont', settings.useSystemFont);
@@ -377,25 +386,25 @@ function menu(ev: MouseEvent, profileId: string) {
 
 	return os.popupMenu([{
 		text: ts._preferencesBackups.apply,
-		icon: 'ti ti-check',
+		icon: 'ph-check ph-bold ph-lg',
 		action: () => applyProfile(profileId),
 	}, {
 		type: 'a',
 		text: ts.download,
-		icon: 'ti ti-download',
+		icon: 'ph-download ph-bold ph-lg',
 		href: URL.createObjectURL(new Blob([JSON.stringify(profiles.value[profileId], null, 2)], { type: 'application/json' })),
 		download: `${profiles.value[profileId].name}.json`,
 	}, null, {
 		text: ts.rename,
-		icon: 'ti ti-forms',
+		icon: 'ph-textbox ph-bold ph-lg',
 		action: () => rename(profileId),
 	}, {
 		text: ts._preferencesBackups.save,
-		icon: 'ti ti-device-floppy',
+		icon: 'ph-floppy-disk ph-bold ph-lg',
 		action: () => save(profileId),
 	}, null, {
 		text: ts.delete,
-		icon: 'ti ti-trash',
+		icon: 'ph-trash ph-bold ph-lg',
 		action: () => deleteProfile(profileId),
 		danger: true,
 	}], (ev.currentTarget ?? ev.target ?? undefined) as unknown as HTMLElement | undefined);
@@ -417,7 +426,7 @@ onUnmounted(() => {
 
 definePageMetadata(computed(() => ({
 	title: ts.preferencesBackups,
-	icon: 'ti ti-device-floppy',
+	icon: 'ph-floppy-disk ph-bold ph-lg',
 })));
 </script>
 

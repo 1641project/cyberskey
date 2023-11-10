@@ -68,8 +68,10 @@ describe('ユーザー', () => {
 			host: user.host,
 			avatarUrl: user.avatarUrl,
 			avatarBlurhash: user.avatarBlurhash,
+			avatarDecorations: user.avatarDecorations,
 			isBot: user.isBot,
 			isCat: user.isCat,
+			speakAsCat: user.speakAsCat,
 			instance: user.instance,
 			emojis: user.emojis,
 			onlineStatus: user.onlineStatus,
@@ -94,6 +96,8 @@ describe('ユーザー', () => {
 			lastFetchedAt: user.lastFetchedAt,
 			bannerUrl: user.bannerUrl,
 			bannerBlurhash: user.bannerBlurhash,
+			backgroundUrl: user.backgroundUrl,
+			backgroundBlurhash: user.backgroundBlurhash,
 			isLocked: user.isLocked,
 			isSilenced: user.isSilenced,
 			isSuspended: user.isSuspended,
@@ -163,6 +167,7 @@ describe('ユーザー', () => {
 			hasUnreadAntenna: user.hasUnreadAntenna,
 			hasUnreadChannel: user.hasUnreadChannel,
 			hasUnreadNotification: user.hasUnreadNotification,
+			unreadNotificationsCount: user.unreadNotificationsCount,
 			hasPendingReceivedFollowRequest: user.hasPendingReceivedFollowRequest,
 			unreadAnnouncements: user.unreadAnnouncements,
 			mutedWords: user.mutedWords,
@@ -349,8 +354,10 @@ describe('ユーザー', () => {
 		assert.strictEqual(response.host, null);
 		assert.match(response.avatarUrl, /^[-a-zA-Z0-9@:%._\+~#&?=\/]+$/);
 		assert.strictEqual(response.avatarBlurhash, null);
+		assert.deepStrictEqual(response.avatarDecorations, []);
 		assert.strictEqual(response.isBot, false);
 		assert.strictEqual(response.isCat, false);
+		assert.strictEqual(response.speakAsCat, false);
 		assert.strictEqual(response.instance, undefined);
 		assert.deepStrictEqual(response.emojis, {});
 		assert.strictEqual(response.onlineStatus, 'unknown');
@@ -365,6 +372,8 @@ describe('ユーザー', () => {
 		assert.strictEqual(response.lastFetchedAt, null);
 		assert.strictEqual(response.bannerUrl, null);
 		assert.strictEqual(response.bannerBlurhash, null);
+		assert.strictEqual(response.backgroundUrl, null);
+		assert.strictEqual(response.backgroundBlurhash, null);
 		assert.strictEqual(response.isLocked, false);
 		assert.strictEqual(response.isSilenced, false);
 		assert.strictEqual(response.isSuspended, false);
@@ -412,6 +421,7 @@ describe('ユーザー', () => {
 		assert.strictEqual(response.hasUnreadAntenna, false);
 		assert.strictEqual(response.hasUnreadChannel, false);
 		assert.strictEqual(response.hasUnreadNotification, false);
+		assert.strictEqual(response.unreadNotificationsCount, 0);
 		assert.strictEqual(response.hasPendingReceivedFollowRequest, false);
 		assert.deepStrictEqual(response.unreadAnnouncements, []);
 		assert.deepStrictEqual(response.mutedWords, []);
@@ -482,6 +492,8 @@ describe('ユーザー', () => {
 		{ parameters: (): object => ({ isBot: false }) },
 		{ parameters: (): object => ({ isCat: true }) },
 		{ parameters: (): object => ({ isCat: false }) },
+		{ parameters: (): object => ({ speakAsCat: true }) },
+		{ parameters: (): object => ({ speakAsCat: false }) },
 		{ parameters: (): object => ({ injectFeaturedNote: true }) },
 		{ parameters: (): object => ({ injectFeaturedNote: false }) },
 		{ parameters: (): object => ({ receiveAnnouncementEmail: true }) },
@@ -554,6 +566,31 @@ describe('ユーザー', () => {
 			bannerId: null,
 			bannerBlurhash: null,
 			bannerUrl: null,
+		};
+		assert.deepStrictEqual(response2, expected2, inspect(parameters));
+	});
+
+	test('を書き換えることができる(Background)', async () => {
+		const aliceFile = (await uploadFile(alice)).body;
+		const parameters = { bannerId: aliceFile.id };
+		const response = await successfulApiCall({ endpoint: 'i/update', parameters: parameters, user: alice });
+		assert.match(response.backgroundUrl ?? '.', /^[-a-zA-Z0-9@:%._\+~#&?=\/]+$/);
+		assert.match(response.backgroundBlurhash ?? '.', /[ -~]{54}/);
+		const expected = {
+			...meDetailed(alice, true),
+			backgroundId: aliceFile.id,
+			backgroundBlurhash: response.baackgroundBlurhash,
+			backgroundUrl: response.backgroundUrl,
+		};
+		assert.deepStrictEqual(response, expected, inspect(parameters));
+
+		const parameters2 = { backgroundId: null };
+		const response2 = await successfulApiCall({ endpoint: 'i/update', parameters: parameters2, user: alice });
+		const expected2 = {
+			...meDetailed(alice, true),
+			backgroundId: null,
+			backgroundBlurhash: null,
+			backgroundUrl: null,
 		};
 		assert.deepStrictEqual(response2, expected2, inspect(parameters));
 	});

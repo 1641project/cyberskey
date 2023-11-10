@@ -87,6 +87,7 @@ function arrayToEntries(entities: MisskeyEntity[]): [string, MisskeyEntity][] {
 function concatMapWithArray(map: MisskeyEntityMap, entities: MisskeyEntity[]): MisskeyEntityMap {
 	return new Map([...map, ...arrayToEntries(entities)]);
 }
+
 </script>
 <script lang="ts" setup>
 import { infoImageUrl } from '@/instance.js';
@@ -101,6 +102,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
 	(ev: 'queue', count: number): void;
+	(ev: 'status', error: boolean): void;
 }>();
 
 let rootEl = $shallowRef<HTMLElement>();
@@ -192,6 +194,11 @@ watch(queue, (a, b) => {
 	emit('queue', queue.value.size);
 }, { deep: true });
 
+watch(error, (n, o) => {
+	if (n === o) return;
+	emit('status', n);
+});
+
 async function init(): Promise<void> {
 	items.value = new Map();
 	queue.value = new Map();
@@ -205,7 +212,6 @@ async function init(): Promise<void> {
 			const item = res[i];
 			if (i === 3) item._shouldInsertAd_ = true;
 		}
-
 		if (res.length === 0 || props.pagination.noPaging) {
 			concatItems(res);
 			more.value = false;
@@ -214,7 +220,6 @@ async function init(): Promise<void> {
 			concatItems(res);
 			more.value = true;
 		}
-
 		offset.value = res.length;
 		error.value = false;
 		fetching.value = false;
