@@ -36,11 +36,6 @@ SPDX-License-Identifier: AGPL-3.0-only
 			</div>
 		</MkFoldableSection>
 	</MkSpacer>
-	<MkSpacer v-if="tab === 'request'" :contentMax="1000" :marginMin="20">
-		<div :class="$style.emojis">
-			<XEmoji v-for="emoji in requestEmojis.emojis" :key="emoji.name" :emoji="emoji" :request="true"/>
-		</div>
-	</MkSpacer>
 </MkStickyContainer>
 </template>
 
@@ -63,9 +58,6 @@ const headerActions = $computed(() => []);
 const headerTabs = $computed(() => [{
 	key: 'emojis',
 	title: i18n.ts.list,
-}, {
-	key: 'request',
-	title: i18n.ts.requestingEmojis,
 }]);
 
 definePageMetadata(ref({}));
@@ -73,7 +65,6 @@ definePageMetadata(ref({}));
 let q = $ref('');
 let searchEmojis = $ref<Misskey.entities.CustomEmoji[]>(null);
 let selectedTags = $ref(new Set());
-const requestEmojis = await os.apiGet('emoji-requests');
 
 function search() {
 	if ((q === '' || q == null) && selectedTags.size === 0) {
